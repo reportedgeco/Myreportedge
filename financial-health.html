@@ -1082,7 +1082,7 @@
         <span class="mark">ReportEdge</span>
         <span class="sub">Financial Health</span>
       </div>
-      <button class="rfh-l-login" id="landingLogin">Logins coming soon</button>
+      <button class="rfh-l-login" id="landingLogin">Log In</button>
     </div>
 
     <div class="rfh-l-hero">
@@ -1091,7 +1091,7 @@
       <p class="rfh-l-sub">One private dashboard for your salary, savings, EMIs, capital gains and goals. See your surplus, your loan affordability, your tax estimate, and whether you're on track — all from numbers you already know.</p>
       <div class="rfh-l-cta">
         <button class="rfh-l-btn-primary" id="landingDemo">▶ Explore the live demo</button>
-        <button class="rfh-l-btn-ghost" id="landingLogin2">Notify me when logins open</button>
+        <button class="rfh-l-btn-ghost" id="landingLogin2">Log In</button>
       </div>
       <div class="rfh-l-trust">🔒 Your data stays on your device · No sign-up to try the demo</div>
     </div>
@@ -1140,7 +1140,7 @@
       <h2>Ready to see your numbers?</h2>
       <div class="rfh-l-cta center">
         <button class="rfh-l-btn-primary" id="landingDemo2">▶ Explore the live demo</button>
-        <button class="rfh-l-btn-ghost" id="landingLogin3">Notify me when logins open</button>
+        <button class="rfh-l-btn-ghost" id="landingLogin3">Log In</button>
       </div>
       <div class="rfh-l-footer">ReportEdge · myreportedge.com · A simplified personal-finance view for planning, not audited financials or an official ITR computation.</div>
     </div>
@@ -1623,9 +1623,13 @@ const hasArtifactStorage = typeof window.storage !== 'undefined';
 
 async function loadState(){
   try{
-    const cloudState = window.fhLoadFromCloud ? await window.fhLoadFromCloud() : null;
-    if (cloudState && cloudState.months){
-      state = cloudState;
+    const loggedIn = window.fhIsLoggedIn ? await window.fhIsLoggedIn() : false;
+    if (loggedIn){
+      // Logged in: the cloud is the single source of truth. Never fall back to
+      // this browser's local data — a shared/public device could have another
+      // user's (or demo) data sitting in it, which must never leak across accounts.
+      const cloudState = window.fhLoadFromCloud ? await window.fhLoadFromCloud() : null;
+      state = (cloudState && cloudState.months) ? cloudState : blankState();
     } else if (hasArtifactStorage){
       const res = await window.storage.get('rfh:state');
       if (res && res.value){
@@ -6144,7 +6148,7 @@ function wireLanding(){
     const el = document.getElementById(id); if (el) el.onclick = ()=> enterApp(true);
   });
   ['landingLogin','landingLogin2','landingLogin3'].forEach(id=>{
-    const el = document.getElementById(id); if (el) el.onclick = openLogin;
+    const el = document.getElementById(id); if (el) el.onclick = ()=>{ window.location.href = 'index.html'; };
   });
   const close = document.getElementById('loginClose');
   if (close) close.onclick = ()=> document.getElementById('loginModal').classList.remove('show');
@@ -6201,12 +6205,29 @@ function submitInterest(e){
   let savedTheme = 'light';
   try { savedTheme = localStorage.getItem('rfh:theme') || 'light'; } catch(e){}
   applyTheme(savedTheme);
-  render();
   wireThemeToggle();
   wireLanding();
   wireCurrencyControls();
   wireClearAllData();
-  showLanding();
+  const loggedIn = window.fhIsLoggedIn ? await window.fhIsLoggedIn() : false;
+  if (loggedIn){
+    // Already signed in (e.g. via the homepage) — state is already their real
+    // saved data from loadState() above, so skip the "coming soon" demo
+    // landing entirely and drop them straight into their own dashboard.
+    document.getElementById('landing').style.display = 'none';
+    document.getElementById('loginModal').classList.remove('show');
+    document.getElementById('app').style.display = 'flex';
+    const badge = document.getElementById('demoBadge');
+    const userTag = document.getElementById('userTag');
+    if (badge) badge.style.display = 'none';
+    if (userTag) userTag.textContent = 'logged in · saved to your account';
+    isDemoMode = false;
+    screen = 'quick'; dashboardView = 'monthly';
+    render();
+  } else {
+    render();
+    showLanding();
+  }
 })();
 
 })();
