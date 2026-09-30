@@ -263,6 +263,14 @@ footer{background:var(--navy);border-top:1px solid rgba(255,255,255,0.06);paddin
     <a href="financial-health.html" class="nav-btn nav-btn-ghost">Financial Health</a>
     <a href="#company" class="nav-btn nav-btn-ghost">Company</a>
     <a href="itr.html" class="nav-btn nav-btn-primary">Get Free ITR Preview</a>
+    <span id="auth-guest" style="display:flex;align-items:center;gap:8px;">
+      <a href="javascript:void(0)" class="nav-btn nav-btn-ghost" onclick="authOpenModal('login')">Log In</a>
+      <a href="javascript:void(0)" class="nav-btn nav-btn-primary" onclick="authOpenModal('signup')">Sign Up</a>
+    </span>
+    <span id="auth-user" style="display:none;align-items:center;gap:10px;">
+      <span id="auth-user-email" style="color:rgba(255,255,255,0.75);font-size:13px;font-weight:500;"></span>
+      <a href="javascript:void(0)" class="nav-btn nav-btn-ghost" onclick="authLogout()">Log Out</a>
+    </span>
   </div>
 </nav>
 
@@ -874,6 +882,236 @@ textarea.fb-input{resize:vertical;min-height:90px;}
     setTimeout(()=>{if(card)card.remove();},600);
   };
   function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+})();
+</script>
+
+<!-- ═══════════════════════════════════════════════════
+     LOGIN / SIGN UP SYSTEM — ReportEdge
+     Storage & Auth: Supabase (free tier)
+     Project URL and Publishable key are set below.
+     This SAME block must be copied into every sub-page
+     that should share the login state.
+═══════════════════════════════════════════════════ -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+
+<style>
+#auth-overlay{display:none;position:fixed;inset:0;background:rgba(10,22,40,0.6);z-index:9300;
+  backdrop-filter:blur(3px);align-items:center;justify-content:center;}
+#auth-overlay.open{display:flex;}
+#auth-modal{background:#fff;border-radius:18px;padding:32px 28px;width:100%;max-width:400px;
+  margin:16px;box-shadow:0 24px 64px rgba(0,0,0,0.22);font-family:'Inter',sans-serif;position:relative;}
+.auth-close{position:absolute;top:16px;right:16px;background:none;border:none;cursor:pointer;
+  color:#94A3B8;font-size:20px;line-height:1;padding:4px;}
+.auth-close:hover{color:#0F172A;}
+.auth-title{font-size:19px;font-weight:800;color:#0F172A;margin-bottom:4px;letter-spacing:-0.4px;}
+.auth-sub{font-size:13px;color:#64748B;margin-bottom:22px;}
+.auth-label{font-size:11px;font-weight:700;letter-spacing:.7px;text-transform:uppercase;color:#64748B;margin-bottom:6px;display:block;}
+.auth-input{width:100%;padding:11px 13px;border:1px solid #E2E8F0;border-radius:9px;font-family:'Inter',sans-serif;
+  font-size:14px;color:#0F172A;margin-bottom:14px;box-sizing:border-box;transition:border .2s;}
+.auth-input:focus{outline:none;border-color:#059669;}
+.auth-submit{width:100%;background:#059669;color:#fff;border:none;border-radius:9px;padding:13px;
+  font-family:'Inter',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:background .2s;margin-top:4px;}
+.auth-submit:hover{background:#047857;}
+.auth-submit:disabled{background:#94A3B8;cursor:not-allowed;}
+.auth-switch{text-align:center;font-size:13px;color:#64748B;margin-top:18px;}
+.auth-switch a{color:#059669;font-weight:700;text-decoration:none;cursor:pointer;}
+.auth-switch a:hover{text-decoration:underline;}
+.auth-forgot{display:block;text-align:right;font-size:12px;color:#059669;text-decoration:none;margin-top:-8px;margin-bottom:14px;cursor:pointer;}
+.auth-forgot:hover{text-decoration:underline;}
+.auth-err{font-size:13px;color:#EF4444;margin-bottom:12px;display:none;}
+.auth-msg{font-size:13px;color:#059669;background:#ECFDF5;border:1px solid #A7F3D0;border-radius:8px;padding:10px 12px;margin-bottom:14px;display:none;}
+@media(max-width:500px){#auth-modal{padding:24px 18px;}}
+</style>
+
+<div id="auth-overlay" onclick="if(event.target===this)authCloseModal()">
+  <div id="auth-modal">
+    <button class="auth-close" onclick="authCloseModal()">✕</button>
+
+    <!-- LOGIN VIEW -->
+    <div id="auth-login-view">
+      <div class="auth-title">Welcome back</div>
+      <div class="auth-sub">Log in to access your dashboard.</div>
+      <div class="auth-err" id="auth-login-err"></div>
+      <label class="auth-label">Email</label>
+      <input id="auth-login-email" class="auth-input" type="email" placeholder="you@example.com">
+      <label class="auth-label">Password</label>
+      <input id="auth-login-pw" class="auth-input" type="password" placeholder="••••••••" onkeydown="if(event.key==='Enter')authLogin()">
+      <a class="auth-forgot" onclick="authSwitch('forgot')">Forgot password?</a>
+      <button class="auth-submit" id="auth-login-btn" onclick="authLogin()">Log In</button>
+      <div class="auth-switch">New here? <a onclick="authSwitch('signup')">Create an account</a></div>
+    </div>
+
+    <!-- SIGN UP VIEW -->
+    <div id="auth-signup-view" style="display:none;">
+      <div class="auth-title">Create your account</div>
+      <div class="auth-sub">Sign up to get started.</div>
+      <div class="auth-err" id="auth-signup-err"></div>
+      <label class="auth-label">Full name</label>
+      <input id="auth-signup-name" class="auth-input" type="text" placeholder="e.g. Rahul Sharma">
+      <label class="auth-label">Email</label>
+      <input id="auth-signup-email" class="auth-input" type="email" placeholder="you@example.com">
+      <label class="auth-label">Password</label>
+      <input id="auth-signup-pw" class="auth-input" type="password" placeholder="At least 6 characters" onkeydown="if(event.key==='Enter')authSignup()">
+      <button class="auth-submit" id="auth-signup-btn" onclick="authSignup()">Sign Up</button>
+      <div class="auth-switch">Already have an account? <a onclick="authSwitch('login')">Log in</a></div>
+    </div>
+
+    <!-- FORGOT PASSWORD VIEW -->
+    <div id="auth-forgot-view" style="display:none;">
+      <div class="auth-title">Reset your password</div>
+      <div class="auth-sub">Enter your email and we'll send you a reset link.</div>
+      <div class="auth-err" id="auth-forgot-err"></div>
+      <div class="auth-msg" id="auth-forgot-msg"></div>
+      <label class="auth-label">Email</label>
+      <input id="auth-forgot-email" class="auth-input" type="email" placeholder="you@example.com" onkeydown="if(event.key==='Enter')authForgot()">
+      <button class="auth-submit" id="auth-forgot-btn" onclick="authForgot()">Send Reset Link</button>
+      <div class="auth-switch"><a onclick="authSwitch('login')">← Back to log in</a></div>
+    </div>
+
+    <!-- SET NEW PASSWORD VIEW (shown when user clicks the email reset link) -->
+    <div id="auth-newpw-view" style="display:none;">
+      <div class="auth-title">Set a new password</div>
+      <div class="auth-sub">Choose a new password for your account.</div>
+      <div class="auth-err" id="auth-newpw-err"></div>
+      <label class="auth-label">New password</label>
+      <input id="auth-newpw-pw" class="auth-input" type="password" placeholder="At least 6 characters" onkeydown="if(event.key==='Enter')authSetNewPassword()">
+      <button class="auth-submit" id="auth-newpw-btn" onclick="authSetNewPassword()">Update Password</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  // ── CONFIG — same values go on every sub-page ──
+  const SUPABASE_URL = 'https://cxhhipvthxoekkbwt.supabase.co';
+  const SUPABASE_ANON_KEY = 'sb_publishable_ZDVQVy-FebB7saFirAofQw_4pCj13tN';
+
+  const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  window.reportedgeSupabase = sb; // exposed so other tools/pages on this site can reuse it
+
+  function show(view){
+    ['login','signup','forgot','newpw'].forEach(v=>{
+      document.getElementById('auth-'+v+'-view').style.display = (v===view?'':'none');
+    });
+    ['login-err','signup-err','forgot-err','newpw-err'].forEach(id=>{
+      const el=document.getElementById('auth-'+id); if(el){el.style.display='none';el.textContent='';}
+    });
+    const fm=document.getElementById('auth-forgot-msg'); if(fm){fm.style.display='none';}
+  }
+  window.authSwitch = show;
+
+  window.authOpenModal = function(view){
+    document.getElementById('auth-overlay').classList.add('open');
+    show(view||'login');
+  };
+  window.authCloseModal = function(){
+    document.getElementById('auth-overlay').classList.remove('open');
+  };
+
+  function setErr(id,msg){
+    const el=document.getElementById(id);
+    el.textContent=msg; el.style.display='block';
+  }
+
+  // ── SIGN UP ──
+  window.authSignup = async function(){
+    const name = document.getElementById('auth-signup-name').value.trim();
+    const email = document.getElementById('auth-signup-email').value.trim();
+    const pw = document.getElementById('auth-signup-pw').value;
+    if(!email || !pw){ setErr('auth-signup-err','Please fill in email and password.'); return; }
+    if(pw.length < 6){ setErr('auth-signup-err','Password must be at least 6 characters.'); return; }
+    const btn=document.getElementById('auth-signup-btn');
+    btn.disabled=true; btn.textContent='Creating account…';
+    const { data, error } = await sb.auth.signUp({
+      email, password: pw,
+      options: { data: { full_name: name } }
+    });
+    btn.disabled=false; btn.textContent='Sign Up';
+    if(error){ setErr('auth-signup-err', error.message); return; }
+    authCloseModal();
+    alert('Account created! Check your email to confirm your address before logging in.');
+  };
+
+  // ── LOG IN ──
+  window.authLogin = async function(){
+    const email = document.getElementById('auth-login-email').value.trim();
+    const pw = document.getElementById('auth-login-pw').value;
+    if(!email || !pw){ setErr('auth-login-err','Please enter your email and password.'); return; }
+    const btn=document.getElementById('auth-login-btn');
+    btn.disabled=true; btn.textContent='Logging in…';
+    const { data, error } = await sb.auth.signInWithPassword({ email, password: pw });
+    btn.disabled=false; btn.textContent='Log In';
+    if(error){ setErr('auth-login-err', error.message); return; }
+    authCloseModal();
+    refreshAuthUI();
+  };
+
+  // ── FORGOT PASSWORD ──
+  window.authForgot = async function(){
+    const email = document.getElementById('auth-forgot-email').value.trim();
+    if(!email){ setErr('auth-forgot-err','Please enter your email.'); return; }
+    const btn=document.getElementById('auth-forgot-btn');
+    btn.disabled=true; btn.textContent='Sending…';
+    const { error } = await sb.auth.resetPasswordForEmail(email, {
+      redirectTo: window.location.origin + window.location.pathname
+    });
+    btn.disabled=false; btn.textContent='Send Reset Link';
+    if(error){ setErr('auth-forgot-err', error.message); return; }
+    const fm=document.getElementById('auth-forgot-msg');
+    fm.textContent='Reset link sent! Check your inbox.'; fm.style.display='block';
+  };
+
+  // ── SET NEW PASSWORD (after clicking email link) ──
+  window.authSetNewPassword = async function(){
+    const pw = document.getElementById('auth-newpw-pw').value;
+    if(pw.length < 6){ setErr('auth-newpw-err','Password must be at least 6 characters.'); return; }
+    const btn=document.getElementById('auth-newpw-btn');
+    btn.disabled=true; btn.textContent='Updating…';
+    const { error } = await sb.auth.updateUser({ password: pw });
+    btn.disabled=false; btn.textContent='Update Password';
+    if(error){ setErr('auth-newpw-err', error.message); return; }
+    authCloseModal();
+    alert('Password updated! You are now logged in.');
+    refreshAuthUI();
+  };
+
+  // ── LOG OUT ──
+  window.authLogout = async function(){
+    await sb.auth.signOut();
+    refreshAuthUI();
+  };
+
+  // ── UI STATE ──
+  async function refreshAuthUI(){
+    const { data: { session } } = await sb.auth.getSession();
+    const guestEl = document.getElementById('auth-guest');
+    const userEl = document.getElementById('auth-user');
+    if(session && session.user){
+      guestEl.style.display='none';
+      userEl.style.display='flex';
+      document.getElementById('auth-user-email').textContent = session.user.email;
+    } else {
+      guestEl.style.display='flex';
+      userEl.style.display='none';
+    }
+  }
+  sb.auth.onAuthStateChange((_event, _session)=>{ refreshAuthUI(); });
+
+  // If the page was opened from a password-reset email link, Supabase adds
+  // a "type=recovery" marker — detect it and show the "set new password" view.
+  function checkRecoveryLink(){
+    const hash = window.location.hash;
+    if(hash.includes('type=recovery')){
+      document.getElementById('auth-overlay').classList.add('open');
+      show('newpw');
+    }
+  }
+
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded', ()=>{ refreshAuthUI(); checkRecoveryLink(); });
+  } else {
+    refreshAuthUI(); checkRecoveryLink();
+  }
 })();
 </script>
 
