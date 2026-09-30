@@ -1014,6 +1014,67 @@
 </head>
 <body>
 
+<!-- ═══ Cloud save/load — Supabase (shared login with index.html) ═══ -->
+<script>
+(function(){
+  const FH_SUPABASE_URL = 'https://cxhhipvthxoekkbwtnkx.supabase.co';
+  const FH_SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN4aGhpcHZ0aHhvZWtrYnd0bmt4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA0OTUwNTcsImV4cCI6MjEwNjA3MTA1N30.gOriGKa9cpgJ6XudIwS85cM8iM_k9HimZigePLxzB8Q';
+  window.fhReady = new Promise((resolve)=>{
+    const s = document.createElement('script');
+    s.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js';
+    s.onload = ()=>{
+      window.fhSb = window.supabase.createClient(FH_SUPABASE_URL, FH_SUPABASE_KEY);
+      resolve();
+    };
+    document.head.appendChild(s);
+  });
+
+  window.fhSaveToCloud = async function(stateObj){
+    try{
+      await window.fhReady;
+      const { data: { session } } = await window.fhSb.auth.getSession();
+      if (!session) return false;
+      await window.fhSb.from('financial_health_data').upsert({
+        user_id: session.user.id,
+        state: stateObj,
+        updated_at: new Date().toISOString()
+      });
+      return true;
+    }catch(e){ return false; }
+  };
+
+  window.fhLoadFromCloud = async function(){
+    try{
+      await window.fhReady;
+      const { data: { session } } = await window.fhSb.auth.getSession();
+      if (!session) return null;
+      const { data, error } = await window.fhSb.from('financial_health_data')
+        .select('state').eq('user_id', session.user.id).maybeSingle();
+      if (error || !data) return null;
+      return data.state || null;
+    }catch(e){ return null; }
+  };
+
+  window.fhIsLoggedIn = async function(){
+    try{
+      await window.fhReady;
+      const { data: { session } } = await window.fhSb.auth.getSession();
+      return !!session;
+    }catch(e){ return false; }
+  };
+
+  document.addEventListener('DOMContentLoaded', async function(){
+    const loggedIn = await window.fhIsLoggedIn();
+    if (!loggedIn){
+      const bar = document.createElement('div');
+      bar.style.cssText = 'position:fixed;bottom:0;left:0;right:0;background:#0A1628;color:#fff;font-family:Inter,sans-serif;font-size:13px;padding:10px 16px;text-align:center;z-index:99999;';
+      bar.innerHTML = 'Log in to save your data across devices — <a href="index.html" style="color:#34D399;font-weight:700;text-decoration:none;">Log In</a>';
+      document.body.appendChild(bar);
+    }
+  });
+})();
+</script>
+
 <div class="rfh-landing" id="landing">
   <div class="rfh-landing-inner">
     <div class="rfh-l-top">
@@ -1562,7 +1623,10 @@ const hasArtifactStorage = typeof window.storage !== 'undefined';
 
 async function loadState(){
   try{
-    if (hasArtifactStorage){
+    const cloudState = window.fhLoadFromCloud ? await window.fhLoadFromCloud() : null;
+    if (cloudState && cloudState.months){
+      state = cloudState;
+    } else if (hasArtifactStorage){
       const res = await window.storage.get('rfh:state');
       if (res && res.value){
         const parsed = JSON.parse(res.value);
@@ -1634,6 +1698,7 @@ async function saveState(){
       } else if (window.localStorage){
         localStorage.setItem('rfh:state', JSON.stringify(state));
       }
+      if (window.fhSaveToCloud) window.fhSaveToCloud(state);
       if (tag) tag.textContent = 'saved · ' + new Date().toLocaleTimeString();
     }catch(e){
       if (tag) tag.textContent = 'save failed — changes kept in this session only';
@@ -5983,6 +6048,7 @@ async function resetAllData(){
       } else if (window.localStorage){
         localStorage.setItem('rfh:state', JSON.stringify(state));
       }
+      if (window.fhSaveToCloud) window.fhSaveToCloud(state);
     }catch(e){}
   }
   screen = 'quick';
