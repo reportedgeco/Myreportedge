@@ -1,0 +1,985 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Advance Tax Calculator FY 2026-27 | ReportEdge</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --blue:#1E5FBF;
+    --blue-dark:#123B7A;
+    --blue-bg:#EAF1FC;
+    --ink:#16213A;
+    --muted:#64748B;
+    --bg:#F3F5FA;
+    --card:#FFFFFF;
+    --line:#E3E7EF;
+    --green:#1F8A5F;
+    --green-bg:#E7F6EE;
+    --green-line:#BEE3CE;
+    --red:#C8402A;
+    --red-bg:#FCEBE7;
+    --red-line:#F1C4B8;
+    --amber:#B8863B;
+    --amber-bg:#FBF3E3;
+    --radius:12px;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;background:var(--bg);color:var(--ink);
+    font-family:'IBM Plex Sans',system-ui,sans-serif;line-height:1.5;font-size:14px;
+  }
+  .mono{font-family:'IBM Plex Mono',monospace;}
+  button{font-family:inherit;cursor:pointer;}
+  input,select{font-family:'IBM Plex Mono',monospace;}
+
+  /* ---------- Top nav ---------- */
+  .topnav{
+    background:#fff;border-bottom:1px solid var(--line);
+    padding:12px 28px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;
+  }
+  .brandwrap{display:flex;flex-direction:column;gap:1px;}
+  .brand{display:flex;align-items:center;gap:9px;font-weight:700;font-size:1.05rem;color:var(--ink);}
+  .brandtag{font-size:.66rem;color:var(--muted);letter-spacing:.03em;margin-left:39px;}
+  .freebadge{
+    display:inline-block;vertical-align:middle;margin-left:8px;background:var(--green-bg);color:var(--green);
+    border:1px solid var(--green-line);font-size:.62rem;font-weight:700;padding:3px 9px;border-radius:20px;
+  }
+  .brand .mark{
+    width:30px;height:30px;border-radius:50%;background:var(--blue);color:#fff;
+    display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.85rem;
+  }
+  .navlinks{display:flex;gap:20px;align-items:center;font-size:.85rem;color:#3B4863;font-weight:500;flex-wrap:wrap;}
+  .navlinks a{color:inherit;text-decoration:none;}
+  .navlinks a.active{color:var(--blue);font-weight:700;}
+  .navright{display:flex;align-items:center;gap:14px;}
+  .btn-save{
+    background:#fff;border:1px solid var(--blue);color:var(--blue);font-weight:600;font-size:.83rem;
+    padding:8px 14px;border-radius:8px;display:flex;align-items:center;gap:6px;
+  }
+  .btn-save:hover{background:var(--blue-bg);}
+  .btn-pdf{background:var(--blue);color:#fff;}
+  .btn-pdf:hover{background:var(--blue-dark);}
+  .avatar{width:32px;height:32px;border-radius:50%;background:var(--blue-bg);border:1px solid var(--line);
+    display:flex;align-items:center;justify-content:center;color:var(--blue);font-weight:700;}
+
+  /* ---------- Page header ---------- */
+  .pageheader{
+    max-width:1280px;margin:0 auto;padding:22px 28px 6px;
+    display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:14px;
+  }
+  .ph-left{display:flex;align-items:flex-start;gap:12px;}
+  .ph-left h1{font-size:1.55rem;margin:0;font-weight:700;display:flex;align-items:center;gap:8px;}
+  .ph-left p{margin:4px 0 0;color:var(--muted);font-size:.87rem;}
+  .ph-icon{font-size:1.4rem;}
+  .fy-pill{
+    background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 16px;
+    font-size:.83rem;color:var(--ink);display:flex;align-items:center;gap:8px;white-space:nowrap;
+  }
+  .fy-pill b{font-weight:700;}
+  .fy-pill button{
+    background:none;border:none;color:var(--blue);font-weight:700;font-size:.83rem;padding:0;
+  }
+
+  /* ---------- Info accordion ---------- */
+  .infobar{max-width:1280px;margin:10px auto 0;padding:0 28px;}
+  .infotoggle{
+    width:100%;text-align:left;background:var(--blue-bg);border:1px solid #CBDCF5;border-radius:10px;
+    padding:11px 16px;color:var(--blue-dark);font-weight:600;font-size:.85rem;
+    display:flex;justify-content:space-between;align-items:center;
+  }
+  .infobody{
+    background:#fff;border:1px solid var(--line);border-top:none;border-radius:0 0 10px 10px;
+    padding:16px 18px;font-size:.85rem;color:var(--ink);display:grid;grid-template-columns:repeat(3,1fr);gap:16px;
+  }
+  .infobody div b{display:block;color:var(--blue-dark);font-size:.78rem;text-transform:uppercase;letter-spacing:.03em;margin-bottom:4px;}
+  .infobody p{margin:0;color:#3B4863;}
+  @media(max-width:800px){.infobody{grid-template-columns:1fr;}}
+
+  /* ---------- Dashboard grid ---------- */
+  .dashboard{
+    max-width:1280px;margin:16px auto 0;padding:0 28px 30px;
+    display:grid;grid-template-columns:1fr;gap:18px;
+  }
+  @media(min-width:1050px){
+    .dashboard{grid-template-columns:1.5fr 1fr;align-items:start;}
+    .col-right{position:sticky;top:16px;}
+  }
+  .col-left,.col-right{display:grid;gap:18px;min-width:0;}
+
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:20px 22px;}
+  .card h3{margin:0 0 4px;font-size:1rem;font-weight:700;display:flex;align-items:center;gap:8px;}
+
+  .tabs{display:flex;border-bottom:1px solid var(--line);margin:-20px -22px 18px;padding:0 22px;}
+  .tabs button{
+    background:none;border:none;padding:14px 4px;margin-right:26px;font-weight:600;font-size:.88rem;
+    color:var(--muted);border-bottom:2px solid transparent;
+  }
+  .tabs button.active{color:var(--blue);border-bottom-color:var(--blue);}
+
+  .blockhead{display:flex;align-items:baseline;gap:8px;margin:6px 0 14px;flex-wrap:wrap;}
+  .blockhead h3{margin:0;font-size:.95rem;}
+  .bnote{color:var(--muted);font-size:.78rem;}
+
+  .field{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:9px 0;border-bottom:1px solid #F0F1F5;}
+  .field label{font-size:.86rem;font-weight:500;color:var(--ink);display:flex;align-items:center;gap:6px;}
+  .field label .opt{font-weight:400;color:var(--muted);font-size:.78rem;}
+  .field .inputwrap{position:relative;width:180px;flex-shrink:0;}
+  .field .inputwrap span.rs{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:.85rem;}
+  .field input[type=number],.field input[type=text]{
+    width:100%;padding:8px 10px 8px 24px;border:1px solid #CBD2E1;border-radius:7px;font-size:.87rem;background:#FCFDFE;
+  }
+  .field input:focus{outline:2px solid var(--blue);outline-offset:0;border-color:var(--blue);}
+  .field select{padding:8px 10px;border:1px solid #CBD2E1;border-radius:7px;font-size:.85rem;width:180px;background:#FCFDFE;font-family:'IBM Plex Sans',sans-serif;}
+  .field input[readonly]{background:#F1F3F7;color:var(--muted);}
+  .infodot{
+    width:15px;height:15px;border-radius:50%;border:1.3px solid #B7BFCE;color:#8993A6;
+    font-size:.66rem;display:inline-flex;align-items:center;justify-content:center;cursor:help;flex-shrink:0;
+  }
+
+  .totalrow{
+    display:flex;justify-content:space-between;align-items:center;background:var(--green-bg);
+    border:1px solid var(--green-line);border-radius:8px;padding:12px 16px;margin-top:14px;font-weight:700;color:var(--green);
+  }
+  .totalrow.ded{background:var(--green-bg);}
+  .totalrow span:last-child{font-family:'IBM Plex Mono',monospace;font-size:1rem;}
+
+  .grid2{display:grid;grid-template-columns:1fr 1fr;column-gap:20px;}
+  @media(max-width:640px){.grid2{grid-template-columns:1fr;}}
+
+  .employer{border:1px dashed #CBD2E1;border-radius:9px;padding:14px 16px;margin-bottom:12px;position:relative;background:#FBFCFE;}
+  .employer .etag{position:absolute;top:-9px;left:12px;background:var(--blue);color:#fff;font-size:.66rem;font-weight:700;padding:2px 9px;border-radius:20px;}
+  .employer .rm{position:absolute;top:10px;right:10px;background:none;border:none;color:var(--red);font-size:.74rem;font-weight:600;}
+  .employer .field{border-bottom:none;padding:6px 0;}
+  .employer .field .inputwrap{width:150px;}
+  .addbtn{
+    width:100%;background:#fff;border:1.5px dashed var(--blue);color:var(--blue-dark);border-radius:8px;
+    padding:10px;font-weight:600;font-size:.85rem;margin-bottom:16px;
+  }
+  .addbtn:hover{background:var(--blue-bg);}
+
+  .check{display:flex;gap:8px;align-items:flex-start;font-size:.84rem;padding:8px 0;color:var(--ink);}
+  .check input{margin-top:3px;}
+
+  /* ---------- Summary ---------- */
+  .sline{display:flex;justify-content:space-between;padding:8px 0;font-size:.87rem;border-bottom:1px solid #F0F1F5;}
+  .sline span:first-child{color:#3B4863;}
+  .sline span:last-child{font-family:'IBM Plex Mono',monospace;font-weight:500;}
+  .sline.bold span{font-weight:700;color:var(--ink);}
+  .netbox{
+    background:var(--blue-bg);border:1px solid #C7DAF4;border-radius:10px;padding:14px 16px;margin-top:14px;
+  }
+  .netbox .nb-top{display:flex;justify-content:space-between;align-items:center;}
+  .netbox .nb-label{font-weight:700;color:var(--blue-dark);font-size:.92rem;}
+  .netbox .nb-amt{font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:1.4rem;color:var(--blue-dark);}
+  .netbox .nb-sub{color:var(--blue-dark);opacity:.75;font-size:.74rem;margin-top:2px;}
+  .netbox .nb-cess{font-size:.72rem;color:var(--muted);margin-top:8px;}
+
+  /* ---------- Installment table ---------- */
+  table.inst{width:100%;border-collapse:collapse;font-size:.82rem;}
+  table.inst th{
+    text-align:right;color:var(--muted);font-weight:600;font-size:.68rem;text-transform:uppercase;letter-spacing:.03em;
+    padding:8px 6px;border-bottom:1px solid var(--line);
+  }
+  table.inst th:first-child,table.inst td:first-child{text-align:left;}
+  table.inst td{padding:9px 6px;border-bottom:1px solid #F0F1F5;text-align:right;font-family:'IBM Plex Mono',monospace;}
+  table.inst td:first-child{font-family:'IBM Plex Sans',sans-serif;font-weight:600;}
+  table.inst tr.totalrow2 td{font-weight:700;border-top:2px solid var(--ink);border-bottom:none;background:none;}
+  table.inst input[type=number]{
+    width:82px;padding:5px 6px;border:1px solid #CBD2E1;border-radius:6px;font-size:.8rem;text-align:right;
+  }
+  .pill{
+    display:inline-block;padding:3px 10px;border-radius:20px;font-size:.7rem;font-weight:700;white-space:nowrap;
+  }
+  .pill.pending{background:var(--red-bg);color:var(--red);}
+  .pill.ontrack{background:var(--green-bg);color:var(--green);}
+  .pill.paid{background:var(--green-bg);color:var(--green);}
+  .pill.upcoming{background:var(--amber-bg);color:var(--amber);}
+  .notetiny{color:var(--muted);font-size:.76rem;margin-top:10px;}
+
+  /* ---------- Interest ---------- */
+  .interestbox{border-radius:10px;padding:14px 16px;margin-top:10px;}
+  .interestbox.crit{background:var(--red-bg);border:1px solid var(--red-line);}
+  .interestbox.ok{background:var(--green-bg);border:1px solid var(--green-line);}
+  .interestbox.info{background:var(--amber-bg);border:1px solid #E4CE9C;}
+  .ib-top{display:flex;justify-content:space-between;align-items:baseline;}
+  .ib-label{font-weight:600;font-size:.85rem;color:var(--ink);}
+  .ib-amt{font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:1.15rem;color:var(--red);}
+  .ib-sub{font-size:.78rem;color:var(--muted);margin-top:4px;}
+  .linkbtn{background:none;border:none;color:var(--blue);font-weight:600;font-size:.8rem;padding:0;margin-top:10px;}
+  table.breakup{width:100%;border-collapse:collapse;margin-top:10px;font-size:.8rem;}
+  table.breakup th,table.breakup td{padding:6px 8px;text-align:right;border-bottom:1px solid var(--line);font-family:'IBM Plex Mono',monospace;}
+  table.breakup th:first-child,table.breakup td:first-child{text-align:left;font-family:'IBM Plex Sans',sans-serif;}
+  table.breakup th{color:var(--muted);font-weight:600;font-size:.68rem;text-transform:uppercase;}
+
+  .tipscard{background:var(--green-bg);border:1px solid var(--green-line);}
+  .tipscard h3{color:var(--green);}
+  .tipscard p{margin:6px 0 0;color:#245C3F;font-size:.85rem;}
+
+  footer.disclaimerbar{
+    background:#fff;border-top:1px solid var(--line);padding:16px 28px;margin-top:6px;
+    display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px;font-size:.78rem;color:var(--muted);
+  }
+  footer.disclaimerbar a{color:var(--blue);font-weight:600;text-decoration:none;}
+  footer.disclaimerbar .fb-copy{margin-top:4px;font-size:.72rem;color:#94A1B8;}
+
+  @media print{
+    .topnav,.infobar,.addbtn,.linkbtn{display:none !important;}
+    body{background:#fff;}
+  }
+</style>
+</head>
+<body>
+
+<header class="topnav">
+  <div class="brandwrap">
+    <div class="brand"><div class="mark">R</div>ReportEdge</div>
+    <div class="brandtag">Financial Intelligence Platform</div>
+  </div>
+  <nav class="navlinks">
+    <a href="https://myreportedge.com" target="_blank" rel="noopener">Home</a>
+    <a href="https://myreportedge.com/itr" target="_blank" rel="noopener">ITR Preview</a>
+    <a href="https://myreportedge.com/capital-gains" target="_blank" rel="noopener">Capital Gains Tax</a>
+    <a href="https://myreportedge.com/itr-computation" target="_blank" rel="noopener">ITR Computation</a>
+    <a href="#" class="active">Advance Tax</a>
+  </nav>
+  <div class="navright">
+    <button class="btn-save" id="saveBtn">🖨 Save Calculation</button>
+    <button class="btn-save btn-pdf" id="pdfBtn">⬇ Download PDF</button>
+    <div class="avatar">U</div>
+  </div>
+</header>
+
+<div class="pageheader">
+  <div class="ph-left">
+    <span class="ph-icon">🧮</span>
+    <div>
+      <h1>Advance Tax Calculator <span class="freebadge">✓ Free Forever</span></h1>
+      <p>Calculate your advance tax, due dates and interest under Sections 234B &amp; 234C — FY 2026-27</p>
+    </div>
+  </div>
+  <div class="fy-pill">
+    <span>FY 2026-27 (AY 2027-28) &bull; <b id="regimeLabel">New</b> Regime</span>
+    <button id="changeRegimeBtn" type="button">Change Regime</button>
+  </div>
+</div>
+
+<div class="infobar">
+  <button class="infotoggle" id="infoToggle" type="button">ℹ️&nbsp; New to advance tax? What it is, and who must actually pay it <span id="infoChev">▾</span></button>
+  <div class="infobody" id="infoBody" hidden>
+    <div><b>What is it?</b><p>Normally you pay tax after the year ends. Advance tax means paying it <i>during</i> the year, in four parts, if your total tax for the year — after TDS — is likely to exceed ₹10,000.</p></div>
+    <div><b>Who does this catch?</b><p>Mostly people who switched jobs, freelance on the side, sold shares/property, or earn rent/interest — since a single employer's TDS usually already covers a single steady salary.</p></div>
+    <div><b>What if I'm late?</b><p>The department charges 1% interest per month on the shortfall — not a penalty, just the cost of paying late. Sections 4 &amp; 5 below work this out for you automatically.</p></div>
+  </div>
+</div>
+
+<main class="dashboard">
+
+  <!-- LEFT COLUMN -->
+  <div class="col-left">
+
+    <section class="card">
+      <div class="tabs">
+        <button class="tab active" data-mode="yearly" type="button">Yearly Income Details</button>
+        <button class="tab" data-mode="monthly" type="button">Monthly Income Details</button>
+      </div>
+
+      <div class="blockhead"><h3>🏦 1. Income Details</h3><span class="bnote" id="periodNote">(Enter estimated yearly amounts)</span></div>
+
+      <div id="employerList"></div>
+      <button class="addbtn" id="addEmployer" type="button">+ Add another employer (if you switched jobs this year)</button>
+
+      <div class="field">
+        <label>House Property Income <span class="infodot" title="Net rental income after standard 30% deduction and home loan interest, if any.">i</span></label>
+        <div class="inputwrap"><span class="rs">₹</span><input type="number" id="houseProperty" value="0" min="0"></div>
+      </div>
+      <div class="field">
+        <label>Business / Profession Income <span class="infodot" title="Net profit, or presumptive income if you use 44AD/44ADA.">i</span></label>
+        <div class="inputwrap"><span class="rs">₹</span><input type="number" id="businessIncome" value="0" min="0"></div>
+      </div>
+      <div class="check" id="presumptiveWrap" style="display:none;">
+        <input type="checkbox" id="presumptive">
+        <label for="presumptive">This is reported under the presumptive scheme (Section 44AD/44ADA) — full advance tax is then due in one shot by 15 March, not four instalments.</label>
+      </div>
+      <div class="field">
+        <label>Capital Gains — Short Term <span class="opt">(listed equity, taxed flat 20%)</span></label>
+        <div class="inputwrap"><span class="rs">₹</span><input type="number" id="stcgAmount" value="0" min="0"></div>
+      </div>
+      <div class="field">
+        <label>Capital Gains — Long Term <span class="opt">(listed equity, 12.5% above ₹1.25L)</span></label>
+        <div class="inputwrap"><span class="rs">₹</span><input type="number" id="ltcgAmount" value="0" min="0"></div>
+      </div>
+      <div class="field">
+        <label>Other capital gains tax <span class="opt">(property/debt/unlisted — computed separately)</span></label>
+        <div class="inputwrap"><span class="rs">₹</span><input type="number" id="otherCapGainsTax" value="0" min="0"></div>
+      </div>
+      <div class="field">
+        <label>Other Sources <span class="opt">(interest, dividend, freelance)</span></label>
+        <div class="inputwrap"><span class="rs">₹</span><input type="number" id="otherIncome" value="0" min="0"></div>
+      </div>
+
+      <div class="totalrow"><span>Total Estimated Income</span><span id="t_income" class="mono">₹0</span></div>
+    </section>
+
+    <section class="card" id="deductionsCard">
+      <div class="blockhead"><h3>🛡️ 2. Deductions</h3><span class="bnote">Chapter VI-A &amp; HRA — old regime only, always annual figures</span></div>
+      <div class="grid2">
+        <div class="field"><label>80C <span class="opt">(PPF, ELSS, LIC — max ₹1,50,000)</span></label><div class="inputwrap"><span class="rs">₹</span><input type="number" id="ded80C" value="0" min="0"></div></div>
+        <div class="field"><label>80D <span class="opt">(health insurance)</span></label><div class="inputwrap"><span class="rs">₹</span><input type="number" id="ded80D" value="0" min="0"></div></div>
+        <div class="field"><label>HRA exemption</label><div class="inputwrap"><span class="rs">₹</span><input type="number" id="dedHRA" value="0" min="0"></div></div>
+        <div class="field"><label>Home Loan Interest <span class="opt">(24b, max ₹2,00,000)</span></label><div class="inputwrap"><span class="rs">₹</span><input type="number" id="dedHomeLoan" value="0" min="0"></div></div>
+        <div class="field"><label>NPS 80CCD(1B) <span class="opt">(max ₹50,000)</span></label><div class="inputwrap"><span class="rs">₹</span><input type="number" id="ded80CCD" value="0" min="0"></div></div>
+        <div class="field"><label>Other deductions</label><div class="inputwrap"><span class="rs">₹</span><input type="number" id="dedOther" value="0" min="0"></div></div>
+      </div>
+      <div class="totalrow ded"><span>Total Deductions</span><span id="t_ded" class="mono">₹0</span></div>
+    </section>
+
+    <section class="card">
+      <div class="blockhead"><h3>⚙️ 3. Other Details</h3></div>
+      <div class="grid2">
+        <div class="field"><label>Standard Deduction <span class="opt">(auto)</span></label><div class="inputwrap"><span class="rs">₹</span><input type="text" id="stdDedDisplay" readonly></div></div>
+        <div class="field"><label>Age</label><select id="ageCat">
+          <option value="under60">Below 60 years</option>
+          <option value="senior">60–79 years (Senior)</option>
+          <option value="supersenior">80+ years (Super senior)</option>
+        </select></div>
+        <div class="field"><label>Residential Status</label><select id="resStatus">
+          <option value="resident">Resident</option>
+          <option value="nri">Non-resident (NRI)</option>
+        </select></div>
+        <div class="field"><label>Other TDS/TCS <span class="opt">(FDs, rent, etc. — annual)</span></label><div class="inputwrap"><span class="rs">₹</span><input type="number" id="otherTds" value="0" min="0"></div></div>
+      </div>
+      <div class="field">
+        <label>TDS already deducted <span class="opt">(auto-added from employers above)</span></label>
+        <div class="inputwrap"><span class="rs">₹</span><input type="text" id="empTdsDisplay" readonly></div>
+      </div>
+      <div class="notetiny" style="margin-top:8px;">Note: Please enter accurate estimates. Interest under Section 234C applies if advance tax paid is short of the checkpoint at each due date; 234B applies if total advance tax paid is less than 90% of your final tax liability.</div>
+    </section>
+  </div>
+
+  <!-- RIGHT COLUMN -->
+  <div class="col-right">
+
+    <section class="card">
+      <h3>📘 Tax Payable Summary</h3>
+      <div class="sline"><span>Total Estimated Income <span class="opt" style="font-weight:400;color:var(--muted);">(incl. capital gains)</span></span><span id="s_gti">₹0</span></div>
+      <div class="sline"><span>Less: Total Deductions</span><span id="s_ded">₹0</span></div>
+      <div class="sline bold"><span>Taxable Income <span class="opt" style="font-weight:400;color:var(--muted);">(slab-rate portion only)</span></span><span id="s_ti">₹0</span></div>
+      <div class="sline"><span>Estimated Tax Liability <span class="opt" style="font-weight:400;color:var(--muted);">(slab + surcharge + cess)</span></span><span id="s_tax">₹0</span></div>
+      <div class="sline"><span>Tax on Capital Gains <span class="opt" style="font-weight:400;color:var(--muted);">(special rate + surcharge + cess)</span></span><span id="s_cg">₹0</span></div>
+      <div class="sline"><span>Less: TDS/TCS Already Paid</span><span id="s_tds">₹0</span></div>
+      <div class="netbox">
+        <div class="nb-top"><span class="nb-label">Net Advance Tax Payable</span><span class="nb-amt" id="s_final">₹0</span></div>
+        <div class="nb-sub">If positive, pay in instalments per the schedule below.</div>
+        <div class="nb-cess">Includes 4% Health &amp; Education Cess. Estimate only — please verify with your tax advisor.</div>
+      </div>
+    </section>
+
+    <section class="card" id="passbookSection" style="display:none;">
+      <h3>📅 4. Advance Tax Instalments &amp; Due Dates</h3>
+      <table class="inst">
+        <thead><tr><th>Instalment</th><th>Due Date</th><th>% of Tax</th><th>Payable</th><th>Paid</th><th>Remaining</th><th>Status</th></tr></thead>
+        <tbody id="instBody"></tbody>
+      </table>
+      <div class="notetiny">Note: once you make a payment, update "Paid" for that row to see the interest impact update live.</div>
+    </section>
+
+    <section class="card" id="interestSection" style="display:none;">
+      <h3>% 5. Interest on Delayed Payment</h3>
+      <div id="interest234C"></div>
+      <div id="interest234B"></div>
+      <button class="linkbtn" id="viewBreakup" type="button" style="display:none;">View Calculation Breakup ▾</button>
+      <div id="breakupTable" hidden></div>
+    </section>
+
+    <section class="card tipscard">
+      <h3>💡 Tips to Avoid Interest</h3>
+      <p>Pay at least the safe-harbor percentage (12% / 36% / 75% / 100%) of your total estimated tax by each due date. If your income changes mid-year — bonus, new job, a share sale — revisit this calculator and top up the next instalment rather than waiting till March.</p>
+    </section>
+
+  </div>
+</main>
+
+<footer class="disclaimerbar">
+  <div class="fb-left">
+    <div>This is a free estimate — not a substitute for professional tax advice. Based on the Income Tax Act, 1961, as applicable for FY 2026-27.</div>
+    <div class="fb-copy">© 2026 ReportEdge · Financial Intelligence Platform</div>
+  </div>
+  <a href="https://myreportedge.com" target="_blank" rel="noopener">myreportedge.com</a>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+<script>
+(function(){
+  "use strict";
+  const $ = id => document.getElementById(id);
+  const inr = n => "₹" + Math.round(n).toLocaleString("en-IN");
+
+  /* ---------------- State ---------------- */
+  let employers = [{name:"Employer 1", income:0, tds:0}];
+  let regime = "new";
+  let periodMode = "yearly"; // 'yearly' | 'monthly'
+  let paidInputs = [0,0,0,0];
+  const CURRENT = { installments: [], interest234C: [], interest234B: null }; // for PDF export
+
+  /* ---------------- Info accordion ---------------- */
+  $("infoToggle").addEventListener("click", ()=>{
+    const body = $("infoBody");
+    const hidden = body.hasAttribute("hidden");
+    if(hidden){ body.removeAttribute("hidden"); $("infoChev").textContent="▴"; }
+    else { body.setAttribute("hidden",""); $("infoChev").textContent="▾"; }
+  });
+
+  /* ---------------- Save (print) ---------------- */
+  $("saveBtn").addEventListener("click", ()=> window.print());
+
+  /* ---------------- Regime ---------------- */
+  $("changeRegimeBtn").addEventListener("click", ()=>{
+    regime = regime==="new" ? "old" : "new";
+    $("regimeLabel").textContent = regime==="new" ? "New" : "Old";
+    $("deductionsCard").style.display = regime==="old" ? "block" : "none";
+    calculate();
+  });
+  $("deductionsCard").style.display = "none";
+
+  /* ---------------- Tabs (yearly/monthly) ---------------- */
+  document.querySelectorAll(".tab").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      document.querySelectorAll(".tab").forEach(b=>b.classList.remove("active"));
+      btn.classList.add("active");
+      periodMode = btn.dataset.mode;
+      $("periodNote").textContent = periodMode==="monthly"
+        ? "(Enter estimated monthly amounts — auto-annualised ×12)"
+        : "(Enter estimated yearly amounts)";
+      calculate();
+    });
+  });
+
+  /* ---------------- Employers ---------------- */
+  function renderEmployers(){
+    const list = $("employerList");
+    list.innerHTML = "";
+    employers.forEach((e,i)=>{
+      const div = document.createElement("div");
+      div.className = "employer";
+      div.innerHTML = `
+        <span class="etag">Employer ${i+1}${i>0?' · after job change':''}</span>
+        ${employers.length>1?`<button type="button" class="rm" data-i="${i}">Remove</button>`:""}
+        <div class="field">
+          <label>Name <span class="opt">(optional)</span></label>
+          <input type="text" data-field="name" data-i="${i}" value="${e.name}" style="width:180px;padding:8px 10px;border:1px solid #CBD2E1;border-radius:7px;">
+        </div>
+        <div class="field">
+          <label>Salary Income <span class="opt">(as per Form 16)</span></label>
+          <div class="inputwrap"><span class="rs">₹</span><input type="number" data-field="income" data-i="${i}" value="${e.income}" min="0"></div>
+        </div>
+        <div class="field">
+          <label>TDS deducted by this employer</label>
+          <div class="inputwrap"><span class="rs">₹</span><input type="number" data-field="tds" data-i="${i}" value="${e.tds}" min="0"></div>
+        </div>`;
+      list.appendChild(div);
+    });
+    list.querySelectorAll("input").forEach(inp=>inp.addEventListener("input", onEmployerInput));
+    list.querySelectorAll(".rm").forEach(btn=>btn.addEventListener("click", ()=>{
+      employers.splice(+btn.dataset.i,1);
+      renderEmployers(); calculate();
+    }));
+  }
+  function onEmployerInput(e){
+    const i=+e.target.dataset.i, f=e.target.dataset.field;
+    employers[i][f] = f==="name" ? e.target.value : (parseFloat(e.target.value)||0);
+    calculate();
+  }
+  $("addEmployer").addEventListener("click", ()=>{
+    employers.push({name:`Employer ${employers.length+1}`, income:0, tds:0});
+    renderEmployers(); calculate();
+  });
+
+  /* ---------------- Business income -> presumptive toggle visibility ---------------- */
+  $("businessIncome").addEventListener("input", ()=>{
+    const has = (parseFloat($("businessIncome").value)||0) > 0;
+    $("presumptiveWrap").style.display = has ? "flex" : "none";
+    if(!has){ $("presumptive").checked = false; }
+    calculate();
+  });
+  $("presumptive").addEventListener("change", calculate);
+
+  [ "houseProperty","stcgAmount","ltcgAmount","otherCapGainsTax","otherIncome",
+    "ded80C","ded80D","dedHRA","dedHomeLoan","ded80CCD","dedOther","otherTds" ]
+    .forEach(id => $(id).addEventListener("input", calculate));
+  ["ageCat","resStatus"].forEach(id => $(id).addEventListener("change", calculate));
+
+  /* ---------------- Slab logic ---------------- */
+  function slabTax(income, slabs){
+    let tax=0;
+    for(const [lo,hi,rate] of slabs){ if(income>lo) tax += (Math.min(income,hi)-lo)*rate; }
+    return tax;
+  }
+  const NEW_SLABS = [[0,400000,0],[400000,800000,.05],[800000,1200000,.10],[1200000,1600000,.15],[1600000,2000000,.20],[2000000,2400000,.25],[2400000,Infinity,.30]];
+  function oldSlabs(ageCat, resStatus){
+    // Enhanced exemption for senior/super-senior citizens applies only to residents.
+    const effectiveAge = (resStatus==="resident") ? ageCat : "under60";
+    if(effectiveAge==="senior") return [[0,300000,0],[300000,500000,.05],[500000,1000000,.20],[1000000,Infinity,.30]];
+    if(effectiveAge==="supersenior") return [[0,500000,0],[500000,1000000,.20],[1000000,Infinity,.30]];
+    return [[0,250000,0],[250000,500000,.05],[500000,1000000,.20],[1000000,Infinity,.30]];
+  }
+  function computeCoreTax(taxableIncome, regime, ageCat, resStatus){
+    let tax;
+    if(regime==="new"){
+      tax = slabTax(taxableIncome, NEW_SLABS);
+      // Section 87A rebate is available to resident individuals only — NRIs get no rebate.
+      if(resStatus==="resident"){
+        if(taxableIncome<=1200000){ tax = Math.max(0, tax - Math.min(tax,60000)); }
+        else { const excess = taxableIncome-1200000; if(tax>excess) tax=excess; }
+      }
+    } else {
+      tax = slabTax(taxableIncome, oldSlabs(ageCat, resStatus));
+      if(resStatus==="resident" && taxableIncome<=500000){ tax = Math.max(0, tax - Math.min(tax,12500)); }
+    }
+    return tax;
+  }
+  function surchargeRate(totalIncome, regime){
+    if(totalIncome>50000000) return regime==="new" ? .25 : .37;
+    if(totalIncome>20000000) return .25;
+    if(totalIncome>10000000) return .15;
+    if(totalIncome>5000000) return .10;
+    return 0;
+  }
+
+  /* ---------------- Due dates FY 2026-27 ---------------- */
+  const DUE_DATES = [
+    {label:"1st", date:new Date(2026,5,15), cumPct:.15, triggerPct:.12},
+    {label:"2nd", date:new Date(2026,8,15), cumPct:.45, triggerPct:.36},
+    {label:"3rd", date:new Date(2026,11,15), cumPct:.75, triggerPct:.75},
+    {label:"4th", date:new Date(2027,2,15), cumPct:1.00, triggerPct:1.00},
+  ];
+  const s234B_START = new Date(2027,3,1);
+  const fmtDate = d => d.toLocaleDateString("en-IN",{day:"2-digit",month:"short",year:"numeric"});
+
+  /* ---------------- Main calculate ---------------- */
+  function calculate(){
+    const mult = periodMode==="monthly" ? 12 : 1;
+    const ageCat = $("ageCat").value;
+    const resStatus = $("resStatus").value;
+
+    const salaryIncome = employers.reduce((s,e)=>s+(e.income||0),0) * mult;
+    const empTds = employers.reduce((s,e)=>s+(e.tds||0),0) * mult;
+    $("empTdsDisplay").value = inr(empTds);
+
+    const houseProperty = (parseFloat($("houseProperty").value)||0) * mult;
+    const businessIncome = (parseFloat($("businessIncome").value)||0) * mult;
+    const otherIncome = (parseFloat($("otherIncome").value)||0) * mult;
+    const stcgAmount = parseFloat($("stcgAmount").value)||0;
+    const ltcgAmount = parseFloat($("ltcgAmount").value)||0;
+    const otherCapGainsTax = parseFloat($("otherCapGainsTax").value)||0;
+    const otherTds = parseFloat($("otherTds").value)||0;
+
+    const stdDed = regime==="new" ? 75000 : 50000;
+    $("stdDedDisplay").value = inr(Math.min(stdDed, salaryIncome));
+
+    // "gti" is the slab-rate income base (salary/house-property/business/other).
+    // Capital gains are tracked separately since they're taxed at special flat rates,
+    // not slab rates — but they still belong in the taxpayer's Total Estimated Income.
+    const gti = salaryIncome + houseProperty + businessIncome + otherIncome;
+    const ltcgTaxablePortion = Math.max(0, ltcgAmount - 125000); // ₹1.25L exemption applies only to LTCG
+    const grossTotalIncome = gti + stcgAmount + ltcgAmount; // for display: full income picture
+
+    let deductions = Math.min(stdDed, salaryIncome);
+    if(regime==="old"){
+      const d80C = Math.min(parseFloat($("ded80C").value)||0, 150000);
+      const d80D = parseFloat($("ded80D").value)||0;
+      const dHRA = parseFloat($("dedHRA").value)||0;
+      const dHL = Math.min(parseFloat($("dedHomeLoan").value)||0, 200000);
+      const d80CCD = Math.min(parseFloat($("ded80CCD").value)||0, 50000);
+      const dOther = parseFloat($("dedOther").value)||0;
+      deductions += d80C + d80D + dHRA + dHL + d80CCD + dOther;
+      // Note: Chapter VI-A deductions cannot be claimed against STCG (111A) or LTCG (112A) gains.
+    }
+
+    const taxableIncome = Math.max(0, gti - deductions);
+    const coreTax = computeCoreTax(taxableIncome, regime, ageCat, resStatus);
+
+    // BUG FIX: Resident individuals whose slab-rate taxable income is below the basic
+    // exemption limit can adjust the unused portion against STCG (111A) then LTCG (112A),
+    // in that order — before applying the flat 20%/12.5% rates. NRIs get no such benefit.
+    const basicExemptionLimit = regime==="new" ? 400000 : (ageCat==="senior" ? 300000 : ageCat==="supersenior" ? 500000 : 250000);
+    let stcgChargeable = stcgAmount;
+    let ltcgChargeable = ltcgTaxablePortion;
+    if(resStatus==="resident"){
+      const unusedBEL = Math.max(0, basicExemptionLimit - taxableIncome);
+      const belUsedOnSTCG = Math.min(unusedBEL, stcgChargeable);
+      stcgChargeable = Math.max(0, stcgChargeable - belUsedOnSTCG);
+      const belLeftAfterSTCG = unusedBEL - belUsedOnSTCG;
+      ltcgChargeable = Math.max(0, ltcgChargeable - belLeftAfterSTCG);
+    }
+
+    // Surcharge bracket is decided on TOTAL income (slab income + capital gains combined),
+    // not slab income alone — otherwise a large capital gain on top of modest salary
+    // would silently miss the surcharge threshold.
+    const totalIncomeForSurcharge = taxableIncome + stcgChargeable + ltcgChargeable;
+    const surRate = surchargeRate(totalIncomeForSurcharge, regime);
+    const surcharge = coreTax * surRate;
+    const cess = (coreTax + surcharge) * 0.04;
+
+    // Capital gains tax: STCG (equity) flat 20%, LTCG (equity) flat 12.5% above ₹1.25L,
+    // both after the basic-exemption offset above.
+    // Surcharge on 111A/112A gains is capped at 15% even if the regular-income bracket is higher.
+    const stcgTax = stcgChargeable * 0.20;
+    const ltcgTax = ltcgChargeable * 0.125;
+    const cgSpecialTax = stcgTax + ltcgTax;
+    const cgSurRate = Math.min(surRate, 0.15);
+    const cgSurcharge = cgSpecialTax * cgSurRate;
+    const cgCess = (cgSpecialTax + cgSurcharge) * 0.04;
+    const capGainsTotal = cgSpecialTax + cgSurcharge + cgCess + otherCapGainsTax;
+
+    const totalLiability = coreTax + surcharge + cess + capGainsTotal;
+    const totalTdsTcs = empTds + otherTds;
+    const advanceTaxPayable = Math.max(0, totalLiability - totalTdsTcs);
+
+    $("t_income").textContent = inr(grossTotalIncome);
+    $("t_ded").textContent = inr(deductions);
+    $("s_gti").textContent = inr(grossTotalIncome);
+    $("s_ded").textContent = "– " + inr(deductions);
+    $("s_ti").textContent = inr(taxableIncome);
+    $("s_tax").textContent = inr(coreTax+surcharge+cess);
+    $("s_cg").textContent = inr(capGainsTotal);
+    $("s_tds").textContent = "– " + inr(totalTdsTcs);
+    $("s_final").textContent = inr(advanceTaxPayable);
+
+    const seniorExempt = (ageCat!=="under60") && businessIncome===0 && resStatus==="resident";
+    const presumptive = $("presumptive").checked && businessIncome>0;
+
+    // Snapshot everything needed for the PDF export, in one place.
+    CURRENT.regime = regime; CURRENT.ageCat = ageCat; CURRENT.resStatus = resStatus;
+    CURRENT.employers = employers.map(e=>({name:e.name, income:(e.income||0)*mult, tds:(e.tds||0)*mult}));
+    CURRENT.houseProperty = houseProperty; CURRENT.businessIncome = businessIncome; CURRENT.otherIncome = otherIncome;
+    CURRENT.stcgAmount = stcgAmount; CURRENT.ltcgAmount = ltcgAmount; CURRENT.otherCapGainsTax = otherCapGainsTax;
+    CURRENT.grossTotalIncome = grossTotalIncome; CURRENT.deductions = deductions; CURRENT.taxableIncome = taxableIncome;
+    CURRENT.slabTax = coreTax + surcharge + cess; CURRENT.capGainsTotal = capGainsTotal;
+    CURRENT.totalTdsTcs = totalTdsTcs; CURRENT.advanceTaxPayable = advanceTaxPayable;
+    CURRENT.seniorExempt = seniorExempt; CURRENT.presumptive = presumptive;
+    CURRENT.stdDed = Math.min(stdDed, salaryIncome);
+
+    renderPassbook(advanceTaxPayable, seniorExempt, presumptive);
+  }
+
+  /* ---------------- Passbook + interest ---------------- */
+  function renderPassbook(advanceTaxPayable, seniorExempt, presumptive){
+    const pbSection = $("passbookSection");
+    const intSection = $("interestSection");
+
+    if(advanceTaxPayable < 10000 || seniorExempt){
+      pbSection.style.display = "none";
+      intSection.style.display = "none";
+      CURRENT.installments = [];
+      CURRENT.interest234C = [];
+      CURRENT.interest234B = null;
+      CURRENT.notApplicableReason = seniorExempt
+        ? "Not applicable — resident senior citizen with no business/professional income is exempt from advance tax."
+        : `Advance tax payable (${inr(advanceTaxPayable)}) is below the ₹10,000 threshold — no advance tax required.`;
+      return;
+    }
+    CURRENT.notApplicableReason = null;
+    pbSection.style.display = "block";
+    intSection.style.display = "block";
+
+    const schedule = presumptive
+      ? [{label:"Full amount", date:new Date(2027,2,15), cumPct:1.00, triggerPct:1.00}]
+      : DUE_DATES;
+
+    const today = new Date();
+    const tbody = $("instBody");
+    tbody.innerHTML = "";
+    let totalPayable=0, totalPaid=0, totalRemaining=0;
+
+    schedule.forEach((row, idx) => {
+      const reqCum = advanceTaxPayable * row.cumPct;
+      const reqTrigger = advanceTaxPayable * row.triggerPct;
+      const paid = paidInputs[presumptive ? 3 : idx] || 0;
+      const remaining = Math.max(0, reqCum - paid);
+      totalPayable += (idx===0 ? reqCum : reqCum - advanceTaxPayable*schedule[idx-1].cumPct);
+      totalPaid += paid;
+      totalRemaining += remaining;
+
+      let status,pillClass;
+      if(paid >= reqCum && paid>0){ status="Paid"; pillClass="paid"; }
+      else if(today > row.date){ status = (paid>=reqTrigger) ? "On track" : "Pending"; pillClass = (paid>=reqTrigger)?"ontrack":"pending"; }
+      else { status="Upcoming"; pillClass="upcoming"; }
+
+      const instAmt = idx===0 ? reqCum : reqCum - advanceTaxPayable*schedule[idx-1].cumPct;
+
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${row.label} Instalment</td>
+        <td>${fmtDate(row.date)}</td>
+        <td>${Math.round(row.cumPct*100)}%</td>
+        <td>${inr(instAmt)}</td>
+        <td><input type="number" min="0" data-idx="${idx}" class="paidInput" value="${paid||0}"></td>
+        <td>${inr(remaining)}</td>
+        <td><span class="pill ${pillClass}">${status}</span></td>`;
+      tbody.appendChild(tr);
+    });
+
+    const trTotal = document.createElement("tr");
+    trTotal.className = "totalrow2";
+    trTotal.innerHTML = `<td colspan="3">Total</td><td>${inr(advanceTaxPayable)}</td><td>${inr(totalPaid)}</td><td>${inr(totalRemaining)}</td><td></td>`;
+    tbody.appendChild(trTotal);
+
+    // Capture rows for PDF export
+    CURRENT.installments = schedule.map((row, idx) => {
+      const reqCum = advanceTaxPayable * row.cumPct;
+      const paid = paidInputs[presumptive ? 3 : idx] || 0;
+      const instAmt = idx===0 ? reqCum : reqCum - advanceTaxPayable*schedule[idx-1].cumPct;
+      const remaining = Math.max(0, reqCum - paid);
+      const reqTrigger = advanceTaxPayable * row.triggerPct;
+      let status;
+      if(paid >= reqCum && paid>0) status="Paid";
+      else if(today > row.date) status = (paid>=reqTrigger) ? "On track" : "Pending";
+      else status="Upcoming";
+      return {label:row.label+" Instalment", date:fmtDate(row.date), pct:Math.round(row.cumPct*100)+"%", amount:instAmt, paid, remaining, status};
+    });
+    CURRENT.installmentTotals = {payable:advanceTaxPayable, paid:totalPaid, remaining:totalRemaining};
+
+    tbody.querySelectorAll(".paidInput").forEach(inp=>{
+      inp.addEventListener("input", e=>{
+        paidInputs[+e.target.dataset.idx] = parseFloat(e.target.value)||0;
+        renderPassbook(advanceTaxPayable, seniorExempt, presumptive);
+      });
+    });
+
+    renderInterest(advanceTaxPayable, schedule, presumptive);
+  }
+
+  function renderInterest(advanceTaxPayable, schedule, presumptive){
+    const today = new Date();
+    let rows=[], total234C=0;
+
+    schedule.forEach((row, idx) => {
+      if(today <= row.date) return;
+      const reqTrigger = advanceTaxPayable * row.triggerPct;
+      const reqCum = advanceTaxPayable * row.cumPct;
+      const paid = paidInputs[presumptive ? 3 : idx] || 0;
+      if(paid < reqTrigger){
+        const shortfall = reqCum - paid;
+        const months = (idx===schedule.length-1) ? 1 : 3;
+        const interest = shortfall*0.01*months;
+        total234C += interest;
+        rows.push({label:row.label+" Instalment", date:row.date, shortfall, months, interest});
+      }
+    });
+
+    const c234 = $("interest234C");
+    CURRENT.interest234C = rows.map(r=>({label:`${r.label} (${fmtDate(r.date)})`, shortfall:r.shortfall, months:r.months, interest:r.interest}));
+    CURRENT.total234C = total234C;
+    if(rows.length){
+      c234.innerHTML = `
+        <div class="interestbox crit">
+          <div class="ib-top"><span class="ib-label">Section 234C interest (delayed instalments)</span><span class="ib-amt">${inr(total234C)}</span></div>
+          <div class="ib-sub">Charged at 1% per month on shortfalls below the safe-harbor checkpoint.</div>
+        </div>`;
+      $("viewBreakup").style.display = "inline-block";
+      let html = `<table class="breakup"><thead><tr><th>Instalment</th><th>Shortfall</th><th>Months</th><th>Interest</th></tr></thead><tbody>`;
+      rows.forEach(r=> html += `<tr><td>${r.label} (${fmtDate(r.date)})</td><td>${inr(r.shortfall)}</td><td>${r.months}</td><td>${inr(r.interest)}</td></tr>`);
+      html += `</tbody></table><div class="notetiny">If a shortfall is due to capital gains or other income that arose late in the year, 234C may not apply on that portion if paid in the next instalment — this isn't modelled automatically above.</div>`;
+      $("breakupTable").innerHTML = html;
+    } else {
+      c234.innerHTML = `<div class="interestbox ok"><span class="ib-label">No Section 234C interest so far</span><div class="ib-sub">Based on what you've entered as paid against each due instalment.</div></div>`;
+      $("viewBreakup").style.display = "none";
+      $("breakupTable").setAttribute("hidden","");
+    }
+
+    const totalPaid = paidInputs[3] || Math.max(...paidInputs, 0);
+    const ninetyPct = advanceTaxPayable*0.9;
+    const c234b = $("interest234B");
+    if(today >= s234B_START){
+      const monthsElapsed = Math.max(1, (today.getFullYear()-2027)*12 + (today.getMonth()-3) + 1);
+      if(totalPaid < ninetyPct){
+        const shortfall = advanceTaxPayable - totalPaid;
+        const interest234B = shortfall*0.01*monthsElapsed;
+        c234b.innerHTML = `<div class="interestbox crit"><div class="ib-top"><span class="ib-label">Section 234B interest (post year-end shortfall)</span><span class="ib-amt">${inr(interest234B)}</span></div><div class="ib-sub">Paid ${inr(totalPaid)} vs 90% threshold of ${inr(ninetyPct)}. 1% × ${monthsElapsed} month(s) from 1 Apr 2027 on shortfall of ${inr(shortfall)}.</div></div>`;
+        CURRENT.interest234B = {status:"applies", amount:interest234B, totalPaid, ninetyPct, monthsElapsed, shortfall};
+      } else {
+        c234b.innerHTML = `<div class="interestbox ok"><span class="ib-label">No Section 234B interest</span><div class="ib-sub">You've paid at least 90% of your total tax liability as advance tax.</div></div>`;
+        CURRENT.interest234B = {status:"none", totalPaid, ninetyPct};
+      }
+    } else {
+      c234b.innerHTML = `<div class="interestbox info"><span class="ib-label">Section 234B — applies only after 31 Mar 2027</span><div class="ib-sub">To avoid it, make sure total advance tax paid by then is at least ${inr(ninetyPct)} (90% of estimated liability).</div></div>`;
+      CURRENT.interest234B = {status:"not-yet", ninetyPct};
+    }
+  }
+
+  $("viewBreakup").addEventListener("click", ()=>{
+    const t = $("breakupTable");
+    if(t.hasAttribute("hidden")){ t.removeAttribute("hidden"); $("viewBreakup").textContent="View Calculation Breakup ▴"; }
+    else { t.setAttribute("hidden",""); $("viewBreakup").textContent="View Calculation Breakup ▾"; }
+  });
+
+  /* ---------------- PDF export ---------------- */
+  function generatePDF(){
+    if(!window.jspdf){ alert("PDF library failed to load — check your internet connection and try again."); return; }
+    const { jsPDF } = window.jspdf;
+    // jsPDF's built-in core fonts (Helvetica) don't include the ₹ glyph — it silently
+    // drops from the rendered PDF. Use "Rs." inside the PDF only; the live page keeps ₹.
+    const inr = n => "Rs. " + Math.round(n).toLocaleString("en-IN");
+    const doc = new jsPDF({unit:"pt", format:"a4"});
+    const pw = doc.internal.pageSize.getWidth();
+    const margin = 40;
+    const BLUE = [30,95,191], INK = [22,33,58], MUTED = [100,116,139], LINE=[227,231,239];
+
+    function drawHeader(){
+      doc.setFillColor(...BLUE);
+      doc.circle(margin+7, 24, 7, "F");
+      doc.setFont(undefined,"bold"); doc.setFontSize(8); doc.setTextColor(255,255,255);
+      doc.text("R", margin+7, 27, {align:"center"});
+      doc.setFont(undefined,"bold"); doc.setFontSize(11); doc.setTextColor(...INK);
+      doc.text("ReportEdge", margin+20, 28);
+      doc.setFont(undefined,"normal"); doc.setFontSize(8.5); doc.setTextColor(...MUTED);
+      doc.text("myreportedge.com", pw-margin, 20, {align:"right"});
+      doc.text("Advance Tax Calculation — FY 2026-27 (AY 2027-28)", pw-margin, 31, {align:"right"});
+      doc.setDrawColor(...LINE); doc.line(margin, 40, pw-margin, 40);
+    }
+    function drawFooter(pageNum, pageCount){
+      const h = doc.internal.pageSize.getHeight();
+      doc.setDrawColor(...LINE); doc.line(margin, h-38, pw-margin, h-38);
+      doc.setFont(undefined,"normal"); doc.setFontSize(7); doc.setTextColor(...MUTED);
+      doc.text("Free estimate, not a substitute for professional tax advice. Based on the Income Tax Act 1961, FY 2026-27.", margin, h-24);
+      doc.text("myreportedge.com", pw-margin, h-24, {align:"right"});
+      doc.text(`Page ${pageNum} of ${pageCount}`, pw-margin, h-13, {align:"right"});
+    }
+    function sectionTitle(text, y){
+      doc.setFont(undefined,"bold"); doc.setFontSize(10.5); doc.setTextColor(...INK);
+      doc.text(text, margin, y);
+      return y + 10;
+    }
+
+    let y = 62;
+    doc.setFont(undefined,"bold"); doc.setFontSize(16); doc.setTextColor(...INK);
+    doc.text("Advance Tax Calculation Summary", margin, y);
+    y += 16;
+    doc.setFont(undefined,"normal"); doc.setFontSize(9); doc.setTextColor(...MUTED);
+    const genDate = new Date().toLocaleDateString("en-IN",{day:"2-digit",month:"short",year:"numeric"});
+    doc.text(`Regime: ${CURRENT.regime==="new"?"New":"Old"}   |   Residential status: ${CURRENT.resStatus==="resident"?"Resident":"NRI"}   |   Generated: ${genDate}`, margin, y);
+    y += 18;
+
+    // ---- Income table ----
+    const incomeRows = [];
+    (CURRENT.employers||[]).forEach((e,i)=>{
+      incomeRows.push([`${e.name||"Employer "+(i+1)} — Salary`, inr(e.income)]);
+      incomeRows.push([`${e.name||"Employer "+(i+1)} — TDS deducted`, inr(e.tds)]);
+    });
+    incomeRows.push(["House Property Income", inr(CURRENT.houseProperty||0)]);
+    incomeRows.push(["Business / Profession Income", inr(CURRENT.businessIncome||0)]);
+    incomeRows.push(["Capital Gains — Short Term (equity)", inr(CURRENT.stcgAmount||0)]);
+    incomeRows.push(["Capital Gains — Long Term (equity)", inr(CURRENT.ltcgAmount||0)]);
+    incomeRows.push(["Other Sources (interest/dividend/freelance)", inr(CURRENT.otherIncome||0)]);
+    doc.autoTable({
+      startY:y, margin:{left:margin,right:margin},
+      head:[["1. Income Details","Amount"]], body:incomeRows,
+      theme:"grid", styles:{fontSize:8.5, cellPadding:5}, headStyles:{fillColor:BLUE, fontSize:8.5},
+      foot:[["Total Estimated Income (incl. capital gains)", inr(CURRENT.grossTotalIncome||0)]],
+      footStyles:{fillColor:[231,246,238], textColor:[31,138,95], fontStyle:"bold"}
+    });
+    y = doc.lastAutoTable.finalY + 18;
+
+    // ---- Deductions (old regime only) ----
+    if(CURRENT.regime==="old"){
+      doc.autoTable({
+        startY:y, margin:{left:margin,right:margin},
+        head:[["2. Deductions","Amount"]],
+        body:[["Standard Deduction", inr(CURRENT.stdDed||0)],["Chapter VI-A + HRA (80C/80D/HRA/24b/80CCD1B/Other)", inr(Math.max(0,(CURRENT.deductions||0)-(CURRENT.stdDed||0)))]],
+        theme:"grid", styles:{fontSize:8.5, cellPadding:5}, headStyles:{fillColor:BLUE, fontSize:8.5},
+        foot:[["Total Deductions", inr(CURRENT.deductions||0)]],
+        footStyles:{fillColor:[231,246,238], textColor:[31,138,95], fontStyle:"bold"}
+      });
+      y = doc.lastAutoTable.finalY + 18;
+    }
+
+    // ---- Tax summary ----
+    doc.autoTable({
+      startY:y, margin:{left:margin,right:margin},
+      head:[["3. Tax Payable Summary","Amount"]],
+      body:[
+        ["Total Estimated Income", inr(CURRENT.grossTotalIncome||0)],
+        ["Less: Total Deductions", "– "+inr(CURRENT.deductions||0)],
+        ["Taxable Income (slab-rate portion)", inr(CURRENT.taxableIncome||0)],
+        ["Estimated Tax (slab + surcharge + cess)", inr(CURRENT.slabTax||0)],
+        ["Tax on Capital Gains (special rate + surcharge + cess)", inr(CURRENT.capGainsTotal||0)],
+        ["Less: TDS/TCS Already Paid", "– "+inr(CURRENT.totalTdsTcs||0)],
+      ],
+      theme:"grid", styles:{fontSize:8.5, cellPadding:5}, headStyles:{fillColor:BLUE, fontSize:8.5},
+      foot:[["Net Advance Tax Payable", inr(CURRENT.advanceTaxPayable||0)]],
+      footStyles:{fillColor:[234,241,252], textColor:[18,59,122], fontStyle:"bold", fontSize:10}
+    });
+    y = doc.lastAutoTable.finalY + 18;
+
+    if(CURRENT.notApplicableReason){
+      doc.setFont(undefined,"normal"); doc.setFontSize(9); doc.setTextColor(...INK);
+      const lines = doc.splitTextToSize(CURRENT.notApplicableReason, pw-2*margin);
+      doc.text(lines, margin, y);
+      y += lines.length*12 + 10;
+    } else {
+      // ---- Instalment schedule ----
+      const instBody = (CURRENT.installments||[]).map(r=>[r.label, r.date, r.pct, inr(r.amount), inr(r.paid), inr(r.remaining), r.status]);
+      doc.autoTable({
+        startY:y, margin:{left:margin,right:margin},
+        head:[["Instalment","Due Date","% of Tax","Payable","Paid","Remaining","Status"]],
+        body: instBody,
+        theme:"grid", styles:{fontSize:8, cellPadding:4.5}, headStyles:{fillColor:BLUE, fontSize:8},
+        foot:[["Total","","", inr(CURRENT.installmentTotals?.payable||0), inr(CURRENT.installmentTotals?.paid||0), inr(CURRENT.installmentTotals?.remaining||0), ""]],
+        footStyles:{fillColor:[245,245,248], textColor:INK, fontStyle:"bold"}
+      });
+      y = doc.lastAutoTable.finalY + 18;
+
+      // ---- Interest ----
+      if((CURRENT.interest234C||[]).length){
+        doc.autoTable({
+          startY:y, margin:{left:margin,right:margin},
+          head:[["Section 234C — Instalment","Shortfall","Months","Interest"]],
+          body: CURRENT.interest234C.map(r=>[r.label, inr(r.shortfall), r.months, inr(r.interest)]),
+          theme:"grid", styles:{fontSize:8, cellPadding:4.5}, headStyles:{fillColor:[200,64,42], fontSize:8},
+          foot:[["Total 234C Interest","","", inr(CURRENT.total234C||0)]],
+          footStyles:{fillColor:[252,235,231], textColor:[200,64,42], fontStyle:"bold"}
+        });
+        y = doc.lastAutoTable.finalY + 14;
+      } else {
+        y = sectionTitle("Section 234C: No interest — all instalments met the safe-harbor checkpoint.", y) + 8;
+      }
+
+      if(CURRENT.interest234B){
+        doc.setFont(undefined,"normal"); doc.setFontSize(9); doc.setTextColor(...INK);
+        let txt;
+        if(CURRENT.interest234B.status==="applies"){
+          txt = `Section 234B interest: ${inr(CURRENT.interest234B.amount)} — paid ${inr(CURRENT.interest234B.totalPaid)} against a 90% threshold of ${inr(CURRENT.interest234B.ninetyPct)} (${CURRENT.interest234B.monthsElapsed} month(s) from 1 Apr 2027).`;
+        } else if(CURRENT.interest234B.status==="none"){
+          txt = `Section 234B interest: None — at least 90% of the tax liability (${inr(CURRENT.interest234B.ninetyPct)}) has been paid as advance tax.`;
+        } else {
+          txt = `Section 234B applies only after 31 Mar 2027. Pay at least ${inr(CURRENT.interest234B.ninetyPct)} (90% of estimated liability) by then to avoid it.`;
+        }
+        const lines = doc.splitTextToSize(txt, pw-2*margin);
+        doc.text(lines, margin, y);
+      }
+    }
+
+    // Header/footer on every page, final pass
+    const totalPages = doc.internal.getNumberOfPages();
+    for(let i=1;i<=totalPages;i++){
+      doc.setPage(i);
+      drawHeader();
+      drawFooter(i, totalPages);
+    }
+
+    doc.save(`Advance-Tax-Calculation-FY2026-27-${genDate.replace(/\s/g,"-")}.pdf`);
+  }
+  $("pdfBtn").addEventListener("click", generatePDF);
+
+  /* ---------------- init ---------------- */
+  renderEmployers();
+  calculate();
+})();
+</script>
+</body>
+</html>

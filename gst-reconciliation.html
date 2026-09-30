@@ -1,0 +1,1552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>ReportEdge — GSTR 2B vs Books Reconciliation</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --navy:    #0F172A;
+  --navy2:   #1E293B;
+  --navy3:   #334155;
+  --blue:    #0F3D91;
+  --blue-h:  #1E40AF;
+  --blue-bg: #EFF6FF;
+  --emerald: #059669;
+  --em-bg:   #ECFDF5;
+  --em-dark: #047857;
+  --white:   #FFFFFF;
+  --bg:      #F8FAFC;
+  --bg2:     #F1F5F9;
+  --text1:   #0F172A;
+  --text2:   #1E293B;
+  --text3:   #475569;
+  --border:  #E2E8F0;
+  --border2: #CBD5E1;
+  --red:     #DC2626;
+  --red-bg:  #FEF2F2;
+  --amber:   #D97706;
+  --amber-bg:#FFFBEB;
+  --purple:  #7C3AED;
+  --purple-bg:#F5F3FF;
+  --shadow-xs: 0 1px 2px rgba(0,0,0,0.05);
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.07),0 1px 2px rgba(0,0,0,0.05);
+  --shadow-md: 0 4px 6px rgba(0,0,0,0.05),0 2px 4px rgba(0,0,0,0.04);
+  --shadow-lg: 0 10px 25px rgba(0,0,0,0.08),0 4px 10px rgba(0,0,0,0.05);
+  --r:6px; --r-md:10px; --r-lg:14px;
+}
+html{scroll-behavior:smooth;}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--white);color:var(--text1);-webkit-font-smoothing:antialiased;font-size:14px;line-height:1.6;}
+
+/* NAV */
+nav{background:var(--navy);display:flex;align-items:center;justify-content:space-between;padding:0 48px;height:56px;position:sticky;top:0;z-index:200;}
+.nav-logo{font-size:17px;font-weight:800;color:var(--white);letter-spacing:-0.5px;display:flex;align-items:center;gap:8px;}
+.nav-logo-dot{width:8px;height:8px;background:var(--emerald);border-radius:50%;}
+.nav-right{display:flex;align-items:center;gap:10px;}
+.nav-badge{font-size:11px;font-weight:600;padding:3px 10px;border-radius:4px;}
+.nb-em{background:rgba(5,150,105,0.2);color:#34D399;border:1px solid rgba(5,150,105,0.3);}
+.nb-bl{background:rgba(15,61,145,0.4);color:#93C5FD;border:1px solid rgba(15,61,145,0.5);}
+
+/* HERO */
+.hero{background:var(--navy);padding:56px 48px 44px;position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(135deg,rgba(15,61,145,0.15) 0%,transparent 60%);pointer-events:none;}
+.hero-inner{max-width:1180px;margin:0 auto;position:relative;z-index:1;}
+.hero-label{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:600;color:var(--emerald);background:rgba(5,150,105,0.12);border:1px solid rgba(5,150,105,0.25);padding:4px 12px;border-radius:4px;margin-bottom:18px;letter-spacing:0.5px;text-transform:uppercase;}
+.hero h1{font-size:clamp(26px,3.2vw,38px);font-weight:800;color:var(--white);line-height:1.15;letter-spacing:-1px;margin-bottom:14px;}
+.hero h1 em{color:#93C5FD;font-style:normal;}
+.hero-sub{font-size:15px;color:rgba(255,255,255,0.55);line-height:1.7;max-width:720px;margin-bottom:22px;}
+.hero-trust{display:flex;gap:22px;flex-wrap:wrap;}
+.ht-item{display:flex;align-items:center;gap:8px;font-size:12.5px;color:rgba(255,255,255,0.5);}
+.ht-icon{width:16px;height:16px;border-radius:3px;background:var(--emerald);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.ht-icon svg{width:9px;height:9px;stroke:#fff;fill:none;stroke-width:3;}
+
+/* MAIN */
+.main{max-width:1180px;margin:0 auto;padding:36px 24px 80px;}
+
+.panel{background:var(--white);border:1px solid var(--border);border-radius:var(--r-lg);box-shadow:var(--shadow-md);overflow:hidden;margin-bottom:20px;}
+.panel-hdr{background:var(--navy);padding:18px 26px;display:flex;align-items:center;gap:14px;justify-content:space-between;flex-wrap:wrap;}
+.panel-hdr-l{display:flex;align-items:center;gap:14px;}
+.ph-icon{width:38px;height:38px;background:rgba(5,150,105,0.2);border:1px solid rgba(5,150,105,0.3);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.ph-icon svg{width:19px;height:19px;stroke:#6EE7B7;fill:none;stroke-width:2;}
+.ph-text h2{font-size:16px;font-weight:700;color:var(--white);margin-bottom:2px;letter-spacing:-0.3px;}
+.ph-text p{font-size:11.5px;color:rgba(255,255,255,0.4);}
+.panel-body{padding:24px 26px;}
+
+.fg{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+.ff{display:flex;flex-direction:column;gap:5px;}
+.ff label{font-size:11.5px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:0.4px;}
+.ff input,.ff select{padding:9px 12px;border:1px solid var(--border);border-radius:var(--r);font-size:13px;font-family:'Inter',sans-serif;color:var(--text1);background:var(--white);outline:none;transition:border-color 0.2s,box-shadow 0.2s;}
+.ff input:focus,.ff select:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(15,61,145,0.08);}
+
+/* TOOLBAR */
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;}
+.tbtn{background:var(--white);color:var(--blue);font-size:12.5px;font-weight:600;padding:9px 16px;border-radius:var(--r);border:1px solid var(--blue);cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;gap:6px;}
+.tbtn:hover{background:var(--blue-bg);}
+.tbtn.solid{background:var(--blue);color:var(--white);border-color:var(--blue);}
+.tbtn.solid:hover{background:var(--blue-h);}
+.tbtn.ghost{color:var(--text3);border-color:var(--border2);}
+.tbtn.ghost:hover{background:var(--bg);}
+.tbtn.green{background:var(--emerald);color:#fff;border-color:var(--emerald);}
+.tbtn.green:hover{background:var(--em-dark);}
+input[type=file]{display:none;}
+
+/* DATA TABLE (Books / GSTR-2B grids) */
+.tb-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:var(--r-md);}
+table.tb{border-collapse:collapse;width:100%;min-width:980px;font-size:12.5px;}
+table.tb th{background:var(--navy);color:rgba(255,255,255,0.7);font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:0.4px;padding:9px 8px;text-align:left;white-space:nowrap;position:sticky;top:0;}
+table.tb td{padding:4px;border-bottom:1px solid var(--border);vertical-align:middle;}
+table.tb tr:nth-child(even){background:var(--bg);}
+table.tb input{width:100%;border:1px solid transparent;background:transparent;padding:6px 6px;font-size:12.5px;font-family:'Inter',sans-serif;border-radius:4px;color:var(--text1);}
+table.tb input:focus{border-color:var(--blue);background:var(--white);outline:none;}
+table.tb input[type=number]{text-align:right;}
+table.tb td.del{text-align:center;}
+.del-btn{color:var(--red);cursor:pointer;font-size:15px;font-weight:700;border:none;background:none;padding:2px 6px;}
+.del-btn:hover{background:var(--red-bg);border-radius:4px;}
+.acc-input{min-width:150px;}
+.gstin-input{min-width:150px;}
+
+.tb-footer{display:flex;justify-content:space-between;align-items:center;padding:12px 4px 0;flex-wrap:wrap;gap:10px;}
+.balance-chip{font-size:12px;font-weight:600;padding:7px 14px;border-radius:20px;display:inline-flex;align-items:center;gap:7px;background:var(--bg2);color:var(--text3);}
+.totals-strip{display:grid;grid-template-columns:repeat(5,1fr);gap:1px;background:var(--border);border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-top:10px;}
+.totals-strip .tcell{background:var(--blue-bg);padding:9px 12px;}
+.totals-strip .tcell .tn{font-size:15px;font-weight:800;color:var(--navy);font-variant-numeric:tabular-nums;}
+.totals-strip .tcell .tl{font-size:9.5px;color:var(--text3);text-transform:uppercase;letter-spacing:.04em;margin-top:2px;font-weight:600;}
+.same-data-warning{display:none;align-items:center;gap:10px;background:var(--amber-bg);border:1px solid rgba(217,119,6,.3);border-radius:8px;padding:10px 14px;margin:14px 0;font-size:12.5px;color:#92400E;}
+.same-data-warning svg{flex-shrink:0;width:18px;height:18px;stroke:var(--amber);fill:none;stroke-width:2;}
+.balance-dot{width:7px;height:7px;border-radius:50%;background:currentColor;}
+
+.gen-btn-wrap{text-align:center;margin-top:22px;}
+.btn-primary{background:var(--emerald);color:var(--white);font-size:15px;font-weight:700;padding:14px 36px;border-radius:var(--r);border:none;cursor:pointer;transition:all 0.2s;box-shadow:0 2px 8px rgba(5,150,105,0.35);letter-spacing:-0.2px;}
+.btn-primary:hover{background:var(--em-dark);box-shadow:0 4px 14px rgba(5,150,105,0.45);transform:translateY(-1px);}
+
+/* RESULTS */
+.results{display:none;}
+.tabs{display:flex;gap:4px;background:var(--bg2);border-radius:10px;padding:4px;margin-bottom:20px;flex-wrap:wrap;}
+.tab-btn{flex:1;min-width:110px;background:transparent;border:none;padding:10px 14px;font-size:12.5px;font-weight:600;color:var(--text3);border-radius:7px;cursor:pointer;transition:all .15s;white-space:nowrap;}
+.tab-btn.active{background:var(--white);color:var(--blue);box-shadow:var(--shadow-sm);}
+.tab-panel{display:none;}
+.tab-panel.active{display:block;}
+.tab-dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:6px;vertical-align:middle;}
+.td-blue{background:var(--blue);} .td-green{background:var(--emerald);} .td-amber{background:var(--amber);} .td-purple{background:var(--purple);} .td-slate{background:var(--text3);} .td-red{background:var(--red);}
+
+/* SEAL / STATUS CARD */
+.seal-card{background:var(--white);border:1px solid var(--border);border-radius:var(--r-lg);box-shadow:var(--shadow-md);padding:26px 28px;margin-bottom:22px;display:flex;align-items:center;gap:22px;flex-wrap:wrap;}
+.seal-badge{flex:0 0 auto;width:88px;height:88px;border-radius:50%;display:flex;align-items:center;justify-content:center;text-align:center;font-size:11px;font-weight:800;letter-spacing:0.4px;text-transform:uppercase;line-height:1.3;}
+.seal-badge.ok{background:var(--em-bg);color:var(--em-dark);border:2px solid rgba(5,150,105,0.35);}
+.seal-badge.bad{background:var(--red-bg);color:var(--red);border:2px solid rgba(220,38,38,0.3);}
+.seal-text h2{font-size:19px;font-weight:800;color:var(--navy);margin-bottom:4px;letter-spacing:-0.3px;}
+.seal-text p{font-size:13px;color:var(--text3);max-width:640px;}
+
+/* STAT GRID */
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:1px;background:var(--border);border:1px solid var(--border);border-radius:var(--r-md);overflow:hidden;margin-bottom:26px;}
+.stat{background:var(--white);padding:14px 16px;}
+.stat .n{font-size:22px;font-weight:800;color:var(--navy);font-variant-numeric:tabular-nums;}
+.stat .l{font-size:10.5px;color:var(--text3);text-transform:uppercase;letter-spacing:0.4px;margin-top:4px;font-weight:600;}
+.stat.warn .n{color:var(--amber);}
+.stat.bad .n{color:var(--red);}
+
+/* GENERIC RESULT TABLES */
+table.fst{border-collapse:collapse;width:100%;font-size:13px;background:var(--white);}
+table.fst th{text-align:right;font-size:10.5px;font-weight:700;color:var(--white);padding:9px 8px;background:var(--navy);text-transform:uppercase;letter-spacing:0.3px;}
+table.fst th:first-child{text-align:left;}
+table.fst td{padding:7px 8px;border-bottom:1px solid var(--border);}
+table.fst td.lbl{color:var(--text2);}
+table.fst td.num{text-align:right;font-variant-numeric:tabular-nums;color:var(--text1);}
+table.fst tr:nth-child(even){background:var(--bg);}
+tr.total-row td{font-weight:800;background:var(--amber-bg) !important;border-top:2px solid var(--navy);color:var(--navy);}
+tr.ct-row td{font-style:italic;color:var(--text3);background:var(--white) !important;}
+tr.check-row td{font-weight:800;}
+tr.check-row.ok td{color:var(--em-dark);background:var(--em-bg) !important;}
+tr.check-row.bad td{color:var(--red);background:var(--red-bg) !important;}
+.table-scroll{overflow-x:auto;border:1px solid var(--border);border-radius:var(--r-md);}
+.subhdr{font-size:13px;font-weight:700;color:var(--navy);margin:22px 0 10px;padding-bottom:6px;border-bottom:1.5px solid var(--navy);}
+.subhdr:first-child{margin-top:0;}
+.empty-note{padding:16px;color:var(--text3);font-size:12.5px;font-style:italic;background:var(--bg);border-radius:var(--r);}
+.note{font-size:12px;color:var(--text3);margin:0 0 14px;line-height:1.6;}
+
+.privacy{margin-top:16px;background:var(--bg);border:1px solid var(--border);border-radius:var(--r);padding:12px 16px;font-size:12px;color:var(--text2);line-height:1.6;display:flex;gap:8px;}
+
+.cta{background:var(--navy);border-radius:var(--r-lg);padding:32px;margin-top:28px;}
+.cta h4{font-size:20px;font-weight:700;color:var(--white);margin-bottom:6px;letter-spacing:-0.5px;}
+.cta p{font-size:13.5px;color:rgba(255,255,255,0.45);line-height:1.6;margin-bottom:20px;}
+.cta-form{display:flex;flex-wrap:wrap;gap:10px;}
+.cta-input{flex:1;min-width:140px;padding:11px 16px;border:1px solid rgba(255,255,255,0.12);border-radius:var(--r);background:rgba(255,255,255,0.07);color:var(--white);font-size:13px;font-family:'Inter',sans-serif;outline:none;transition:border-color 0.2s;}
+.cta-input:focus{border-color:rgba(5,150,105,0.5);}
+.cta-input::placeholder{color:rgba(255,255,255,0.3);}
+.btn-cta{background:var(--emerald);color:var(--white);font-size:14px;font-weight:600;padding:11px 24px;border-radius:var(--r);border:none;cursor:pointer;white-space:nowrap;transition:all 0.2s;box-shadow:0 2px 8px rgba(5,150,105,0.4);}
+.btn-cta:hover{background:var(--em-dark);transform:translateY(-1px);}
+.cta-success{display:none;margin-top:14px;padding:12px 16px;background:var(--em-bg);border:1px solid rgba(5,150,105,0.25);border-radius:var(--r);font-size:13px;color:var(--emerald);font-weight:500;}
+
+footer{background:var(--navy);padding:32px 48px;text-align:center;font-size:12px;color:rgba(255,255,255,0.3);}
+
+@media(max-width:900px){
+  nav{padding:0 20px;}
+  .hero{padding:40px 20px 32px;}
+  .main{padding:28px 16px 60px;}
+  .fg{grid-template-columns:1fr 1fr;}
+  .panel-body{padding:18px;}
+  .seal-card{flex-direction:column;text-align:center;}
+}
+@media print{
+  nav,.hero,.panel,.tabs,footer,.cta,.gen-btn-wrap{display:none !important;}
+  .results{display:block !important;}
+  .tab-panel{display:block !important;margin-bottom:32px;page-break-after:always;}
+  body{font-size:12px;}
+  .main{padding:0;max-width:100%;}
+}
+/* ── Floating feedback button ── */
+#fb-fab{position:fixed;bottom:28px;right:28px;z-index:9000;display:flex;align-items:center;gap:8px;
+  background:#059669;color:#fff;border:none;border-radius:50px;padding:12px 20px;
+  font-family:'Inter',sans-serif;font-size:13px;font-weight:600;cursor:pointer;
+  box-shadow:0 4px 20px rgba(5,150,105,0.45);transition:all .22s;user-select:none;}
+#fb-fab:hover{background:#047857;transform:translateY(-2px);box-shadow:0 6px 24px rgba(5,150,105,0.55);}
+#fb-fab svg{width:16px;height:16px;fill:none;stroke:#fff;stroke-width:2.2;flex-shrink:0;}
+
+#fb-overlay{display:none;position:fixed;inset:0;background:rgba(10,22,40,0.6);z-index:9100;
+  backdrop-filter:blur(3px);align-items:center;justify-content:center;}
+#fb-overlay.open{display:flex;}
+
+#fb-modal{background:#fff;border-radius:18px;padding:32px 28px;width:100%;max-width:440px;
+  margin:16px;box-shadow:0 24px 64px rgba(0,0,0,0.22);font-family:'Inter',sans-serif;position:relative;}
+.fb-close{position:absolute;top:16px;right:16px;background:none;border:none;cursor:pointer;
+  color:#94A3B8;font-size:20px;line-height:1;padding:4px;}
+.fb-close:hover{color:#0F172A;}
+.fb-title{font-size:18px;font-weight:800;color:#0F172A;margin-bottom:4px;letter-spacing:-0.4px;}
+.fb-sub{font-size:13px;color:#64748B;margin-bottom:22px;}
+.fb-stars{display:flex;gap:6px;margin-bottom:20px;}
+.fb-star{font-size:26px;cursor:pointer;color:#E2E8F0;transition:color .15s;line-height:1;}
+.fb-star.on{color:#F59E0B;}
+.fb-label{font-size:11px;font-weight:700;letter-spacing:.7px;text-transform:uppercase;color:#64748B;margin-bottom:6px;display:block;}
+.fb-input{width:100%;padding:10px 13px;border:1px solid #E2E8F0;border-radius:9px;font-family:'Inter',sans-serif;
+  font-size:14px;color:#0F172A;margin-bottom:14px;box-sizing:border-box;transition:border .2s;}
+.fb-input:focus{outline:none;border-color:#059669;}
+textarea.fb-input{resize:vertical;min-height:90px;}
+.fb-submit{width:100%;background:#059669;color:#fff;border:none;border-radius:9px;padding:13px;
+  font-family:'Inter',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:background .2s;}
+.fb-submit:hover{background:#047857;}
+.fb-submit:disabled{background:#94A3B8;cursor:not-allowed;}
+.fb-thanks{text-align:center;padding:20px 0;}
+.fb-thanks-icon{font-size:48px;margin-bottom:12px;}
+.fb-thanks h3{font-size:18px;font-weight:800;color:#0F172A;margin-bottom:6px;}
+.fb-thanks p{font-size:14px;color:#64748B;}
+
+#fb-admin-overlay{display:none;position:fixed;inset:0;background:rgba(10,22,40,0.75);z-index:9200;
+  align-items:flex-start;justify-content:center;overflow-y:auto;padding:40px 16px;}
+#fb-admin-overlay.open{display:flex;}
+#fb-admin-box{background:#fff;border-radius:18px;width:100%;max-width:700px;padding:32px 28px;
+  font-family:'Inter',sans-serif;margin:auto;}
+.fb-admin-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;}
+.fb-admin-title{font-size:20px;font-weight:800;color:#0F172A;letter-spacing:-0.5px;}
+.fb-admin-close{background:#F1F5F9;border:none;border-radius:8px;padding:8px 14px;cursor:pointer;
+  font-family:'Inter',sans-serif;font-size:13px;font-weight:600;color:#475569;}
+.fb-card{border:1px solid #E2E8F0;border-radius:12px;padding:18px 20px;margin-bottom:12px;}
+.fb-card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:8px;}
+.fb-card-name{font-weight:700;font-size:14px;color:#0F172A;}
+.fb-card-time{font-size:11px;color:#94A3B8;margin-top:2px;}
+.fb-card-page{font-size:11px;color:#60A5FA;background:#EFF6FF;border-radius:4px;padding:2px 7px;
+  display:inline-block;margin-top:4px;}
+.fb-card-stars{color:#F59E0B;font-size:14px;letter-spacing:1px;}
+.fb-card-msg{font-size:14px;color:#334155;line-height:1.6;}
+.fb-del-btn{background:#FEF2F2;color:#EF4444;border:1px solid #FECACA;border-radius:7px;
+  padding:6px 13px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0;}
+.fb-del-btn:hover{background:#FEE2E2;}
+.fb-empty{text-align:center;color:#94A3B8;font-size:14px;padding:40px 0;}
+.fb-loading{text-align:center;color:#94A3B8;font-size:14px;padding:30px 0;}
+#fb-admin-login{background:#fff;border-radius:18px;width:100%;max-width:360px;padding:32px 28px;
+  font-family:'Inter',sans-serif;margin:auto;}
+.fb-login-title{font-size:18px;font-weight:800;color:#0F172A;margin-bottom:6px;}
+.fb-login-sub{font-size:13px;color:#64748B;margin-bottom:22px;}
+.fb-login-err{font-size:13px;color:#EF4444;margin-top:8px;display:none;}
+
+@media(max-width:500px){
+  #fb-modal,#fb-admin-box,#fb-admin-login{padding:24px 18px;}
+  #fb-fab span{display:none;}
+  #fb-fab{padding:14px;}
+}
+</style>
+</head>
+<body>
+<!-- Hidden form so Netlify detects and registers the feedback form on deploy -->
+<form name="site-feedback" netlify netlify-honeypot="bot-field" hidden>
+  <input type="text" name="name">
+  <textarea name="message"></textarea>
+  <input type="text" name="rating">
+  <input type="text" name="page">
+  <input type="text" name="ts">
+</form>
+
+
+<!-- NAV -->
+<nav>
+  <div style="display:flex;align-items:center;gap:20px;">
+    <a href="index.html" style="font-size:12px;color:rgba(255,255,255,0.4);text-decoration:none;display:flex;align-items:center;gap:5px;" onmouseover="this.style.color='rgba(255,255,255,0.8)'" onmouseout="this.style.color='rgba(255,255,255,0.4)'">&#8592; Home</a>
+    <div class="nav-logo"><div class="nav-logo-dot"></div>ReportEdge</div>
+  </div>
+  <div class="nav-right">
+    <span class="nav-badge nb-em">&#10003; Free Tool</span>
+    <span class="nav-badge nb-bl">GST &middot; Company</span>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-inner">
+    <div class="hero-label">&#9679; GSTR 2B vs Books Reconciliation &middot; Automated Matching</div>
+    <h1>Paste or upload your Books and GSTR-2B.<br>Get a full <em>line-by-line reconciliation</em> in seconds.</h1>
+    <p class="hero-sub">Load your Books of Account and GSTR-2B data below and instantly get every invoice matched, every mismatch categorised, and a Net Diff Check that ties out to zero — built on the same multi-tier GSTIN / Invoice Number / Date / Value matching engine used by practising accountants.</p>
+    <div class="hero-trust">
+      <div class="ht-item"><div class="ht-icon"><svg viewBox="0 0 12 12"><polyline points="10 3 5 9 2 6"/></svg></div>No data stored, calculated in your browser</div>
+      <div class="ht-item"><div class="ht-icon"><svg viewBox="0 0 12 12"><polyline points="10 3 5 9 2 6"/></svg></div>7 mismatch categories detected automatically</div>
+      <div class="ht-item"><div class="ht-icon"><svg viewBox="0 0 12 12"><polyline points="10 3 5 9 2 6"/></svg></div>Print / export ready</div>
+    </div>
+  </div>
+</div>
+
+<div class="main">
+
+  <!-- SETUP -->
+  <div class="panel">
+    <div class="panel-hdr">
+      <div class="panel-hdr-l">
+        <div class="ph-icon"><svg viewBox="0 0 24 24"><path d="M3 21h18M5 21V7l7-4 7 4v14M9 21v-6h6v6"/></svg></div>
+        <div class="ph-text"><h2>Company &amp; Period Details</h2><p>Shown on the printed / exported reconciliation report</p></div>
+      </div>
+    </div>
+    <div class="panel-body">
+      <div class="fg">
+        <div class="ff"><label>Company Name</label><input id="s-company" value="[Company Name]"/></div>
+        <div class="ff"><label>GSTIN</label><input id="s-gstin" placeholder="e.g. 27AAAAA0000A1Z5"/></div>
+        <div class="ff"><label>Return Period</label><input id="s-period" placeholder="e.g. April 2026"/></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BOOKS INPUT -->
+  <div class="panel">
+    <div class="panel-hdr">
+      <div class="panel-hdr-l">
+        <div class="ph-icon"><svg viewBox="0 0 24 24"><path d="M9 17V7m3 10V11m3 6v-3M5 21h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2z"/></svg></div>
+        <div class="ph-text"><h2>Books of Account</h2><p>Download the template, fill it in, and upload — or type directly below</p></div>
+      </div>
+    </div>
+    <div class="panel-body">
+      <div class="toolbar">
+        <button class="tbtn solid" onclick="loadSample()">&#9733; Load Sample Data (Books + GSTR-2B)</button>
+        <button class="tbtn green" onclick="downloadTemplate('books')">&#8681; Download Blank Template</button>
+        <button class="tbtn" onclick="document.getElementById('fileinput-books').click()">&#8593; Upload Filled Template (.xlsx/.csv)</button>
+        <input type="file" id="fileinput-books" accept=".xlsx,.xls,.csv" onchange="handleFile(event,'books')"/>
+        <button class="tbtn ghost" onclick="addRow('books')">+ Add Row</button>
+        <button class="tbtn ghost" onclick="clearAll('books')">&#10005; Clear</button>
+      </div>
+      <div class="tb-wrap">
+        <table class="tb" id="tbTable-books">
+          <thead><tr>
+            <th style="width:120px;">Date</th>
+            <th style="width:130px;">Invoice No.</th>
+            <th style="width:150px;">GSTIN</th>
+            <th style="width:150px;">Party Name</th>
+            <th style="width:100px;">Invoice Value</th>
+            <th style="width:100px;">Taxable Value</th>
+            <th style="width:80px;">CGST</th>
+            <th style="width:80px;">SGST</th>
+            <th style="width:80px;">IGST</th>
+            <th style="width:30px;"></th>
+          </tr></thead>
+          <tbody id="tbBody-books"></tbody>
+        </table>
+      </div>
+      <div class="tb-footer">
+        <div class="balance-chip"><span class="balance-dot"></span><span id="rowCount-books">0</span>&nbsp;rows</div>
+      </div>
+      <div class="totals-strip" id="totals-books"></div>
+    </div>
+  </div>
+
+  <!-- GSTR-2B INPUT -->
+  <div class="panel">
+    <div class="panel-hdr">
+      <div class="panel-hdr-l">
+        <div class="ph-icon"><svg viewBox="0 0 24 24"><path d="M9 17V7m3 10V11m3 6v-3M5 21h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2z"/></svg></div>
+        <div class="ph-text"><h2>GSTR-2B (As Filed)</h2><p>Download the template, fill it in, and upload — or type directly below</p></div>
+      </div>
+    </div>
+    <div class="panel-body">
+      <div class="toolbar">
+        <button class="tbtn green" onclick="downloadTemplate('g2b')">&#8681; Download Blank Template</button>
+        <button class="tbtn" onclick="document.getElementById('fileinput-g2b').click()">&#8593; Upload Filled Template (.xlsx/.csv)</button>
+        <input type="file" id="fileinput-g2b" accept=".xlsx,.xls,.csv" onchange="handleFile(event,'g2b')"/>
+        <button class="tbtn ghost" onclick="addRow('g2b')">+ Add Row</button>
+        <button class="tbtn ghost" onclick="clearAll('g2b')">&#10005; Clear</button>
+      </div>
+      <div class="tb-wrap">
+        <table class="tb" id="tbTable-g2b">
+          <thead><tr>
+            <th style="width:120px;">Date</th>
+            <th style="width:130px;">Invoice No.</th>
+            <th style="width:150px;">GSTIN</th>
+            <th style="width:150px;">Party Name</th>
+            <th style="width:100px;">Invoice Value</th>
+            <th style="width:100px;">Taxable Value</th>
+            <th style="width:80px;">CGST</th>
+            <th style="width:80px;">SGST</th>
+            <th style="width:80px;">IGST</th>
+            <th style="width:30px;"></th>
+          </tr></thead>
+          <tbody id="tbBody-g2b"></tbody>
+        </table>
+      </div>
+      <div class="tb-footer">
+        <div class="balance-chip"><span class="balance-dot"></span><span id="rowCount-g2b">0</span>&nbsp;rows</div>
+      </div>
+      <div class="totals-strip" id="totals-g2b"></div>
+
+      <div class="same-data-warning" id="sameDataWarning">
+        <svg viewBox="0 0 24 24"><path d="M12 9v4m0 4h.01M10.29 3.86l-8.18 14.18A2 2 0 0 0 4 21h16a2 2 0 0 0 1.89-2.96L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>
+        <span>Books and GSTR-2B totals are identical — same row count and same amounts on both sides. If that's genuinely expected, ignore this. If not, double-check you didn't upload the same file to both panels.</span>
+      </div>
+
+      <div class="gen-btn-wrap">
+        <button class="btn-primary" onclick="runReconciliation()">Reconcile Books vs GSTR-2B &#8594;</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- RESULTS -->
+  <div class="results" id="results">
+    <div class="seal-card">
+      <div class="seal-badge" id="sealBadge"></div>
+      <div class="seal-text"><h2 id="sealHeading"></h2><p id="sealBody"></p></div>
+    </div>
+
+    <div style="text-align:right; margin-bottom:16px; display:flex; gap:10px; justify-content:flex-end; flex-wrap:wrap;">
+      <button class="tbtn ghost" onclick="downloadPDF(event)">&#128196; Download PDF Report (Summary only)</button>
+      <button class="tbtn green" onclick="downloadResults(event)">&#8681; Download My Results (Excel, values only)</button>
+    </div>
+
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="summary" onclick="showTab('summary')"><span class="tab-dot td-blue"></span>Summary</button>
+      <button class="tab-btn" data-tab="catdiff" onclick="showTab('catdiff')"><span class="tab-dot td-green"></span>Category Diff</button>
+      <button class="tab-btn" data-tab="matched" onclick="showTab('matched')"><span class="tab-dot td-green"></span>Matched</button>
+      <button class="tab-btn" data-tab="missing" onclick="showTab('missing')"><span class="tab-dot td-red"></span>Missing Invoices</button>
+      <button class="tab-btn" data-tab="valuemismatch" onclick="showTab('valuemismatch')"><span class="tab-dot td-amber"></span>Value Mismatches</button>
+      <button class="tab-btn" data-tab="possible" onclick="showTab('possible')"><span class="tab-dot td-purple"></span>Possible Matches</button>
+      <button class="tab-btn" data-tab="dup" onclick="showTab('dup')"><span class="tab-dot td-slate"></span>Duplicates</button>
+    </div>
+
+    <div class="tab-panel active" id="tab-summary">
+      <div class="stat-grid" id="statGrid"></div>
+    </div>
+
+    <div class="tab-panel" id="tab-catdiff">
+      <p class="note">Every mismatch category with its own Diff row. The TOTAL should equal the Books-vs-GSTR2B Control Total below it — when Net Diff Check reads zero for every field, everything is fully explained.</p>
+      <div class="table-scroll"><table class="fst" id="catTable"></table></div>
+    </div>
+
+    <div class="tab-panel" id="tab-matched">
+      <div class="subhdr">I. Matched Invoices — verified identical on both sides, no differences at all</div>
+      <div class="table-scroll" id="sec-I"></div>
+    </div>
+
+    <div class="tab-panel" id="tab-missing">
+      <div class="subhdr">A. In Books, NOT in GSTR-2B — missing from 2B, chase the supplier or check next period</div>
+      <div class="table-scroll" id="sec-A"></div>
+      <div class="subhdr">B. In GSTR-2B, NOT in Books — missing from Books, verify genuineness then book it</div>
+      <div class="table-scroll" id="sec-B"></div>
+    </div>
+
+    <div class="tab-panel" id="tab-valuemismatch">
+      <div class="subhdr">C. Value Mismatch — same invoice both sides, amounts differ</div>
+      <div class="table-scroll" id="sec-C"></div>
+      <div class="subhdr">F. Possible Invoice Value Mismatch — Taxable/CGST/SGST/IGST all tie out, but the Invoice Value total differs</div>
+      <div class="table-scroll" id="sec-F"></div>
+    </div>
+
+    <div class="tab-panel" id="tab-possible">
+      <div class="subhdr">D. Possible Match — Invoice No. differs (same GSTIN, date &amp; taxable value)</div>
+      <div class="table-scroll" id="sec-D"></div>
+      <div class="subhdr">E. Possible GSTIN Mismatch (same Invoice No., date &amp; taxable value — check for a typo)</div>
+      <div class="table-scroll" id="sec-E"></div>
+      <div class="subhdr">G. Possible Date Mismatch (GSTIN, Invoice No. &amp; amounts match — check the GST return period)</div>
+      <div class="table-scroll" id="sec-G"></div>
+    </div>
+
+    <div class="tab-panel" id="tab-dup">
+      <p class="note">Same GSTIN + Invoice Number appears more than once on ONE side. Not part of the Category Diff tie-out — review manually.</p>
+      <div class="subhdr">H1. Duplicates within Books</div>
+      <div class="table-scroll" id="sec-H1"></div>
+      <div class="subhdr">H2. Duplicates within GSTR-2B</div>
+      <div class="table-scroll" id="sec-H2"></div>
+    </div>
+  </div>
+
+  <div class="privacy">&#128274; Nothing you enter here is uploaded to any server — every calculation runs locally in your browser, and your Books / GSTR-2B data never leaves your device.</div>
+
+  <div class="cta">
+    <h4>Want the full Excel utility, or this reviewed by a human?</h4>
+    <p>This free tool covers the core reconciliation in-browser. Leave your email and we'll reach out about the full Excel workbook or a reviewed reconciliation.</p>
+    <form class="cta-form" id="contact-form" name="gst-recon-request" method="POST" data-netlify="true" netlify-honeypot="bot-field" onsubmit="submitContact(event)">
+      <input type="hidden" name="form-name" value="gst-recon-request"/>
+      <p style="display:none;"><label>Don't fill this out if you're human: <input name="bot-field"/></label></p>
+      <input type="hidden" name="tool" value="GST Reconciliation - Books vs GSTR-2B"/>
+      <input type="hidden" id="cf-company" name="company_name" value=""/>
+      <input class="cta-input" name="name" placeholder="Your name (optional)"/>
+      <input class="cta-input" name="email" type="email" placeholder="Your email address" required/>
+      <button class="btn-cta" type="submit" id="cta-btn">Request the Excel Utility</button>
+    </form>
+    <div class="cta-success" id="cta-success">&#10003; Request received! We'll email you shortly.</div>
+  </div>
+
+</div>
+
+<footer class="footer-copy">&#169; 2026 ReportEdge &middot; Financial Intelligence Platform</footer>
+
+<script>
+// ============================================================
+// Data model
+// ============================================================
+const COLS = ['date','invNo','gstin','party','invVal','taxVal','cgst','sgst','igst'];
+let data = { books: [], g2b: [] };
+
+function blankRow(){ return {date:'',invNo:'',gstin:'',party:'',invVal:0,taxVal:0,cgst:0,sgst:0,igst:0}; }
+function escAttr(s){ return String(s==null?'':s).replace(/"/g,'&quot;'); }
+
+function addRow(side){ data[side].push(blankRow()); renderGrid(side); }
+function deleteRow(side,i){ data[side].splice(i,1); renderGrid(side); }
+function updateRow(side,i,field,val){
+  data[side][i][field] = (['invVal','taxVal','cgst','sgst','igst'].includes(field)) ? (parseFloat(val)||0) : val;
+  if (['invVal','taxVal','cgst','sgst','igst'].includes(field)) renderTotalsStrip(side);
+}
+function clearAll(side){ data[side] = []; renderGrid(side); document.getElementById('results').style.display='none'; }
+
+function renderTotalsStrip(side){
+  const rows = data[side];
+  const sums = { invVal:0, taxVal:0, cgst:0, sgst:0, igst:0 };
+  rows.forEach(r=>{ sums.invVal+=(r.invVal||0); sums.taxVal+=(r.taxVal||0); sums.cgst+=(r.cgst||0); sums.sgst+=(r.sgst||0); sums.igst+=(r.igst||0); });
+  const el = document.getElementById('totals-'+side);
+  if (!el) return;
+  if (rows.length === 0) { el.innerHTML = ''; return; }
+  const cells = [
+    ['Invoice Value', sums.invVal], ['Taxable Value', sums.taxVal], ['CGST', sums.cgst], ['SGST', sums.sgst], ['IGST', sums.igst]
+  ];
+  el.innerHTML = cells.map(([l,n])=>`<div class="tcell"><div class="tn">${fmt(n)}</div><div class="tl">${l}</div></div>`).join('');
+}
+
+function renderGrid(side){
+  const body = document.getElementById('tbBody-'+side);
+  body.innerHTML = '';
+  data[side].forEach((r,i)=>{
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><input type="date" value="${escAttr(r.date)}" oninput="updateRow('${side}',${i},'date',this.value)"/></td>
+      <td><input class="acc-input" value="${escAttr(r.invNo)}" oninput="updateRow('${side}',${i},'invNo',this.value)"/></td>
+      <td><input class="gstin-input" value="${escAttr(r.gstin)}" oninput="updateRow('${side}',${i},'gstin',this.value)"/></td>
+      <td><input class="acc-input" value="${escAttr(r.party)}" oninput="updateRow('${side}',${i},'party',this.value)"/></td>
+      <td><input type="number" value="${r.invVal}" oninput="updateRow('${side}',${i},'invVal',this.value)"/></td>
+      <td><input type="number" value="${r.taxVal}" oninput="updateRow('${side}',${i},'taxVal',this.value)"/></td>
+      <td><input type="number" value="${r.cgst}" oninput="updateRow('${side}',${i},'cgst',this.value)"/></td>
+      <td><input type="number" value="${r.sgst}" oninput="updateRow('${side}',${i},'sgst',this.value)"/></td>
+      <td><input type="number" value="${r.igst}" oninput="updateRow('${side}',${i},'igst',this.value)"/></td>
+      <td class="del"><button class="del-btn" onclick="deleteRow('${side}',${i})">&#10005;</button></td>
+    `;
+    body.appendChild(tr);
+  });
+  document.getElementById('rowCount-'+side).textContent = data[side].length;
+  renderTotalsStrip(side);
+  checkIdenticalTotals();
+}
+
+// ============================================================
+// Sample data
+// ============================================================
+function loadSample(){
+  data.books = [
+    {date:'2026-05-01',invNo:'ALP/001',gstin:'27AAAAA1111A1Z5',party:'Alpha Traders Pvt Ltd',invVal:11800,taxVal:10000,cgst:900,sgst:900,igst:0},
+    {date:'2026-05-02',invNo:'BETA-001',gstin:'07BBBBB2222B1Z2',party:'Beta Enterprises',invVal:23600,taxVal:20000,cgst:0,sgst:0,igst:3600},
+    {date:'2026-05-04',invNo:'B-MISS-01',gstin:'27AAAAA0001A1Z1',party:'Missing Party',invVal:1180,taxVal:1000,cgst:90,sgst:90,igst:0},
+    {date:'2026-05-06',invNo:'INV-M-01',gstin:'27CCCCC0003C1Z3',party:'Mismatch Co',invVal:5900,taxVal:5000,cgst:450,sgst:450,igst:0},
+    {date:'2026-05-07',invNo:'INV-777',gstin:'27DDDDD0004D1Z4',party:'TypoCo',invVal:3540,taxVal:3000,cgst:270,sgst:270,igst:0},
+    {date:'2026-05-08',invNo:'OLD/999',gstin:'27EEEEE0005E1Z5',party:'NoDiffCo',invVal:2360,taxVal:2000,cgst:180,sgst:180,igst:0},
+    {date:'2026-05-09',invNo:'INV-IV-01',gstin:'27FFFFF0006F1Z6',party:'InvValCo',invVal:2450,taxVal:2000,cgst:180,sgst:180,igst:0},
+    {date:'2026-05-10',invNo:'INV-DT-01',gstin:'27GGGGG0007G1Z7',party:'DateCo',invVal:1180,taxVal:1000,cgst:90,sgst:90,igst:0},
+    {date:'2026-05-11',invNo:'INV-DUP-01',gstin:'27HHHHH0008H1Z8',party:'DupCo',invVal:1180,taxVal:1000,cgst:90,sgst:90,igst:0},
+    {date:'2026-05-11',invNo:'INV-DUP-01',gstin:'27HHHHH0008H1Z8',party:'DupCo',invVal:1180,taxVal:1000,cgst:90,sgst:90,igst:0},
+  ];
+  data.g2b = [
+    {date:'2026-05-01',invNo:'ALP/001',gstin:'27AAAAA1111A1Z5',party:'Alpha Traders Pvt Ltd',invVal:11800,taxVal:10000,cgst:900,sgst:900,igst:0},
+    {date:'2026-05-02',invNo:'BETA-001',gstin:'07BBBBB2222B1Z2',party:'Beta Enterprises',invVal:23600,taxVal:20000,cgst:0,sgst:0,igst:3600},
+    {date:'2026-05-05',invNo:'G-MISS-01',gstin:'27BBBBB0002B1Z2',party:'Ghost Party',invVal:2360,taxVal:2000,cgst:180,sgst:180,igst:0},
+    {date:'2026-05-06',invNo:'INV-M-01',gstin:'27CCCCC0003C1Z3',party:'Mismatch Co',invVal:6018,taxVal:5100,cgst:459,sgst:459,igst:0},
+    {date:'2026-05-07',invNo:'INV-777',gstin:'27DDDDD0009D1Z4',party:'TypoCo',invVal:3540,taxVal:3000,cgst:270,sgst:270,igst:0},
+    {date:'2026-05-08',invNo:'NEW-111',gstin:'27EEEEE0005E1Z5',party:'NoDiffCo',invVal:2360,taxVal:2000,cgst:180,sgst:180,igst:0},
+    {date:'2026-05-09',invNo:'INV-IV-01',gstin:'27FFFFF0006F1Z6',party:'InvValCo',invVal:2360,taxVal:2000,cgst:180,sgst:180,igst:0},
+    {date:'2026-06-02',invNo:'INV-DT-01',gstin:'27GGGGG0007G1Z7',party:'DateCo',invVal:1180,taxVal:1000,cgst:90,sgst:90,igst:0},
+    {date:'2026-05-11',invNo:'INV-DUP-01',gstin:'27HHHHH0008H1Z8',party:'DupCo',invVal:1180,taxVal:1000,cgst:90,sgst:90,igst:0},
+  ];
+  renderGrid('books'); renderGrid('g2b');
+}
+
+// ============================================================
+// Excel template download / upload (SheetJS)
+// ============================================================
+function downloadTemplate(side){
+  const label = side==='books' ? 'Books' : 'GSTR2B';
+  const wsData = [['Date','Invoice Number','GSTIN','Party Name','Invoice Value','Taxable Value','CGST','SGST','IGST'],
+    ['2026-04-15','INV/2026/001','27ABCDE1234F1Z5','Sample Traders Pvt Ltd',11800,10000,900,900,0]];
+  const ws = XLSX.utils.aoa_to_sheet(wsData);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, label);
+  XLSX.writeFile(wb, `${label}_Template.xlsx`);
+}
+
+function excelSerialToISO(serial){
+  const epoch = Date.UTC(1899,11,30);
+  const d = new Date(epoch + serial*86400000);
+  return d.toISOString().slice(0,10);
+}
+function anyDateToISO(raw){
+  if (raw==null || raw==='') return '';
+  if (typeof raw === 'number') return excelSerialToISO(raw);
+  const s = String(raw).trim();
+  let m = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+  if (m) return `${m[1]}-${String(m[2]).padStart(2,'0')}-${String(m[3]).padStart(2,'0')}`;
+  m = s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/);
+  if (m) return `${m[3]}-${String(m[2]).padStart(2,'0')}-${String(m[1]).padStart(2,'0')}`;
+  const MONTHS = {jan:1,feb:2,mar:3,apr:4,may:5,jun:6,jul:7,aug:8,sep:9,oct:10,nov:11,dec:12};
+  m = s.match(/^(\d{1,2})[-\/\s]([A-Za-z]{3})[-\/\s](\d{4})$/);
+  if (m && MONTHS[m[2].toLowerCase()]) return `${m[3]}-${String(MONTHS[m[2].toLowerCase()]).padStart(2,'0')}-${String(m[1]).padStart(2,'0')}`;
+  const d = new Date(s);
+  return isNaN(d) ? '' : d.toISOString().slice(0,10);
+}
+
+function checkFilenameMismatch(filename, side){
+  const n = filename.toLowerCase();
+  const looksLike2B = /(gstr.?2b|2b\b|gstr2b)/.test(n);
+  const looksLikeBooks = /(books?|accounts?|ledger|purchase)/.test(n);
+  if (side === 'books' && looksLike2B && !looksLikeBooks){
+    return `This file is named "${filename}", which looks like a GSTR-2B file — but you're uploading it into the Books panel. Continue anyway?`;
+  }
+  if (side === 'g2b' && looksLikeBooks && !looksLike2B){
+    return `This file is named "${filename}", which looks like a Books file — but you're uploading it into the GSTR-2B panel. Continue anyway?`;
+  }
+  return null;
+}
+
+function handleFile(event, side){
+  const file = event.target.files[0];
+  if (!file) return;
+  const warning = checkFilenameMismatch(file.name, side);
+  if (warning && !confirm(warning)){
+    event.target.value = '';
+    return;
+  }
+  const reader = new FileReader();
+  reader.onload = function(e){
+    const wb = XLSX.read(e.target.result, {type:'binary', cellDates:false});
+    const ws = wb.Sheets[wb.SheetNames[0]];
+    const rows = XLSX.utils.sheet_to_json(ws, {header:1, raw:true});
+    const parsed = [];
+    rows.forEach((row,i)=>{
+      if (!row || row.length < 9) return;
+      const [dateRaw, invNo, gstin, party, invVal, taxVal, cgst, sgst, igst] = row;
+      if (i===0 && isNaN(parseFloat(invVal))) return; // skip header row
+      parsed.push({ date: anyDateToISO(dateRaw), invNo: String(invNo||''), gstin: String(gstin||''),
+        party: String(party||''), invVal: parseFloat(invVal)||0, taxVal: parseFloat(taxVal)||0,
+        cgst: parseFloat(cgst)||0, sgst: parseFloat(sgst)||0, igst: parseFloat(igst)||0 });
+    });
+    data[side] = parsed;
+    renderGrid(side);
+    checkIdenticalTotals();
+  };
+  reader.readAsBinaryString(file);
+  event.target.value = '';
+}
+
+function checkIdenticalTotals(){
+  const warnEl = document.getElementById('sameDataWarning');
+  if (!warnEl) return;
+  if (data.books.length === 0 || data.g2b.length === 0){ warnEl.style.display='none'; return; }
+  const sum = rows => rows.reduce((a,r)=>({invVal:a.invVal+(r.invVal||0), taxVal:a.taxVal+(r.taxVal||0), cgst:a.cgst+(r.cgst||0), sgst:a.sgst+(r.sgst||0), igst:a.igst+(r.igst||0)}), {invVal:0,taxVal:0,cgst:0,sgst:0,igst:0});
+  const b = sum(data.books), g = sum(data.g2b);
+  const identical = data.books.length === data.g2b.length &&
+    ['invVal','taxVal','cgst','sgst','igst'].every(f => Math.abs(b[f]-g[f]) < 1) &&
+    (b.taxVal > 0 || b.invVal > 0);
+  warnEl.style.display = identical ? 'flex' : 'none';
+}
+
+// ============================================================
+// Core reconciliation logic
+// ============================================================
+function normStr(s){ return String(s==null?'':s).trim().toUpperCase().replace(/[\s\-\/\.'']/g,''); }
+function fmt(n){
+  if(n===undefined||n===null||isNaN(n)) n=0;
+  n = Math.round(n*100)/100;
+  const neg = n < -0.004;
+  const abs = Math.abs(n);
+  const s = abs.toLocaleString('en-IN',{maximumFractionDigits:0});
+  if (abs < 0.005) return '-';
+  return neg ? '('+s+')' : s;
+}
+function fmtDateISO(iso){
+  if (!iso) return '—';
+  const [y,m,d] = iso.split('-');
+  const mon = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][parseInt(m,10)-1];
+  return `${d}-${mon}-${y}`;
+}
+function primaryKey(r){ return normStr(r.gstin) + normStr(r.invNo); }
+function secondaryKey(r){ return normStr(r.gstin) + (r.date||'').replace(/-/g,'') + Math.round(r.taxVal); }
+function tertiaryKey(r){ return normStr(r.invNo) + (r.date||'').replace(/-/g,'') + Math.round(r.taxVal); }
+
+function buildMap(rows, keyFn){
+  const map = new Map();
+  for (const r of rows){ const k = keyFn(r); if(!k) continue; if(!map.has(k)) map.set(k,[]); map.get(k).push(r); }
+  return map;
+}
+
+function reconcile(booksRows, g2bRows){
+  const pBooks = buildMap(booksRows, primaryKey), p2B = buildMap(g2bRows, primaryKey);
+  const sBooks = buildMap(booksRows, secondaryKey), s2B = buildMap(g2bRows, secondaryKey);
+  const tBooks = buildMap(booksRows, tertiaryKey), t2B = buildMap(g2bRows, tertiaryKey);
+
+  function annotate(rows, ownMap, otherMap, otherSecMap, otherTerMap, otherLabel){
+    for (const r of rows){
+      const pk = primaryKey(r);
+      r.duplicate = (ownMap.get(pk)||[]).length > 1;
+      const pMatches = otherMap.get(pk) || [];
+      if (pMatches.length > 0){
+        const o = pMatches[0]; r.other = o;
+        r.taxDiff = r.taxVal - o.taxVal; r.cgstDiff = r.cgst - o.cgst;
+        r.sgstDiff = r.sgst - o.sgst; r.igstDiff = r.igst - o.igst; r.invValDiff = r.invVal - o.invVal;
+        const compMatch = Math.abs(r.taxDiff)<1 && Math.abs(r.cgstDiff)<1 && Math.abs(r.sgstDiff)<1 && Math.abs(r.igstDiff)<1;
+        if (!compMatch) r.remark = 'Value Mismatch';
+        else if (Math.abs(r.invValDiff)>=1) r.remark = 'Possible Invoice Value Mismatch';
+        else if ((r.date||'') !== (o.date||'')) r.remark = 'Possible Date Mismatch';
+        else r.remark = 'Matched';
+      } else {
+        const sMatches = otherSecMap.get(secondaryKey(r)) || [];
+        if (sMatches.length>0){ r.remark = 'Possible Match - Check Invoice No'; r.suggestedInvNo = sMatches[0].invNo; }
+        else {
+          const tMatches = otherTerMap.get(tertiaryKey(r)) || [];
+          if (tMatches.length>0){ r.remark = 'Possible GSTIN Mismatch - Check GSTIN'; r.suggestedGstin = tMatches[0].gstin; }
+          else r.remark = 'Not in ' + otherLabel;
+        }
+      }
+    }
+  }
+  annotate(booksRows, pBooks, p2B, s2B, t2B, 'GSTR2B');
+  annotate(g2bRows, p2B, pBooks, sBooks, tBooks, 'Books');
+  return { booksRows, g2bRows };
+}
+
+function sumField(rows, f){ return rows.reduce((a,r)=>a+(r[f]||0),0); }
+
+function buildSummary(booksRows, g2bRows){
+  const byRemark = (rows, remark) => rows.filter(r=>r.remark===remark);
+  const notIn2B = byRemark(booksRows,'Not in GSTR2B');
+  const notInBooks = byRemark(g2bRows,'Not in Books');
+  const valueMismatch = byRemark(booksRows,'Value Mismatch');
+  const invValMismatch = byRemark(booksRows,'Possible Invoice Value Mismatch');
+  const invNoDiffers = byRemark(booksRows,'Possible Match - Check Invoice No');
+  const gstinMismatch = byRemark(booksRows,'Possible GSTIN Mismatch - Check GSTIN');
+  const dateMismatch = byRemark(booksRows,'Possible Date Mismatch');
+  const matched = byRemark(booksRows,'Matched');
+  const dupBooks = booksRows.filter(r=>r.duplicate);
+  const dupG2B = g2bRows.filter(r=>r.duplicate);
+
+  const controlTotal = {}, booksTotal = {}, g2bTotal = {};
+  for (const f of ['invVal','taxVal','cgst','sgst','igst']) {
+    booksTotal[f] = sumField(booksRows,f);
+    g2bTotal[f] = sumField(g2bRows,f);
+    controlTotal[f] = booksTotal[f] - g2bTotal[f];
+  }
+
+  const cat = {
+    A: { invVal:sumField(notIn2B,'invVal'), taxVal:sumField(notIn2B,'taxVal'), cgst:sumField(notIn2B,'cgst'), sgst:sumField(notIn2B,'sgst'), igst:sumField(notIn2B,'igst') },
+    B: { invVal:-sumField(notInBooks,'invVal'), taxVal:-sumField(notInBooks,'taxVal'), cgst:-sumField(notInBooks,'cgst'), sgst:-sumField(notInBooks,'sgst'), igst:-sumField(notInBooks,'igst') },
+    C: { taxVal:sumField(valueMismatch,'taxDiff'), cgst:sumField(valueMismatch,'cgstDiff'), sgst:sumField(valueMismatch,'sgstDiff'), igst:sumField(valueMismatch,'igstDiff') },
+    D: { invVal:0, taxVal:0, cgst:0, sgst:0, igst:0 },
+    E: { invVal:0, taxVal:0, cgst:0, sgst:0, igst:0 },
+    F: { invVal:sumField(invValMismatch,'invValDiff'), taxVal:0, cgst:0, sgst:0, igst:0 },
+    G: { invVal:0, taxVal:0, cgst:0, sgst:0, igst:0 },
+    M: { invVal:0, taxVal:0, cgst:0, sgst:0, igst:0 },
+  };
+  cat.C.invVal = cat.C.taxVal + cat.C.cgst + cat.C.sgst + cat.C.igst;
+
+  const TOTAL = {invVal:0,taxVal:0,cgst:0,sgst:0,igst:0};
+  for (const k of ['A','B','C','D','E','F','G','M']) for (const f of ['invVal','taxVal','cgst','sgst','igst']) TOTAL[f]+=(cat[k][f]||0);
+
+  const netDiffCheck = {};
+  for (const f of ['invVal','taxVal','cgst','sgst','igst']) netDiffCheck[f] = TOTAL[f]-controlTotal[f];
+
+  return {
+    counts: { totalBooks:booksRows.length, totalG2B:g2bRows.length, matched:matched.length, valueMismatch:valueMismatch.length,
+      invValMismatch:invValMismatch.length, invNoDiffers:invNoDiffers.length, gstinMismatch:gstinMismatch.length,
+      dateMismatch:dateMismatch.length, notIn2B:notIn2B.length, notInBooks:notInBooks.length, dupBooks:dupBooks.length, dupG2B:dupG2B.length },
+    lists: { notIn2B, notInBooks, valueMismatch, invValMismatch, invNoDiffers, gstinMismatch, dateMismatch, dupBooks, dupG2B, matched },
+    controlTotal, booksTotal, g2bTotal, cat, TOTAL, netDiffCheck,
+  };
+}
+
+// ============================================================
+// Rendering
+// ============================================================
+function fieldRow(label, count, vals, cls){
+  return `<tr class="${cls||''}"><td class="lbl">${label}</td><td class="num">${count==null?'':count}</td>` +
+    ['invVal','taxVal','cgst','sgst','igst'].map(f=>`<td class="num">${fmt(vals[f]||0)}</td>`).join('') + `</tr>`;
+}
+function renderCatTable(summary){
+  const c = summary.counts, cat = summary.cat, ct = summary.controlTotal, nd = summary.netDiffCheck;
+  const bt = summary.booksTotal, gt = summary.g2bTotal;
+  let rows = '';
+  rows += fieldRow('A. In Books, NOT in GSTR-2B', c.notIn2B, cat.A);
+  rows += fieldRow('B. In GSTR-2B, NOT in Books', c.notInBooks, cat.B);
+  rows += fieldRow('C. Value Mismatch', c.valueMismatch, cat.C);
+  rows += fieldRow('D. Possible Match — Invoice No. differs', c.invNoDiffers, cat.D);
+  rows += fieldRow('E. Possible GSTIN Mismatch', c.gstinMismatch, cat.E);
+  rows += fieldRow('F. Possible Invoice Value Mismatch', c.invValMismatch, cat.F);
+  rows += fieldRow('G. Possible Date Mismatch', c.dateMismatch, cat.G);
+  rows += fieldRow('Matched', c.matched, cat.M);
+  const totalCount = c.notIn2B+c.notInBooks+c.valueMismatch+c.invNoDiffers+c.gstinMismatch+c.invValMismatch+c.dateMismatch+c.matched;
+  rows += fieldRow('TOTAL', totalCount, summary.TOTAL, 'total-row');
+  rows += fieldRow('As per Books', '', bt, 'ct-row');
+  rows += fieldRow('As per GSTR-2B', '', gt, 'ct-row');
+  rows += fieldRow('Difference (Books − GSTR-2B)', '', ct, 'ct-row');
+  const ndOk = Object.values(nd).every(v=>Math.abs(v)<1);
+  rows += fieldRow('Net Diff Check — should be 0', '', nd, 'check-row ' + (ndOk?'ok':'bad'));
+  return `<thead><tr><th style="text-align:left;">Category</th><th>Count</th><th>Invoice Value</th><th>Taxable Value</th><th>CGST</th><th>SGST</th><th>IGST</th></tr></thead><tbody>${rows}</tbody>`;
+}
+
+function rowTableHTML(rows, cols){
+  if (rows.length===0) return `<div class="empty-note">No entries in this category.</div>`;
+  let thead = '<tr>' + cols.map(c=>`<th style="${c.left?'text-align:left;':''}">${c.label}</th>`).join('') + '</tr>';
+  let body = rows.map(r=>'<tr>'+cols.map(c=>`<td class="${c.left?'lbl':'num'}">${c.get(r)}</td>`).join('')+'</tr>').join('');
+  let totalCells = cols.map(c => c.total ? `<td class="num">${fmt(rows.reduce((a,r)=>a+(c.rawGet?c.rawGet(r):0),0))}</td>` : `<td></td>`);
+  let totalRow = `<tr class="total-row">${totalCells.join('')}</tr>`;
+  return `<table class="fst"><thead>${thead}</thead><tbody>${body}${totalRow}</tbody></table>`;
+}
+
+function renderSections(summary){
+  const L = summary.lists;
+  const put = (id, html) => document.getElementById(id).innerHTML = html;
+
+  put('sec-A', rowTableHTML(L.notIn2B, [
+    {label:'Date', left:true, get:r=>fmtDateISO(r.date)}, {label:'Invoice No.', left:true, get:r=>r.invNo}, {label:'GSTIN', left:true, get:r=>r.gstin},
+    {label:'Party', left:true, get:r=>r.party}, {label:'Invoice Value', get:r=>fmt(r.invVal), total:true, rawGet:r=>r.invVal},
+    {label:'Taxable Value', get:r=>fmt(r.taxVal), total:true, rawGet:r=>r.taxVal},
+    {label:'CGST', get:r=>fmt(r.cgst), total:true, rawGet:r=>r.cgst}, {label:'SGST', get:r=>fmt(r.sgst), total:true, rawGet:r=>r.sgst}, {label:'IGST', get:r=>fmt(r.igst), total:true, rawGet:r=>r.igst},
+  ]));
+  put('sec-B', rowTableHTML(L.notInBooks, [
+    {label:'Date', left:true, get:r=>fmtDateISO(r.date)}, {label:'Invoice No.', left:true, get:r=>r.invNo}, {label:'GSTIN', left:true, get:r=>r.gstin},
+    {label:'Party', left:true, get:r=>r.party}, {label:'Invoice Value', get:r=>fmt(r.invVal), total:true, rawGet:r=>r.invVal},
+    {label:'Taxable Value', get:r=>fmt(r.taxVal), total:true, rawGet:r=>r.taxVal},
+    {label:'CGST', get:r=>fmt(r.cgst), total:true, rawGet:r=>r.cgst}, {label:'SGST', get:r=>fmt(r.sgst), total:true, rawGet:r=>r.sgst}, {label:'IGST', get:r=>fmt(r.igst), total:true, rawGet:r=>r.igst},
+  ]));
+  put('sec-C', rowTableHTML(L.valueMismatch, [
+    {label:'Date', left:true, get:r=>fmtDateISO(r.date)}, {label:'Invoice No.', left:true, get:r=>r.invNo}, {label:'GSTIN', left:true, get:r=>r.gstin}, {label:'Party', left:true, get:r=>r.party},
+    {label:'Books Taxable', get:r=>fmt(r.taxVal), total:true, rawGet:r=>r.taxVal}, {label:'2B Taxable', get:r=>fmt(r.other.taxVal), total:true, rawGet:r=>r.other.taxVal},
+    {label:'Taxable Diff', get:r=>fmt(r.taxDiff), total:true, rawGet:r=>r.taxDiff}, {label:'CGST Diff', get:r=>fmt(r.cgstDiff), total:true, rawGet:r=>r.cgstDiff},
+    {label:'SGST Diff', get:r=>fmt(r.sgstDiff), total:true, rawGet:r=>r.sgstDiff}, {label:'IGST Diff', get:r=>fmt(r.igstDiff), total:true, rawGet:r=>r.igstDiff},
+  ]));
+  put('sec-D', rowTableHTML(L.invNoDiffers, [
+    {label:'Date', left:true, get:r=>fmtDateISO(r.date)}, {label:'Invoice No.', left:true, get:r=>r.invNo}, {label:'GSTIN', left:true, get:r=>r.gstin}, {label:'Party', left:true, get:r=>r.party},
+    {label:'Suggested 2B Invoice No.', left:true, get:r=>r.suggestedInvNo},
+    {label:'Taxable Value', get:r=>fmt(r.taxVal), total:true, rawGet:r=>r.taxVal},
+  ]));
+  put('sec-E', rowTableHTML(L.gstinMismatch, [
+    {label:'Date', left:true, get:r=>fmtDateISO(r.date)}, {label:'Invoice No.', left:true, get:r=>r.invNo}, {label:'GSTIN', left:true, get:r=>r.gstin}, {label:'Party', left:true, get:r=>r.party},
+    {label:'Suggested 2B GSTIN', left:true, get:r=>r.suggestedGstin},
+    {label:'Taxable Value', get:r=>fmt(r.taxVal), total:true, rawGet:r=>r.taxVal},
+  ]));
+  put('sec-F', rowTableHTML(L.invValMismatch, [
+    {label:'Date', left:true, get:r=>fmtDateISO(r.date)}, {label:'Invoice No.', left:true, get:r=>r.invNo}, {label:'GSTIN', left:true, get:r=>r.gstin}, {label:'Party', left:true, get:r=>r.party},
+    {label:'Taxable Value', get:r=>fmt(r.taxVal)}, {label:'Books Invoice Value', get:r=>fmt(r.invVal), total:true, rawGet:r=>r.invVal},
+    {label:'2B Invoice Value', get:r=>fmt(r.other.invVal), total:true, rawGet:r=>r.other.invVal}, {label:'Invoice Value Diff', get:r=>fmt(r.invValDiff), total:true, rawGet:r=>r.invValDiff},
+  ]));
+  put('sec-G', rowTableHTML(L.dateMismatch, [
+    {label:'Date', left:true, get:r=>fmtDateISO(r.date)}, {label:'Invoice No.', left:true, get:r=>r.invNo}, {label:'GSTIN', left:true, get:r=>r.gstin}, {label:'Party', left:true, get:r=>r.party},
+    {label:'2B Date', left:true, get:r=>fmtDateISO(r.other.date)},
+    {label:'Taxable Value', get:r=>fmt(r.taxVal), total:true, rawGet:r=>r.taxVal},
+  ]));
+  const dupCols = [
+    {label:'Date', left:true, get:r=>fmtDateISO(r.date)}, {label:'Invoice No.', left:true, get:r=>r.invNo}, {label:'GSTIN', left:true, get:r=>r.gstin},
+    {label:'Party', left:true, get:r=>r.party}, {label:'Invoice Value', get:r=>fmt(r.invVal), total:true, rawGet:r=>r.invVal}, {label:'Taxable Value', get:r=>fmt(r.taxVal), total:true, rawGet:r=>r.taxVal},
+  ];
+  put('sec-H1', rowTableHTML(L.dupBooks, dupCols));
+  put('sec-H2', rowTableHTML(L.dupG2B, dupCols));
+  put('sec-I', rowTableHTML(L.matched, [
+    {label:'Date', left:true, get:r=>fmtDateISO(r.date)}, {label:'Invoice No.', left:true, get:r=>r.invNo}, {label:'GSTIN', left:true, get:r=>r.gstin},
+    {label:'Party', left:true, get:r=>r.party}, {label:'Invoice Value', get:r=>fmt(r.invVal), total:true, rawGet:r=>r.invVal},
+    {label:'Taxable Value', get:r=>fmt(r.taxVal), total:true, rawGet:r=>r.taxVal},
+    {label:'CGST', get:r=>fmt(r.cgst), total:true, rawGet:r=>r.cgst}, {label:'SGST', get:r=>fmt(r.sgst), total:true, rawGet:r=>r.sgst}, {label:'IGST', get:r=>fmt(r.igst), total:true, rawGet:r=>r.igst},
+  ]));
+}
+
+function renderStats(summary){
+  const c = summary.counts;
+  const stats = [
+    ['Total Books', c.totalBooks, ''], ['Total GSTR-2B', c.totalG2B, ''], ['Matched', c.matched, ''],
+    ['Value Mismatch', c.valueMismatch, 'bad'], ['Inv. Value Mismatch', c.invValMismatch, 'warn'], ['Date Mismatch', c.dateMismatch, 'warn'],
+    ['Invoice No. differs', c.invNoDiffers, 'warn'], ['GSTIN Mismatch', c.gstinMismatch, 'warn'],
+    ['Not in 2B', c.notIn2B, 'bad'], ['Not in Books', c.notInBooks, 'bad'],
+    ['Duplicates (Books)', c.dupBooks, c.dupBooks>0?'warn':''], ['Duplicates (2B)', c.dupG2B, c.dupG2B>0?'warn':''],
+  ];
+  document.getElementById('statGrid').innerHTML = stats.map(([l,n,cls])=>`<div class="stat ${cls}"><div class="n">${n}</div><div class="l">${l}</div></div>`).join('');
+}
+
+function renderSeal(summary){
+  const nd = summary.netDiffCheck;
+  const ok = Object.values(nd).every(v=>Math.abs(v)<1);
+  const dupTotal = summary.counts.dupBooks + summary.counts.dupG2B;
+  const badge = document.getElementById('sealBadge');
+  badge.className = 'seal-badge ' + (ok?'ok':'bad');
+  badge.textContent = ok ? '✓ Reconciled' : '⚠ Discrepancy';
+  document.getElementById('sealHeading').textContent = ok ? 'Fully reconciled' : 'Unexplained difference remains';
+  document.getElementById('sealBody').textContent = ok
+    ? (dupTotal>0 ? `Every rupee is explained by a category below. Note: ${dupTotal} duplicate ${dupTotal===1?'entry was':'entries were'} found — review the Duplicates tab even though totals tie out.`
+                  : 'Every rupee in Books ties out exactly against GSTR-2B, across every category above.')
+    : `Net Diff Check is non-zero. Check the Duplicates tab first (Books: ${summary.counts.dupBooks}, GSTR-2B: ${summary.counts.dupG2B}) — an unremoved duplicate is the most common cause of a residual that no category explains.`;
+}
+
+function showTab(name){
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.toggle('active', b.dataset.tab===name));
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+}
+
+let lastResult = null;
+
+function runReconciliation(){
+  if (data.books.length===0 && data.g2b.length===0){
+    alert('Add or upload some rows first (or click "Load Sample Data").');
+    return;
+  }
+  const booksRows = data.books.map(r=>({...r}));
+  const g2bRows = data.g2b.map(r=>({...r}));
+  reconcile(booksRows, g2bRows);
+  const summary = buildSummary(booksRows, g2bRows);
+  lastResult = { booksRows, g2bRows, summary };
+
+  renderSeal(summary);
+  renderStats(summary);
+  document.getElementById('catTable').innerHTML = renderCatTable(summary);
+  renderSections(summary);
+
+  document.getElementById('results').style.display = 'block';
+  showTab('summary');
+  document.getElementById('results').scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+// Builds a plain values-only workbook (no formulas) with the person's own data + results.
+// Safe to let people download - there is no reusable calculation logic in this file.
+const XLCOLOR = { navy:'FF0F172A', blue:'FF0F3D91', emerald:'FF059669', emBg:'FFECFDF5', emDark:'FF047857',
+  amberBg:'FFFFFBEB', amber:'FFD97706', redBg:'FFFEF2F2', red:'FFDC2626', border:'FFE2E8F0', stripe:'FFF8FAFC', white:'FFFFFFFF' };
+const ACC_FMT = '#,##0;[Red](#,##0);"-"';
+
+function styleHeaderRow(row){
+  row.eachCell(cell=>{
+    cell.font = { bold:true, color:{argb:XLCOLOR.white}, size:10 };
+    cell.fill = { type:'pattern', pattern:'solid', fgColor:{argb:XLCOLOR.navy} };
+    cell.alignment = { vertical:'middle', horizontal:'center', wrapText:true };
+    cell.border = { top:{style:'thin',color:{argb:XLCOLOR.border}}, bottom:{style:'thin',color:{argb:XLCOLOR.border}},
+                     left:{style:'thin',color:{argb:XLCOLOR.border}}, right:{style:'thin',color:{argb:XLCOLOR.border}} };
+  });
+  row.height = 20;
+}
+function styleDataRow(row, stripe){
+  row.eachCell(cell=>{
+    cell.border = { top:{style:'thin',color:{argb:XLCOLOR.border}}, bottom:{style:'thin',color:{argb:XLCOLOR.border}},
+                     left:{style:'thin',color:{argb:XLCOLOR.border}}, right:{style:'thin',color:{argb:XLCOLOR.border}} };
+    if (stripe) cell.fill = { type:'pattern', pattern:'solid', fgColor:{argb:XLCOLOR.stripe} };
+    cell.font = { size:10 };
+  });
+}
+function styleTotalRow(row){
+  row.eachCell(cell=>{
+    cell.font = { bold:true, size:10, color:{argb:XLCOLOR.navy} };
+    cell.fill = { type:'pattern', pattern:'solid', fgColor:{argb:XLCOLOR.amberBg} };
+    cell.border = { top:{style:'medium',color:{argb:XLCOLOR.navy}}, bottom:{style:'thin',color:{argb:XLCOLOR.border}},
+                     left:{style:'thin',color:{argb:XLCOLOR.border}}, right:{style:'thin',color:{argb:XLCOLOR.border}} };
+  });
+}
+function remarkFill(remark){
+  if (remark === 'Matched') return XLCOLOR.emBg;
+  if (remark === 'Value Mismatch' || (remark||'').indexOf('Not in') === 0) return XLCOLOR.redBg;
+  return XLCOLOR.amberBg;
+}
+
+async function downloadResults(event){
+  if (!lastResult) return;
+  const btn = event.target;
+  const origText = btn.textContent;
+  btn.textContent = 'Building file…'; btn.disabled = true;
+
+  const { booksRows, g2bRows, summary } = lastResult;
+  const wb = new ExcelJS.Workbook();
+  wb.creator = 'ReportEdge'; wb.created = new Date();
+
+  // ---------- Books / GSTR2B sheets ----------
+  function addDataSheet(name, rows){
+    const ws = wb.addWorksheet(name, { views:[{state:'frozen', ySplit:1}] });
+    ws.columns = [
+      {header:'Date', key:'date', width:13}, {header:'Invoice No.', key:'invNo', width:16},
+      {header:'GSTIN', key:'gstin', width:17}, {header:'Party', key:'party', width:24},
+      {header:'Invoice Value', key:'invVal', width:14}, {header:'Taxable Value', key:'taxVal', width:14},
+      {header:'CGST', key:'cgst', width:11}, {header:'SGST', key:'sgst', width:11}, {header:'IGST', key:'igst', width:11},
+      {header:'Remark', key:'remark', width:32},
+    ];
+    styleHeaderRow(ws.getRow(1));
+    rows.forEach((r,i)=>{
+      const row = ws.addRow({ date:fmtDateISO(r.date), invNo:r.invNo, gstin:r.gstin, party:r.party,
+        invVal:r.invVal, taxVal:r.taxVal, cgst:r.cgst, sgst:r.sgst, igst:r.igst, remark:r.remark||'' });
+      styleDataRow(row, i%2===1);
+      ['invVal','taxVal','cgst','sgst','igst'].forEach(k=>{ row.getCell(k).numFmt = ACC_FMT; row.getCell(k).alignment={horizontal:'right'}; });
+      row.getCell('remark').fill = { type:'pattern', pattern:'solid', fgColor:{argb: remarkFill(r.remark)} };
+      row.getCell('remark').font = { size:9.5, italic:true };
+    });
+    ws.autoFilter = { from:'A1', to:'J1' };
+    const sums = { invVal:0, taxVal:0, cgst:0, sgst:0, igst:0 };
+    rows.forEach(r=>{ sums.invVal+=(r.invVal||0); sums.taxVal+=(r.taxVal||0); sums.cgst+=(r.cgst||0); sums.sgst+=(r.sgst||0); sums.igst+=(r.igst||0); });
+    const totalRow = ws.addRow({ date:null, invNo:null, gstin:null, party:'TOTAL',
+      invVal:sums.invVal, taxVal:sums.taxVal, cgst:sums.cgst, sgst:sums.sgst, igst:sums.igst, remark:'' });
+    styleTotalRow(totalRow);
+    ['invVal','taxVal','cgst','sgst','igst'].forEach(k=>{ totalRow.getCell(k).numFmt = ACC_FMT; totalRow.getCell(k).alignment={horizontal:'right'}; });
+    return ws;
+  }
+  addDataSheet('Books', booksRows);
+  addDataSheet('GSTR2B', g2bRows);
+
+  // ---------- Summary sheet ----------
+  const sm = wb.addWorksheet('Summary');
+  sm.getColumn(1).width = 40;
+  [2,3,4,5,6,7].forEach(c=>sm.getColumn(c).width = 16);
+  const title = sm.addRow(['GST Reconciliation — Category-wise Diff Summary']);
+  title.getCell(1).font = { bold:true, size:15, color:{argb:XLCOLOR.navy} };
+  sm.addRow([]);
+  const c = summary.counts, cat = summary.cat, ct = summary.controlTotal, nd = summary.netDiffCheck;
+  const bt = summary.booksTotal, gt = summary.g2bTotal;
+  const hdr = sm.addRow(['Category','Count','Invoice Value','Taxable Value','CGST','SGST','IGST']);
+  styleHeaderRow(hdr);
+  const catData = [
+    ['A. In Books, NOT in GSTR-2B', c.notIn2B, cat.A],
+    ['B. In GSTR-2B, NOT in Books', c.notInBooks, cat.B],
+    ['C. Value Mismatch', c.valueMismatch, cat.C],
+    ['D. Invoice No. differs', c.invNoDiffers, cat.D],
+    ['E. GSTIN Mismatch', c.gstinMismatch, cat.E],
+    ['F. Invoice Value Mismatch', c.invValMismatch, cat.F],
+    ['G. Date Mismatch', c.dateMismatch, cat.G],
+    ['Matched', c.matched, cat.M],
+  ];
+  catData.forEach((d,i)=>{
+    const row = sm.addRow([d[0], d[1], d[2].invVal||0, d[2].taxVal||0, d[2].cgst||0, d[2].sgst||0, d[2].igst||0]);
+    styleDataRow(row, i%2===1);
+    [3,4,5,6,7].forEach(ci=>{ row.getCell(ci).numFmt = ACC_FMT; row.getCell(ci).alignment={horizontal:'right'}; });
+  });
+  const totalCount = c.notIn2B+c.notInBooks+c.valueMismatch+c.invNoDiffers+c.gstinMismatch+c.invValMismatch+c.dateMismatch+c.matched;
+  const totalRow = sm.addRow(['TOTAL', totalCount, summary.TOTAL.invVal, summary.TOTAL.taxVal, summary.TOTAL.cgst, summary.TOTAL.sgst, summary.TOTAL.igst]);
+  styleTotalRow(totalRow);
+  [3,4,5,6,7].forEach(ci=>{ totalRow.getCell(ci).numFmt = ACC_FMT; totalRow.getCell(ci).alignment={horizontal:'right'}; });
+  const ctRow1 = sm.addRow(['As per Books', '', bt.invVal, bt.taxVal, bt.cgst, bt.sgst, bt.igst]);
+  ctRow1.eachCell(cell=>{ cell.font = {italic:true, size:10, color:{argb:'FF475569'}}; });
+  [3,4,5,6,7].forEach(ci=>{ ctRow1.getCell(ci).numFmt = ACC_FMT; ctRow1.getCell(ci).alignment={horizontal:'right'}; });
+  const ctRow2 = sm.addRow(['As per GSTR-2B', '', gt.invVal, gt.taxVal, gt.cgst, gt.sgst, gt.igst]);
+  ctRow2.eachCell(cell=>{ cell.font = {italic:true, size:10, color:{argb:'FF475569'}}; });
+  [3,4,5,6,7].forEach(ci=>{ ctRow2.getCell(ci).numFmt = ACC_FMT; ctRow2.getCell(ci).alignment={horizontal:'right'}; });
+  const ctRow = sm.addRow(['Difference (Books − GSTR-2B)', '', ct.invVal, ct.taxVal, ct.cgst, ct.sgst, ct.igst]);
+  ctRow.eachCell(cell=>{ cell.font = {italic:true, bold:true, size:10, color:{argb:'FF1E293B'}}; });
+  [3,4,5,6,7].forEach(ci=>{ ctRow.getCell(ci).numFmt = ACC_FMT; ctRow.getCell(ci).alignment={horizontal:'right'}; });
+  const ndOk = ['invVal','taxVal','cgst','sgst','igst'].every(k=>Math.abs(nd[k])<1);
+  const ndRow = sm.addRow(['Net Diff Check — should be 0', '', nd.invVal, nd.taxVal, nd.cgst, nd.sgst, nd.igst]);
+  ndRow.eachCell(cell=>{
+    cell.font = { bold:true, size:10.5, color:{argb: ndOk?XLCOLOR.emDark:XLCOLOR.red} };
+    cell.fill = { type:'pattern', pattern:'solid', fgColor:{argb: ndOk?XLCOLOR.emBg:XLCOLOR.redBg} };
+  });
+  [3,4,5,6,7].forEach(ci=>{ ndRow.getCell(ci).numFmt = ACC_FMT; ndRow.getCell(ci).alignment={horizontal:'right'}; });
+
+  // ---------- Differences sheet ----------
+  const dw = wb.addWorksheet('Differences');
+  dw.getColumn(1).width = 3;
+  for (let ci=2; ci<=17; ci++) dw.getColumn(ci).width = 15;
+
+  function diffSection(title, rows, cols, numericKeys){
+    const th = dw.addRow([]); th.getCell(2).value = title;
+    th.getCell(2).font = { bold:true, size:12.5, color:{argb:XLCOLOR.navy} };
+    th.getCell(2).fill = { type:'pattern', pattern:'solid', fgColor:{argb:'FFD9E1F2'} };
+    for (let ci=2; ci<=Math.min(2+cols.length,17); ci++) dw.getCell(th.number, ci).fill = { type:'pattern', pattern:'solid', fgColor:{argb:'FFD9E1F2'} };
+
+    const hdrRow = dw.addRow([null, ...cols.map(cc=>cc.label)]);
+    styleHeaderRow(hdrRow);
+
+    if (rows.length === 0){
+      const er = dw.addRow([null, 'No entries in this category.']);
+      er.getCell(2).font = { italic:true, size:10, color:{argb:'FF475569'} };
+      dw.addRow([]);
+      return;
+    }
+    rows.forEach((r,i)=>{
+      const vals = cols.map(cc=>cc.get(r));
+      const row = dw.addRow([null, ...vals]);
+      styleDataRow(row, i%2===1);
+      numericKeys.forEach(ci=>{ row.getCell(ci).numFmt = ACC_FMT; row.getCell(ci).alignment={horizontal:'right'}; });
+    });
+    const totals = cols.map((cc,idx)=> cc.total ? rows.reduce((a,r)=>a+(cc.raw(r)||0),0) : null);
+    const tRow = dw.addRow([null, ...totals]);
+    styleTotalRow(tRow);
+    numericKeys.forEach(ci=>{ tRow.getCell(ci).numFmt = ACC_FMT; tRow.getCell(ci).alignment={horizontal:'right'}; });
+    dw.addRow([]);
+  }
+
+  diffSection('A. In Books, NOT in GSTR-2B', summary.lists.notIn2B,
+    [{label:'Date',get:r=>fmtDateISO(r.date)},{label:'Invoice No.',get:r=>r.invNo},{label:'GSTIN',get:r=>r.gstin},{label:'Party',get:r=>r.party},
+     {label:'Invoice Value',get:r=>r.invVal,total:1,raw:r=>r.invVal},{label:'Taxable Value',get:r=>r.taxVal,total:1,raw:r=>r.taxVal},
+     {label:'CGST',get:r=>r.cgst,total:1,raw:r=>r.cgst},{label:'SGST',get:r=>r.sgst,total:1,raw:r=>r.sgst},{label:'IGST',get:r=>r.igst,total:1,raw:r=>r.igst}], [6,7,8,9,10]);
+
+  diffSection('B. In GSTR-2B, NOT in Books', summary.lists.notInBooks,
+    [{label:'Date',get:r=>fmtDateISO(r.date)},{label:'Invoice No.',get:r=>r.invNo},{label:'GSTIN',get:r=>r.gstin},{label:'Party',get:r=>r.party},
+     {label:'Invoice Value',get:r=>r.invVal,total:1,raw:r=>r.invVal},{label:'Taxable Value',get:r=>r.taxVal,total:1,raw:r=>r.taxVal},
+     {label:'CGST',get:r=>r.cgst,total:1,raw:r=>r.cgst},{label:'SGST',get:r=>r.sgst,total:1,raw:r=>r.sgst},{label:'IGST',get:r=>r.igst,total:1,raw:r=>r.igst}], [6,7,8,9,10]);
+
+  diffSection('C. Value Mismatch', summary.lists.valueMismatch,
+    [{label:'Date',get:r=>fmtDateISO(r.date)},{label:'Invoice No.',get:r=>r.invNo},{label:'GSTIN',get:r=>r.gstin},{label:'Party',get:r=>r.party},
+     {label:'Books Taxable',get:r=>r.taxVal,total:1,raw:r=>r.taxVal},{label:'2B Taxable',get:r=>r.other.taxVal,total:1,raw:r=>r.other.taxVal},
+     {label:'Taxable Diff',get:r=>r.taxDiff,total:1,raw:r=>r.taxDiff},{label:'CGST Diff',get:r=>r.cgstDiff,total:1,raw:r=>r.cgstDiff},
+     {label:'SGST Diff',get:r=>r.sgstDiff,total:1,raw:r=>r.sgstDiff},{label:'IGST Diff',get:r=>r.igstDiff,total:1,raw:r=>r.igstDiff}], [6,7,8,9,10,11]);
+
+  diffSection('D. Possible Match - Invoice No. differs', summary.lists.invNoDiffers,
+    [{label:'Date',get:r=>fmtDateISO(r.date)},{label:'Invoice No.',get:r=>r.invNo},{label:'GSTIN',get:r=>r.gstin},{label:'Party',get:r=>r.party},
+     {label:'Suggested 2B Invoice No.',get:r=>r.suggestedInvNo},{label:'Taxable Value',get:r=>r.taxVal,total:1,raw:r=>r.taxVal}], [7]);
+
+  diffSection('E. Possible GSTIN Mismatch', summary.lists.gstinMismatch,
+    [{label:'Date',get:r=>fmtDateISO(r.date)},{label:'Invoice No.',get:r=>r.invNo},{label:'GSTIN',get:r=>r.gstin},{label:'Party',get:r=>r.party},
+     {label:'Suggested 2B GSTIN',get:r=>r.suggestedGstin},{label:'Taxable Value',get:r=>r.taxVal,total:1,raw:r=>r.taxVal}], [7]);
+
+  diffSection('F. Possible Invoice Value Mismatch', summary.lists.invValMismatch,
+    [{label:'Date',get:r=>fmtDateISO(r.date)},{label:'Invoice No.',get:r=>r.invNo},{label:'GSTIN',get:r=>r.gstin},{label:'Party',get:r=>r.party},
+     {label:'Taxable Value',get:r=>r.taxVal},
+     {label:'Books Invoice Value',get:r=>r.invVal,total:1,raw:r=>r.invVal},{label:'2B Invoice Value',get:r=>r.other.invVal,total:1,raw:r=>r.other.invVal},
+     {label:'Invoice Value Diff',get:r=>r.invValDiff,total:1,raw:r=>r.invValDiff}], [6,7,8,9]);
+
+  diffSection('G. Possible Date Mismatch', summary.lists.dateMismatch,
+    [{label:'Date',get:r=>fmtDateISO(r.date)},{label:'Invoice No.',get:r=>r.invNo},{label:'GSTIN',get:r=>r.gstin},{label:'Party',get:r=>r.party},
+     {label:'2B Date',get:r=>fmtDateISO(r.other.date)},{label:'Taxable Value',get:r=>r.taxVal,total:1,raw:r=>r.taxVal}], [7]);
+
+  diffSection('H1. Duplicates within Books', summary.lists.dupBooks,
+    [{label:'Date',get:r=>fmtDateISO(r.date)},{label:'Invoice No.',get:r=>r.invNo},{label:'GSTIN',get:r=>r.gstin},
+     {label:'Invoice Value',get:r=>r.invVal,total:1,raw:r=>r.invVal},{label:'Taxable Value',get:r=>r.taxVal,total:1,raw:r=>r.taxVal}], [5,6]);
+
+  diffSection('H2. Duplicates within GSTR-2B', summary.lists.dupG2B,
+    [{label:'Date',get:r=>fmtDateISO(r.date)},{label:'Invoice No.',get:r=>r.invNo},{label:'GSTIN',get:r=>r.gstin},
+     {label:'Invoice Value',get:r=>r.invVal,total:1,raw:r=>r.invVal},{label:'Taxable Value',get:r=>r.taxVal,total:1,raw:r=>r.taxVal}], [5,6]);
+
+  diffSection('I. Matched Invoices — verified identical on both sides', summary.lists.matched,
+    [{label:'Date',get:r=>fmtDateISO(r.date)},{label:'Invoice No.',get:r=>r.invNo},{label:'GSTIN',get:r=>r.gstin},{label:'Party',get:r=>r.party},
+     {label:'Invoice Value',get:r=>r.invVal,total:1,raw:r=>r.invVal},{label:'Taxable Value',get:r=>r.taxVal,total:1,raw:r=>r.taxVal},
+     {label:'CGST',get:r=>r.cgst,total:1,raw:r=>r.cgst},{label:'SGST',get:r=>r.sgst,total:1,raw:r=>r.sgst},{label:'IGST',get:r=>r.igst,total:1,raw:r=>r.igst}], [6,7,8,9,10]);
+
+  wb.eachSheet(ws=>{ ws.eachRow(row=>{ row.eachCell(cell=>{ if(!cell.font) cell.font = {size:10}; }); }); });
+
+  const buf = await wb.xlsx.writeBuffer();
+  const blob = new Blob([buf], { type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'GST_Reconciliation_Results.xlsx';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+
+  btn.textContent = origText; btn.disabled = false;
+}
+
+function downloadPDF(event){
+  if (!lastResult) return;
+  const btn = event.target;
+  const origText = btn.textContent;
+  btn.textContent = 'Building PDF…'; btn.disabled = true;
+
+  const { summary } = lastResult;
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ orientation:'landscape', unit:'pt', format:'a4' });
+  const NAVY = [15,23,42], BLUE = [15,61,145], AMBER = [255,251,235], AMBERTXT=[146,64,14],
+        RED = [254,242,242], REDTXT=[220,38,38], GREEN=[236,253,245], GREENTXT=[4,120,87], STRIPE=[248,250,252];
+  const pageW = doc.internal.pageSize.getWidth();
+  const company = document.getElementById('s-company').value || '[Company Name]';
+  const period = document.getElementById('s-period').value || '';
+
+  function header(title){
+    doc.setFillColor(...NAVY); doc.rect(0,0,pageW,50,'F');
+    doc.setTextColor(255,255,255); doc.setFontSize(15); doc.setFont(undefined,'bold');
+    doc.text('GST Reconciliation Report', 30, 24);
+    doc.setFontSize(9.5); doc.setFont(undefined,'normal');
+    doc.text(`${company}${period ? '  •  '+period : ''}`, 30, 40);
+    doc.setFontSize(11); doc.setFont(undefined,'bold'); doc.setTextColor(...NAVY);
+    doc.text(title, 30, 68);
+  }
+
+  // ---- Page 1: Seal + Stats ----
+  header('Summary');
+  const nd = summary.netDiffCheck, ok = Object.keys(nd).every(k=>Math.abs(nd[k])<1);
+  doc.setFillColor(...(ok?GREEN:RED));
+  doc.roundedRect(30, 82, pageW-60, 46, 6, 6, 'F');
+  doc.setTextColor(...(ok?GREENTXT:REDTXT)); doc.setFontSize(13); doc.setFont(undefined,'bold');
+  doc.text(ok ? 'FULLY RECONCILED' : 'UNEXPLAINED DIFFERENCE REMAINS', 44, 108);
+
+  const c = summary.counts;
+  const statBody = [
+    ['Total Books', c.totalBooks, 'Total GSTR-2B', c.totalG2B, 'Matched', c.matched, 'Value Mismatch', c.valueMismatch],
+    ['Inv. Value Mismatch', c.invValMismatch, 'Date Mismatch', c.dateMismatch, 'Invoice No. Differs', c.invNoDiffers, 'GSTIN Mismatch', c.gstinMismatch],
+    ['Not in 2B', c.notIn2B, 'Not in Books', c.notInBooks, 'Duplicates (Books)', c.dupBooks, 'Duplicates (2B)', c.dupG2B],
+  ];
+  doc.autoTable({
+    startY: 142, theme:'grid', body: statBody,
+    styles:{ fontSize:9, cellPadding:6, lineColor:[226,232,240], lineWidth:0.5 },
+    columnStyles:{0:{fontStyle:'bold'},2:{fontStyle:'bold'},4:{fontStyle:'bold'},6:{fontStyle:'bold'}},
+    didParseCell: (d)=>{ if(d.column.index%2===1){ d.cell.styles.halign='right'; d.cell.styles.fontSize=11; d.cell.styles.textColor=NAVY; } }
+  });
+
+  // ---- Page 2: Category Diff ----
+  doc.addPage(); header('Category-wise Diff Summary');
+  const cat = summary.cat, bt = summary.booksTotal, gt = summary.g2bTotal, ct = summary.controlTotal;
+  const catBody = [
+    ['A. In Books, NOT in GSTR-2B', c.notIn2B, cat.A.invVal, cat.A.taxVal, cat.A.cgst, cat.A.sgst, cat.A.igst],
+    ['B. In GSTR-2B, NOT in Books', c.notInBooks, cat.B.invVal, cat.B.taxVal, cat.B.cgst, cat.B.sgst, cat.B.igst],
+    ['C. Value Mismatch', c.valueMismatch, cat.C.invVal, cat.C.taxVal, cat.C.cgst, cat.C.sgst, cat.C.igst],
+    ['D. Invoice No. differs', c.invNoDiffers, 0,0,0,0,0],
+    ['E. GSTIN Mismatch', c.gstinMismatch, 0,0,0,0,0],
+    ['F. Invoice Value Mismatch', c.invValMismatch, cat.F.invVal,0,0,0,0],
+    ['G. Date Mismatch', c.dateMismatch, 0,0,0,0,0],
+    ['Matched', c.matched, 0,0,0,0,0],
+  ].map(r=>[r[0], r[1], ...r.slice(2).map(fmt)]);
+  const totalCount = c.notIn2B+c.notInBooks+c.valueMismatch+c.invNoDiffers+c.gstinMismatch+c.invValMismatch+c.dateMismatch+c.matched;
+  catBody.push(['TOTAL', totalCount, fmt(summary.TOTAL.invVal), fmt(summary.TOTAL.taxVal), fmt(summary.TOTAL.cgst), fmt(summary.TOTAL.sgst), fmt(summary.TOTAL.igst)]);
+  catBody.push(['As per Books', '', fmt(bt.invVal), fmt(bt.taxVal), fmt(bt.cgst), fmt(bt.sgst), fmt(bt.igst)]);
+  catBody.push(['As per GSTR-2B', '', fmt(gt.invVal), fmt(gt.taxVal), fmt(gt.cgst), fmt(gt.sgst), fmt(gt.igst)]);
+  catBody.push(['Difference (Books - GSTR-2B)', '', fmt(ct.invVal), fmt(ct.taxVal), fmt(ct.cgst), fmt(ct.sgst), fmt(ct.igst)]);
+  catBody.push(['Net Diff Check - should be 0', '', fmt(nd.invVal), fmt(nd.taxVal), fmt(nd.cgst), fmt(nd.sgst), fmt(nd.igst)]);
+
+  doc.autoTable({
+    startY: 82, head: [['Category','Count','Invoice Value','Taxable Value','CGST','SGST','IGST']], body: catBody,
+    theme:'grid', headStyles:{ fillColor:NAVY, textColor:255, fontSize:9 },
+    styles:{ fontSize:9, cellPadding:5, lineColor:[226,232,240], lineWidth:0.5 },
+    columnStyles:{1:{halign:'center'},2:{halign:'right'},3:{halign:'right'},4:{halign:'right'},5:{halign:'right'},6:{halign:'right'}},
+    didParseCell: (d)=>{
+      const label = d.row.raw[0];
+      if (label==='TOTAL') { d.cell.styles.fillColor = [255,251,235]; d.cell.styles.fontStyle='bold'; }
+      if (label==='Net Diff Check - should be 0') { d.cell.styles.fillColor = ok?GREEN:RED; d.cell.styles.textColor = ok?GREENTXT:REDTXT; d.cell.styles.fontStyle='bold'; }
+    }
+  });
+
+  // ---- Following pages: Differences sections (skips raw Books/GSTR2B row-level dumps - use Excel for that) ----
+  function diffPage(title, rows, cols){
+    doc.addPage(); header(title);
+    if (rows.length === 0){
+      doc.setFontSize(10); doc.setTextColor(71,85,105); doc.setFont(undefined,'italic');
+      doc.text('No entries in this category.', 30, 96);
+      return;
+    }
+    const body = rows.map(r=>cols.map(cc=>cc.get(r)));
+    const totals = cols.map(cc=> cc.total ? fmt(rows.reduce((a,r)=>a+(cc.raw(r)||0),0)) : '');
+    body.push(totals);
+    doc.autoTable({
+      startY:82, head:[cols.map(cc=>cc.label)], body,
+      theme:'grid', headStyles:{ fillColor:NAVY, textColor:255, fontSize:8.5 },
+      styles:{ fontSize:8.5, cellPadding:4, lineColor:[226,232,240], lineWidth:0.5 },
+      alternateRowStyles:{ fillColor:STRIPE },
+      didParseCell:(d)=>{ if(d.row.index===body.length-1){ d.cell.styles.fillColor=AMBER; d.cell.styles.fontStyle='bold'; } }
+    });
+  }
+
+  diffPage('A. In Books, NOT in GSTR-2B', summary.lists.notIn2B,
+    [{label:'Date',get:r=>fmtDateISO(r.date)},{label:'Invoice No.',get:r=>r.invNo},{label:'GSTIN',get:r=>r.gstin},{label:'Party',get:r=>r.party},
+     {label:'Invoice Value',get:r=>fmt(r.invVal),total:1,raw:r=>r.invVal},{label:'Taxable Value',get:r=>fmt(r.taxVal),total:1,raw:r=>r.taxVal},
+     {label:'CGST',get:r=>fmt(r.cgst),total:1,raw:r=>r.cgst},{label:'SGST',get:r=>fmt(r.sgst),total:1,raw:r=>r.sgst},{label:'IGST',get:r=>fmt(r.igst),total:1,raw:r=>r.igst}]);
+
+  diffPage('B. In GSTR-2B, NOT in Books', summary.lists.notInBooks,
+    [{label:'Date',get:r=>fmtDateISO(r.date)},{label:'Invoice No.',get:r=>r.invNo},{label:'GSTIN',get:r=>r.gstin},{label:'Party',get:r=>r.party},
+     {label:'Invoice Value',get:r=>fmt(r.invVal),total:1,raw:r=>r.invVal},{label:'Taxable Value',get:r=>fmt(r.taxVal),total:1,raw:r=>r.taxVal},
+     {label:'CGST',get:r=>fmt(r.cgst),total:1,raw:r=>r.cgst},{label:'SGST',get:r=>fmt(r.sgst),total:1,raw:r=>r.sgst},{label:'IGST',get:r=>fmt(r.igst),total:1,raw:r=>r.igst}]);
+
+  diffPage('C. Value Mismatch', summary.lists.valueMismatch,
+    [{label:'Date',get:r=>fmtDateISO(r.date)},{label:'Invoice No.',get:r=>r.invNo},{label:'GSTIN',get:r=>r.gstin},{label:'Party',get:r=>r.party},
+     {label:'Books Taxable',get:r=>fmt(r.taxVal),total:1,raw:r=>r.taxVal},{label:'2B Taxable',get:r=>fmt(r.other.taxVal),total:1,raw:r=>r.other.taxVal},
+     {label:'Taxable Diff',get:r=>fmt(r.taxDiff),total:1,raw:r=>r.taxDiff},{label:'CGST Diff',get:r=>fmt(r.cgstDiff),total:1,raw:r=>r.cgstDiff},
+     {label:'SGST Diff',get:r=>fmt(r.sgstDiff),total:1,raw:r=>r.sgstDiff},{label:'IGST Diff',get:r=>fmt(r.igstDiff),total:1,raw:r=>r.igstDiff}]);
+
+  diffPage('D. Possible Match - Invoice No. differs', summary.lists.invNoDiffers,
+    [{label:'Date',get:r=>fmtDateISO(r.date)},{label:'Invoice No.',get:r=>r.invNo},{label:'GSTIN',get:r=>r.gstin},{label:'Party',get:r=>r.party},
+     {label:'Suggested 2B Invoice No.',get:r=>r.suggestedInvNo},{label:'Taxable Value',get:r=>fmt(r.taxVal),total:1,raw:r=>r.taxVal}]);
+
+  diffPage('E. Possible GSTIN Mismatch', summary.lists.gstinMismatch,
+    [{label:'Date',get:r=>fmtDateISO(r.date)},{label:'Invoice No.',get:r=>r.invNo},{label:'GSTIN',get:r=>r.gstin},{label:'Party',get:r=>r.party},
+     {label:'Suggested 2B GSTIN',get:r=>r.suggestedGstin},{label:'Taxable Value',get:r=>fmt(r.taxVal),total:1,raw:r=>r.taxVal}]);
+
+  diffPage('F. Possible Invoice Value Mismatch', summary.lists.invValMismatch,
+    [{label:'Date',get:r=>fmtDateISO(r.date)},{label:'Invoice No.',get:r=>r.invNo},{label:'GSTIN',get:r=>r.gstin},{label:'Party',get:r=>r.party},
+     {label:'Taxable Value',get:r=>fmt(r.taxVal)},{label:'Books Inv. Value',get:r=>fmt(r.invVal),total:1,raw:r=>r.invVal},
+     {label:'2B Inv. Value',get:r=>fmt(r.other.invVal),total:1,raw:r=>r.other.invVal},{label:'Inv. Value Diff',get:r=>fmt(r.invValDiff),total:1,raw:r=>r.invValDiff}]);
+
+  diffPage('G. Possible Date Mismatch', summary.lists.dateMismatch,
+    [{label:'Date',get:r=>fmtDateISO(r.date)},{label:'Invoice No.',get:r=>r.invNo},{label:'GSTIN',get:r=>r.gstin},{label:'Party',get:r=>r.party},
+     {label:'2B Date',get:r=>fmtDateISO(r.other.date)},{label:'Taxable Value',get:r=>fmt(r.taxVal),total:1,raw:r=>r.taxVal}]);
+
+  const dupCols = [{label:'Date',get:r=>fmtDateISO(r.date)},{label:'Invoice No.',get:r=>r.invNo},{label:'GSTIN',get:r=>r.gstin},
+    {label:'Invoice Value',get:r=>fmt(r.invVal),total:1,raw:r=>r.invVal},{label:'Taxable Value',get:r=>fmt(r.taxVal),total:1,raw:r=>r.taxVal}];
+  diffPage('H1. Duplicates within Books', summary.lists.dupBooks, dupCols);
+  diffPage('H2. Duplicates within GSTR-2B', summary.lists.dupG2B, dupCols);
+
+  // page numbers
+  const pageCount = doc.internal.getNumberOfPages();
+  for (let i=1;i<=pageCount;i++){
+    doc.setPage(i);
+    doc.setFontSize(8); doc.setTextColor(148,163,184); doc.setFont(undefined,'normal');
+    doc.text(`Page ${i} of ${pageCount}  •  ReportEdge GST Reconciliation`, pageW-30, doc.internal.pageSize.getHeight()-14, {align:'right'});
+  }
+
+  doc.save('GST_Reconciliation_Report.pdf');
+  btn.textContent = origText; btn.disabled = false;
+}
+
+// Contact form (Netlify)
+// ============================================================
+async function submitContact(event){
+  event.preventDefault();
+  const btn = document.getElementById('cta-btn');
+  const form = document.getElementById('contact-form');
+  const companyField = document.getElementById('cf-company');
+  if (companyField) companyField.value = document.getElementById('s-company')?.value || '';
+  btn.textContent = 'Sending...'; btn.disabled = true;
+  try {
+    const formData = new FormData(form);
+    const encoded = new URLSearchParams(formData).toString();
+    const resp = await fetch('/', { method:'POST', headers:{'Content-Type':'application/x-www-form-urlencoded'}, body:encoded });
+    if (resp.ok){ form.style.display='none'; document.getElementById('cta-success').style.display='block'; }
+    else { btn.textContent='Request the Excel Utility'; btn.disabled=false; alert('Could not send right now. Please try again shortly.'); }
+  } catch(err){
+    console.error(err);
+    btn.textContent='Request the Excel Utility'; btn.disabled=false;
+    alert('Network error. Please try again shortly.');
+  }
+}
+
+// init
+renderGrid('books'); renderGrid('g2b');
+</script>
+<!-- Floating feedback button -->
+<button id="fb-fab" onclick="fbOpenModal()">
+  <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+  <span>Share Feedback</span>
+</button>
+
+<!-- Feedback modal overlay -->
+<div id="fb-overlay" onclick="if(event.target===this)fbCloseModal()">
+  <div id="fb-modal">
+    <button class="fb-close" onclick="fbCloseModal()">&#10005;</button>
+    <div id="fb-form-view">
+      <div class="fb-title">Share your feedback</div>
+      <div class="fb-sub">How was your experience with the GST Reconciliation tool? Your thoughts help us improve.</div>
+      <div class="fb-stars" id="fb-stars">
+        <span class="fb-star" data-v="1">&#9733;</span>
+        <span class="fb-star" data-v="2">&#9733;</span>
+        <span class="fb-star" data-v="3">&#9733;</span>
+        <span class="fb-star" data-v="4">&#9733;</span>
+        <span class="fb-star" data-v="5">&#9733;</span>
+      </div>
+      <label class="fb-label">Your name <span style="font-weight:400;text-transform:none;font-size:11px;color:#94A3B8;">(optional)</span></label>
+      <input id="fb-name" class="fb-input" type="text" placeholder="e.g. Rahul Sharma">
+      <label class="fb-label">Message *</label>
+      <textarea id="fb-message" class="fb-input" placeholder="Tell us what you think - what worked, what didn't, what you'd like to see..."></textarea>
+      <button class="fb-submit" id="fb-submit-btn" onclick="fbSubmit()">Send Feedback</button>
+    </div>
+    <div id="fb-thanks-view" class="fb-thanks" style="display:none;">
+      <div class="fb-thanks-icon">&#127881;</div>
+      <h3>Thank you!</h3>
+      <p>Your feedback has been received. We really appreciate it.</p>
+    </div>
+  </div>
+</div>
+
+<!-- Admin overlay -->
+<div id="fb-admin-overlay">
+  <div id="fb-admin-login">
+    <div class="fb-login-title">&#128274; Admin Access</div>
+    <div class="fb-login-sub">Enter the admin password to view feedback.</div>
+    <label class="fb-label">Password</label>
+    <input id="fb-admin-pw" class="fb-input" type="password" placeholder="********" onkeydown="if(event.key==='Enter')fbAdminLogin()">
+    <button class="fb-submit" onclick="fbAdminLogin()">Sign In</button>
+    <div class="fb-login-err" id="fb-login-err">Incorrect password. Try again.</div>
+    <button onclick="fbAdminClose()" style="display:block;width:100%;text-align:center;margin-top:14px;background:none;border:none;color:#94A3B8;font-size:13px;cursor:pointer;">Cancel</button>
+  </div>
+  <div id="fb-admin-box" style="display:none;">
+    <div class="fb-admin-head">
+      <div class="fb-admin-title">&#128172; Feedback Dashboard</div>
+      <button class="fb-admin-close" onclick="fbAdminClose()">&#10005; Close</button>
+    </div>
+    <div id="fb-admin-list"><div class="fb-loading">Loading feedback...</div></div>
+  </div>
+</div>
+
+<script>
+(function(){
+  const ADMIN_PW = 'RE@admin25';
+
+  async function fbAdd(payload){
+    try {
+      const body = new URLSearchParams({
+        'form-name': 'site-feedback',
+        'name':    payload.name || 'Anonymous',
+        'message': payload.message,
+        'rating':  String(payload.rating || 0),
+        'page':    location.pathname,
+        'ts':      new Date().toISOString()
+      });
+      const r = await fetch('/', {method:'POST', headers:{'Content-Type':'application/x-www-form-urlencoded'}, body});
+      return r.ok;
+    } catch(e){ return false; }
+  }
+
+  const NETLIFY_TOKEN = '';
+  const NETLIFY_SITE_ID = '';
+  async function fbGetAll(){
+    if(!NETLIFY_TOKEN || !NETLIFY_SITE_ID) return null;
+    const r = await fetch(`https://api.netlify.com/api/v1/sites/${NETLIFY_SITE_ID}/forms`,
+      {headers:{Authorization:'Bearer '+NETLIFY_TOKEN}});
+    const forms = await r.json();
+    const form = forms.find(f=>f.name==='site-feedback');
+    if(!form) return [];
+    const r2 = await fetch(`https://api.netlify.com/api/v1/forms/${form.id}/submissions?per_page=200`,
+      {headers:{Authorization:'Bearer '+NETLIFY_TOKEN}});
+    const subs = await r2.json();
+    return subs.map(s=>({
+      id:      s.id,
+      name:    s.data?.name    || 'Anonymous',
+      message: s.data?.message || '',
+      rating:  parseInt(s.data?.rating||0),
+      page:    s.data?.page    || '/',
+      ts:      s.created_at    || ''
+    }));
+  }
+  async function fbDel(id){
+    if(!NETLIFY_TOKEN) return;
+    await fetch(`https://api.netlify.com/api/v1/submissions/${id}`,
+      {method:'DELETE', headers:{Authorization:'Bearer '+NETLIFY_TOKEN}});
+  }
+
+  let rating=0;
+  window.fbOpenModal=function(){
+    document.getElementById('fb-overlay').classList.add('open');
+    document.getElementById('fb-form-view').style.display='';
+    document.getElementById('fb-thanks-view').style.display='none';
+    document.getElementById('fb-name').value='';
+    document.getElementById('fb-message').value='';
+    setRating(0);
+  };
+  window.fbCloseModal=function(){document.getElementById('fb-overlay').classList.remove('open');};
+  function setRating(v){
+    rating=v;
+    document.querySelectorAll('.fb-star').forEach(s=>{
+      s.classList.toggle('on',parseInt(s.dataset.v)<=v);
+    });
+  }
+  document.querySelectorAll('.fb-star').forEach(s=>{
+    s.addEventListener('click',()=>setRating(parseInt(s.dataset.v)));
+    s.addEventListener('mouseover',()=>document.querySelectorAll('.fb-star').forEach(x=>x.classList.toggle('on',parseInt(x.dataset.v)<=parseInt(s.dataset.v))));
+    s.addEventListener('mouseout',()=>setRating(rating));
+  });
+  window.fbSubmit=async function(){
+    const msg=document.getElementById('fb-message').value.trim();
+    if(!msg){document.getElementById('fb-message').focus();return;}
+    const btn=document.getElementById('fb-submit-btn');
+    btn.disabled=true;btn.textContent='Sending...';
+    const ok=await fbAdd({name:document.getElementById('fb-name').value.trim(),message:msg,rating});
+    if(ok){
+      document.getElementById('fb-form-view').style.display='none';
+      document.getElementById('fb-thanks-view').style.display='';
+      setTimeout(fbCloseModal,2800);
+    } else {
+      btn.disabled=false;btn.textContent='Send Feedback';
+      alert('Could not save feedback. Please check your Netlify Forms setup.');
+    }
+  };
+
+  let clickCount=0,clickTimer=null;
+  function attachAdminTrigger(){
+    const el=document.querySelector('.footer-copy');
+    if(!el)return;
+    el.addEventListener('click',()=>{
+      clickCount++;
+      clearTimeout(clickTimer);
+      if(clickCount>=5){clickCount=0;fbAdminOpen();}
+      else clickTimer=setTimeout(()=>{clickCount=0;},1800);
+    });
+    el.style.cursor='default';
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',attachAdminTrigger);
+  else attachAdminTrigger();
+
+  window.fbAdminOpen=function(){
+    document.getElementById('fb-admin-overlay').classList.add('open');
+    document.getElementById('fb-admin-login').style.display='';
+    document.getElementById('fb-admin-box').style.display='none';
+    document.getElementById('fb-admin-pw').value='';
+    document.getElementById('fb-login-err').style.display='none';
+    setTimeout(()=>document.getElementById('fb-admin-pw').focus(),100);
+  };
+  window.fbAdminClose=function(){
+    document.getElementById('fb-admin-overlay').classList.remove('open');
+  };
+  window.fbAdminLogin=function(){
+    const pw=document.getElementById('fb-admin-pw').value;
+    if(pw===ADMIN_PW){
+      document.getElementById('fb-admin-login').style.display='none';
+      document.getElementById('fb-admin-box').style.display='';
+      loadAdminFeedback();
+    } else {
+      document.getElementById('fb-login-err').style.display='';
+    }
+  };
+  async function loadAdminFeedback(){
+    const list=document.getElementById('fb-admin-list');
+    list.innerHTML='<div class="fb-loading">Loading feedback...</div>';
+    let items;
+    try{items=await fbGetAll();}catch(e){items=null;}
+    if(items===null){
+      list.innerHTML=`<div class="fb-empty" style="text-align:left;padding:20px 0;">
+        <p style="font-size:14px;color:#334155;margin-bottom:16px;">To view feedback here, add your Netlify token and site ID to this HTML file.<br><br>
+        <b>Easiest way right now:</b><br>
+        Go to <a href="https://app.netlify.com" target="_blank" style="color:#059669;">app.netlify.com</a> &rarr; your site &rarr; <b>Forms</b> tab &rarr; <b>site-feedback</b> &rarr; view &amp; delete there.</p>
+        <a href="https://app.netlify.com" target="_blank" style="display:inline-block;background:#059669;color:#fff;padding:10px 20px;border-radius:8px;font-weight:700;font-size:14px;text-decoration:none;">Open Netlify Dashboard &rarr;</a>
+      </div>`;return;}
+    if(!items.length){list.innerHTML='<div class="fb-empty">No feedback yet.</div>';return;}
+    list.innerHTML=items.map(f=>`
+      <div class="fb-card" id="fbc-${f.id}">
+        <div class="fb-card-top">
+          <div>
+            <div class="fb-card-name">${esc(f.name)}</div>
+            <div class="fb-card-time">${f.ts ? new Date(f.ts).toLocaleString('en-IN',{dateStyle:'medium',timeStyle:'short'}) : ''}</div>
+            <div><span class="fb-card-page">${esc(f.page||'/')}</span></div>
+            ${f.rating>0?`<div class="fb-card-stars">${'&#9733;'.repeat(f.rating)}${'&#9734;'.repeat(5-f.rating)}</div>`:''}
+          </div>
+          <button class="fb-del-btn" onclick="fbAdminDel('${f.id}')">&#128465; Delete</button>
+        </div>
+        <div class="fb-card-msg">${esc(f.message)}</div>
+      </div>`).join('');
+    const header=document.createElement('div');
+    header.style.cssText='font-size:13px;color:#64748B;margin-bottom:16px;font-weight:600;';
+    header.textContent=`${items.length} feedback submission${items.length!==1?'s':''}`;
+    list.prepend(header);
+  }
+  window.fbAdminDel=async function(id){
+    if(!confirm('Delete this feedback?'))return;
+    await fbDel(id);
+    const card=document.getElementById('fbc-'+id);
+    if(card){card.style.opacity='0.4';card.style.pointerEvents='none';}
+    setTimeout(()=>{if(card)card.remove();},600);
+  };
+  function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+})();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,956 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-8TTRNTLB48"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-8TTRNTLB48');
+</script>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>ReportEdge — Property Capital Gains Tax Calculator</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --navy:    #0F172A;
+  --navy2:   #1E293B;
+  --navy3:   #334155;
+  --blue:    #0F3D91;
+  --blue-h:  #1E40AF;
+  --blue-bg: #EFF6FF;
+  --emerald: #059669;
+  --em-bg:   #ECFDF5;
+  --em-dark: #047857;
+  --white:   #FFFFFF;
+  --bg:      #F8FAFC;
+  --bg2:     #F1F5F9;
+  --text1:   #0F172A;
+  --text2:   #1E293B;
+  --text3:   #475569;
+  --border:  #E2E8F0;
+  --border2: #CBD5E1;
+  --red:     #DC2626;
+  --red-bg:  #FEF2F2;
+  --amber:   #D97706;
+  --shadow-xs: 0 1px 2px rgba(0,0,0,0.05);
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.07),0 1px 2px rgba(0,0,0,0.05);
+  --shadow-md: 0 4px 6px rgba(0,0,0,0.05),0 2px 4px rgba(0,0,0,0.04);
+  --shadow-lg: 0 10px 25px rgba(0,0,0,0.08),0 4px 10px rgba(0,0,0,0.05);
+  --shadow-xl: 0 20px 50px rgba(0,0,0,0.12),0 8px 20px rgba(0,0,0,0.07);
+  --r:6px; --r-md:10px; --r-lg:14px;
+}
+html{scroll-behavior:smooth;}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--white);color:var(--text1);-webkit-font-smoothing:antialiased;font-size:14px;line-height:1.6;}
+
+/* NAV */
+nav{background:var(--navy);display:flex;align-items:center;justify-content:space-between;padding:0 48px;height:56px;position:sticky;top:0;z-index:200;}
+.nav-logo{font-size:17px;font-weight:800;color:var(--white);letter-spacing:-0.5px;display:flex;align-items:center;gap:8px;}
+.nav-logo-dot{width:8px;height:8px;background:var(--emerald);border-radius:50%;}
+.nav-right{display:flex;align-items:center;gap:10px;}
+.nav-badge{font-size:11px;font-weight:600;padding:3px 10px;border-radius:4px;}
+.nb-em{background:rgba(5,150,105,0.2);color:#34D399;border:1px solid rgba(5,150,105,0.3);}
+.nb-bl{background:rgba(15,61,145,0.4);color:#93C5FD;border:1px solid rgba(15,61,145,0.5);}
+
+/* HERO */
+.hero{background:var(--navy);padding:56px 48px 44px;position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(135deg,rgba(15,61,145,0.15) 0%,transparent 60%);pointer-events:none;}
+.hero-inner{max-width:920px;margin:0 auto;position:relative;z-index:1;}
+.hero-label{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:600;color:var(--emerald);background:rgba(5,150,105,0.12);border:1px solid rgba(5,150,105,0.25);padding:4px 12px;border-radius:4px;margin-bottom:18px;letter-spacing:0.5px;text-transform:uppercase;}
+.hero h1{font-size:clamp(26px,3.2vw,38px);font-weight:800;color:var(--white);line-height:1.15;letter-spacing:-1px;margin-bottom:14px;}
+.hero h1 em{color:#93C5FD;font-style:normal;}
+.hero-sub{font-size:15px;color:rgba(255,255,255,0.55);line-height:1.7;max-width:640px;margin-bottom:22px;}
+.hero-trust{display:flex;gap:22px;flex-wrap:wrap;}
+.ht-item{display:flex;align-items:center;gap:8px;font-size:12.5px;color:rgba(255,255,255,0.5);}
+.ht-icon{width:16px;height:16px;border-radius:3px;background:var(--emerald);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.ht-icon svg{width:9px;height:9px;stroke:#fff;fill:none;stroke-width:3;}
+
+/* MAIN */
+.main{max-width:920px;margin:0 auto;padding:36px 24px 80px;}
+
+.panel{background:var(--white);border:1px solid var(--border);border-radius:var(--r-lg);box-shadow:var(--shadow-md);overflow:hidden;margin-bottom:20px;}
+.panel-hdr{background:var(--navy);padding:20px 28px;display:flex;align-items:center;gap:14px;}
+.ph-icon{width:40px;height:40px;background:rgba(5,150,105,0.2);border:1px solid rgba(5,150,105,0.3);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.ph-icon svg{width:20px;height:20px;stroke:#6EE7B7;fill:none;stroke-width:2;}
+.ph-text h2{font-size:17px;font-weight:700;color:var(--white);margin-bottom:2px;letter-spacing:-0.3px;}
+.ph-text p{font-size:12px;color:rgba(255,255,255,0.4);}
+.panel-body{padding:28px;}
+
+.dbox{background:var(--bg);border:1px solid var(--border);border-radius:var(--r-md);padding:20px;margin-bottom:16px;}
+.dbox-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text3);margin-bottom:14px;}
+.fg{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.fg3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;}
+.ff{display:flex;flex-direction:column;gap:5px;}
+.ff label{font-size:12px;font-weight:500;color:var(--text2);}
+.ff .hint{font-size:10.5px;color:var(--text3);font-weight:400;}
+.type-hint{font-size:11px;color:var(--text3);margin-top:5px;line-height:1.5;font-style:italic;}
+.ff input,.ff select{padding:9px 12px;border:1px solid var(--border);border-radius:var(--r);font-size:13px;font-family:'Inter',sans-serif;color:var(--text1);background:var(--white);outline:none;transition:border-color 0.2s,box-shadow 0.2s;}
+.ff input:focus,.ff select:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(15,61,145,0.08);}
+
+.toggle-row{display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none;padding:14px 18px;background:var(--bg);border:1px solid var(--border);border-radius:var(--r-md);margin-bottom:14px;}
+.toggle-row-l{display:flex;align-items:center;gap:10px;}
+.toggle-row-l span{font-size:13px;font-weight:600;color:var(--text1);}
+.toggle-row-l small{display:block;font-size:11px;font-weight:400;color:var(--text3);margin-top:2px;}
+.chev{color:var(--text3);font-size:16px;transition:transform 0.25s;}
+.chev.open{transform:rotate(180deg);}
+.reinvest-body{display:none;padding:4px 2px 4px;}
+.reinvest-body.open{display:block;}
+
+.privacy{margin-top:4px;background:var(--bg);border:1px solid var(--border);border-radius:var(--r);padding:12px 16px;font-size:12px;color:var(--text2);line-height:1.6;display:flex;gap:8px;}
+
+.btn-primary{margin-top:6px;background:var(--blue);color:var(--white);font-size:15px;font-weight:600;padding:13px 28px;border-radius:var(--r);border:none;cursor:pointer;width:100%;transition:all 0.2s;box-shadow:0 2px 8px rgba(15,61,145,0.3);letter-spacing:-0.2px;}
+.btn-primary:hover{background:var(--blue-h);box-shadow:0 4px 14px rgba(15,61,145,0.4);transform:translateY(-1px);}
+.err{background:var(--red-bg);border:1px solid #FECACA;border-radius:var(--r);padding:12px 16px;font-size:13px;color:var(--red);margin-top:14px;display:none;line-height:1.6;}
+
+/* REPORT */
+.report{display:none;}
+.rpt-hdr{background:var(--navy);border-radius:var(--r-lg) var(--r-lg) 0 0;padding:28px 32px;}
+.rpt-logo{font-size:10px;font-weight:700;color:rgba(255,255,255,0.25);letter-spacing:2px;text-transform:uppercase;margin-bottom:12px;}
+.rpt-title{font-size:22px;font-weight:700;color:var(--white);margin-bottom:5px;letter-spacing:-0.5px;}
+.rpt-meta{font-size:11px;color:rgba(255,255,255,0.3);}
+.rpt-body{background:#0F172A;border:none;border-radius:0 0 var(--r-lg) var(--r-lg);padding:24px;}
+
+.db-metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px;}
+.db-card{border-radius:10px;padding:16px 18px;}
+.db-card-dark{background:#1E293B;border:1px solid #334155;}
+.db-card-accent{background:#1E3A5F;border:1px solid #2563EB44;}
+.db-card-green{background:#052E16;border:1px solid #16A34A44;}
+.db-card-red{background:#2D0A0A;border:1px solid #DC262644;}
+.db-card-label{font-size:11px;font-weight:600;color:#64748B;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:8px;}
+.db-card-value{font-size:23px;font-weight:800;color:#F1F5F9;line-height:1;letter-spacing:-1px;margin-bottom:6px;}
+.db-card-sub{font-size:11px;color:#475569;}
+
+.db-regime-row{display:grid;grid-template-columns:1fr 108px 1fr;gap:0;margin-bottom:16px;align-items:stretch;}
+.db-regime-card{background:#1E293B;border:1px solid #334155;border-radius:10px;padding:20px;}
+.db-regime-card.db-regime-winner{background:#0F2A1A;border:1.5px solid #16A34A;}
+.db-regime-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px;}
+.db-regime-name{font-size:13px;font-weight:700;color:#CBD5E1;}
+.db-regime-hint{font-size:11px;color:#475569;margin-top:2px;}
+.db-winner-badge{font-size:10px;font-weight:700;color:#34D399;background:rgba(52,211,153,0.12);border:1px solid rgba(52,211,153,0.25);padding:3px 8px;border-radius:4px;white-space:nowrap;}
+.db-regime-tax{font-size:30px;font-weight:800;color:#F1F5F9;letter-spacing:-1.5px;margin-bottom:12px;line-height:1;}
+.db-regime-winner .db-regime-tax{color:#34D399;}
+.db-regime-breakdown{display:flex;flex-direction:column;gap:5px;}
+.db-rb-row{display:flex;justify-content:space-between;align-items:center;font-size:12px;padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.04);}
+.db-rb-row:last-child{border-bottom:none;}
+.db-rb-row span:first-child{color:#64748B;}
+.db-rb-row span:last-child{font-weight:500;color:#CBD5E1;}
+.db-rb-row.green span:last-child{color:#34D399;}
+.db-rb-row.bold span{font-weight:700;color:#F1F5F9 !important;font-size:13px;}
+.db-rb-row.total{border-top:1px solid #334155;padding-top:8px;margin-top:4px;}
+
+.db-vs{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;padding:0 6px;min-width:0;}
+.db-vs-line{flex:1;width:1px;background:#1E293B;}
+.db-vs-badge{font-size:11px;font-weight:700;color:#475569;background:#1E293B;border:1px solid #334155;padding:4px 8px;border-radius:20px;margin:8px 0;white-space:nowrap;}
+.db-savings-chip{background:#0F2A1A;border:1px solid rgba(52,211,153,0.25);border-radius:10px;padding:10px 4px;text-align:center;margin:8px 0;width:100%;box-sizing:border-box;}
+.db-savings-amt{font-size:13px;font-weight:800;color:#34D399;line-height:1.25;word-break:break-word;overflow-wrap:break-word;}
+.db-savings-lbl{font-size:9px;color:#64748B;text-transform:uppercase;letter-spacing:0.5px;margin-top:3px;}
+
+.tax-card{background:#1E293B;border:1px solid #334155;border-radius:var(--r-lg);overflow:hidden;margin-bottom:16px;}
+.tax-card-hdr{background:#0F172A;padding:12px 20px;font-size:11px;font-weight:700;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:1px;}
+.tx-row{display:flex;justify-content:space-between;align-items:center;padding:11px 20px;border-bottom:1px solid #334155;font-size:13.5px;}
+.tx-row:last-child{border-bottom:none;}
+.tx-row-l{color:#94A3B8;font-weight:400;}
+.tx-row-r{font-weight:600;color:#F1F5F9;text-align:right;}
+.tx-row-r.g{color:#34D399;}
+.tx-row.total-row{background:#0F172A;}
+.tx-row.total-row .tx-row-l{font-weight:700;color:#F1F5F9;}
+.tx-row.total-row .tx-row-r{font-size:17px;font-weight:800;color:#F87171;}
+.tx-row.total-row.zero .tx-row-r{color:#34D399;}
+.tx-row.formula-row{padding:4px 20px 11px;border-bottom:1px solid #334155;}
+.tx-row.formula-row .tx-row-l{font-size:11px;color:#64748B;padding-left:14px;font-style:italic;}
+
+.conf{padding:11px 16px;border-radius:var(--r);font-size:12.5px;margin-bottom:16px;display:flex;gap:10px;align-items:flex-start;line-height:1.6;font-weight:500;background:#052E16;border:1px solid rgba(52,211,153,0.25);color:#6EE7B7;}
+.conf.amber{background:#2A1D05;border-color:rgba(217,119,6,0.3);color:#FBBF24;}
+
+.obs-list{display:flex;flex-direction:column;gap:8px;margin-bottom:16px;}
+.obs-item{display:flex;gap:10px;align-items:flex-start;padding:12px 16px;background:#1E293B;border-radius:var(--r);font-size:12.5px;color:#94A3B8;line-height:1.6;border:1px solid #334155;}
+.obs-icon{color:#60A5FA;flex-shrink:0;font-weight:700;margin-top:1px;font-size:13px;}
+
+.cta{background:var(--navy);border-radius:var(--r-lg);padding:32px;margin-top:8px;}
+.cta h4{font-size:20px;font-weight:700;color:var(--white);margin-bottom:6px;letter-spacing:-0.5px;}
+.cta p{font-size:13.5px;color:rgba(255,255,255,0.45);line-height:1.6;margin-bottom:20px;}
+.cta a.btn-cta{background:var(--emerald);color:var(--white);font-size:14px;font-weight:600;padding:11px 24px;border-radius:var(--r);border:none;cursor:pointer;white-space:nowrap;transition:all 0.2s;box-shadow:0 2px 8px rgba(5,150,105,0.4);text-decoration:none;display:inline-block;}
+.cta a.btn-cta:hover{background:var(--em-dark);transform:translateY(-1px);}
+
+.reset-wrap{margin-top:16px;text-align:center;}
+.btn-outline{background:var(--white);color:var(--blue);font-size:13px;font-weight:500;padding:9px 20px;border-radius:var(--r);border:1px solid var(--blue);cursor:pointer;transition:all 0.2s;}
+.btn-outline:hover{background:var(--blue-bg);}
+.watermark{font-size:11px;color:var(--text3);text-align:center;margin-top:20px;}
+
+/* FOOTER */
+footer{background:var(--navy);padding:32px 48px;text-align:center;font-size:12px;color:rgba(255,255,255,0.3);}
+
+@media(max-width:900px){
+  nav{padding:0 20px;}
+  .hero{padding:40px 20px 32px;}
+  .main{padding:28px 16px 60px;}
+  .fg,.fg3{grid-template-columns:1fr;}
+  .db-metrics{grid-template-columns:1fr 1fr;}
+  .db-regime-row{grid-template-columns:1fr 56px 1fr;}
+  .db-vs{padding:0 2px;}
+  .db-vs-badge{font-size:9px;padding:3px 5px;margin:6px 0;}
+  .db-savings-chip{padding:8px 2px;}
+  .db-savings-amt{font-size:10.5px;}
+  .db-savings-lbl{font-size:7.5px;}
+  .db-regime-card{padding:14px 10px;}
+  .db-regime-name{font-size:11.5px;}
+  .db-regime-hint{font-size:9.5px;}
+  .db-regime-tax{font-size:19px;letter-spacing:-1px;margin-bottom:8px;}
+  .db-rb-row{font-size:10px;}
+  .db-winner-badge{font-size:8.5px;padding:2px 5px;}
+  .panel-body{padding:20px;}
+}
+@media(max-width:420px){
+  .db-regime-row{grid-template-columns:1fr 40px 1fr;}
+  .db-regime-card{padding:10px 7px;}
+  .db-regime-tax{font-size:15px;}
+  .db-rb-row{font-size:9px;}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div style="display:flex;align-items:center;gap:20px;">
+    <a href="index.html" style="font-size:12px;color:rgba(255,255,255,0.4);text-decoration:none;display:flex;align-items:center;gap:5px;" onmouseover="this.style.color='rgba(255,255,255,0.8)'" onmouseout="this.style.color='rgba(255,255,255,0.4)'">&#8592; Home</a>
+    <div class="nav-logo"><div class="nav-logo-dot"></div>ReportEdge</div>
+  </div>
+  <div class="nav-right">
+    <span class="nav-badge nb-em">&#10003; Free Calculator</span>
+    <span class="nav-badge nb-bl">FY 2025-26 &amp; FY 2026-27</span>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-inner">
+    <div class="hero-label">&#9679; Capital Gains &middot; India &middot; Income Tax Act 2025</div>
+    <h1>Selling a house, plot or land?<br>Know your <em>exact capital gains tax</em>.</h1>
+    <p class="hero-sub">Enter your purchase and sale details and get an instant breakdown of your short-term or long-term capital gains tax — including the indexation comparison for properties bought before 23 July 2024, and Section 54/54EC exemptions.</p>
+    <div class="hero-trust">
+      <div class="ht-item"><div class="ht-icon"><svg viewBox="0 0 12 12"><polyline points="10 3 5 9 2 6"/></svg></div>No data stored, calculated in your browser</div>
+      <div class="ht-item"><div class="ht-icon"><svg viewBox="0 0 12 12"><polyline points="10 3 5 9 2 6"/></svg></div>Covers FY 2025-26 &amp; FY 2026-27 rules</div>
+      <div class="ht-item"><div class="ht-icon"><svg viewBox="0 0 12 12"><polyline points="10 3 5 9 2 6"/></svg></div>Old vs new indexation comparison included</div>
+    </div>
+  </div>
+</div>
+
+<div class="main">
+
+  <!-- FORM -->
+  <div class="panel" id="form-section">
+    <div class="panel-hdr">
+      <div class="ph-icon"><svg viewBox="0 0 24 24"><path d="M3 21h18M5 21V7l7-4 7 4v14M9 21v-6h6v6"/></svg></div>
+      <div class="ph-text">
+        <h2>Property Sale Details</h2>
+        <p>All fields calculated instantly — nothing is uploaded or saved</p>
+      </div>
+    </div>
+    <div class="panel-body">
+
+      <div class="dbox">
+        <div class="dbox-title">Property &amp; Tax Year</div>
+        <div class="fg3">
+          <div class="ff">
+            <label>Property Type</label>
+            <select id="propType" onchange="onPropTypeChange()">
+              <option value="house">Residential House / Flat</option>
+              <option value="plot">Plot / Land (non-agricultural)</option>
+              <option value="commercial">Commercial Property</option>
+              <option value="agri">Agricultural Land</option>
+            </select>
+            <div class="type-hint" id="commercialHint" style="display:none;">e.g. office space, shop/showroom, warehouse, factory shed, hotel, clinic, multiplex</div>
+          </div>
+          <div class="ff" id="agriTypeField" style="display:none;">
+            <label>Agricultural Land Location</label>
+            <select id="agriType">
+              <option value="rural">Rural (outside municipal limits)</option>
+              <option value="urban">Urban (within/near municipal limits)</option>
+            </select>
+          </div>
+          <div class="ff" id="depreciableField" style="display:none;">
+            <label>Depreciation Claimed on This Property? <span class="hint">Section 50</span></label>
+            <select id="depreciableToggle" onchange="onDepreciableToggleChange()">
+              <option value="no">No — held as investment</option>
+              <option value="yes">Yes — used in my business, depreciated</option>
+            </select>
+          </div>
+          <div class="ff" id="taxYearField">
+            <label>Tax Year of Sale</label>
+            <select id="taxYear">
+              <option value="2025-26">FY 2025-26 (AY 2026-27)</option>
+              <option value="2026-27">FY 2026-27 (AY 2027-28)</option>
+            </select>
+          </div>
+          <div class="ff">
+            <label>Seller Status</label>
+            <select id="residentStatus">
+              <option value="resident">Resident Individual / HUF</option>
+              <option value="nri">Non-Resident (NRI)</option>
+              <option value="other">Company / Firm / Other</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="dbox">
+        <div class="dbox-title" id="purchaseBoxTitle">Purchase Details</div>
+        <div class="fg3">
+          <div class="ff">
+            <label>Date of Purchase</label>
+            <input type="date" id="purchaseDate" value="2018-04-15"/>
+          </div>
+          <div class="ff">
+            <label id="purchasePriceLabel">Purchase Price (₹)</label>
+            <input type="text" inputmode="numeric" id="purchasePrice" placeholder="e.g. 40,00,000" value="40,00,000" oninput="formatAmt(this)"/>
+          </div>
+          <div class="ff">
+            <label id="improvementCostLabel">Cost of Improvement (₹) <span class="hint">optional</span></label>
+            <input type="text" inputmode="numeric" id="improvementCost" placeholder="0" value="0" oninput="formatAmt(this)"/>
+          </div>
+        </div>
+        <div class="fg" id="depreciableSubFields" style="display:none;margin-top:12px;">
+          <div class="ff">
+            <label>Total Depreciation Claimed till Date (₹)</label>
+            <input type="text" inputmode="numeric" id="depreciationClaimed" placeholder="0" value="0" oninput="formatAmt(this)"/>
+          </div>
+          <div class="ff">
+            <label>Other assets remain in this depreciation block after this sale? <span class="hint">same depreciation rate</span></label>
+            <select id="blockContinues">
+              <option value="no">No — this was the only/last asset (block ceases)</option>
+              <option value="yes">Yes — other assets still remain in the block</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="dbox">
+        <div class="dbox-title">Sale Details</div>
+        <div class="fg3">
+          <div class="ff">
+            <label>Date of Sale</label>
+            <input type="date" id="saleDate" value="2026-01-15"/>
+          </div>
+          <div class="ff">
+            <label>Sale Price (₹) <span class="hint">or stamp duty value, if higher</span></label>
+            <input type="text" inputmode="numeric" id="salePrice" placeholder="e.g. 90,00,000" value="90,00,000" oninput="formatAmt(this)"/>
+          </div>
+          <div class="ff">
+            <label>Transfer Expenses (₹) <span class="hint">brokerage, legal, stamp duty</span></label>
+            <input type="text" inputmode="numeric" id="transferExpenses" placeholder="0" value="0" oninput="formatAmt(this)"/>
+          </div>
+        </div>
+      </div>
+
+      <div class="dbox" id="stcgSlabBox" style="display:none;">
+        <div class="dbox-title">Your Income Tax Slab (for short-term gains only)</div>
+        <div class="fg">
+          <div class="ff">
+            <label>Applicable Slab Rate</label>
+            <select id="slabRate">
+              <option value="0">0% (income below exemption limit)</option>
+              <option value="0.05">5%</option>
+              <option value="0.10">10%</option>
+              <option value="0.15">15%</option>
+              <option value="0.20">20%</option>
+              <option value="0.25">25%</option>
+              <option value="0.30" selected>30% (highest slab)</option>
+            </select>
+          </div>
+          <div class="ff">
+            <label class="hint" style="margin-top:20px;">Short-term gains from property are added to your total income and taxed at your regular slab rate — there's no special flat rate.</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="conf amber" id="ruralBanner" style="display:none;">
+        🌾 Rural agricultural land is not classified as a "capital asset" under the Income Tax Act — so its sale attracts <strong>zero capital gains tax</strong>, regardless of the gain amount. You can still calculate below to see the numbers for your own records, but no tax will be due. Income from it should be reported as exempt income under Sec 10(1), not as capital gains.
+      </div>
+
+      <div class="toggle-row" id="reinvestToggle" onclick="toggleReinvest()">
+        <div class="toggle-row-l">
+          <span id="reinvestToggleLabel">Reinvesting to claim exemption? <small>Section 54 (new house) &amp; Section 54EC (capital gains bonds)</small></span>
+        </div>
+        <span class="chev" id="reinvestChev">&#9662;</span>
+      </div>
+      <div class="reinvest-body" id="reinvestBody">
+        <div class="dbox">
+          <div class="fg" id="ownsOtherHouseWrap" style="display:none;margin-bottom:12px;">
+            <div class="ff" style="grid-column:1/-1;">
+              <label>Do you already own more than one other residential house (besides this new one) on the date of sale? <span class="hint">Sec 54F condition</span></label>
+              <select id="ownsOtherHouse">
+                <option value="no">No — I own at most one other house</option>
+                <option value="yes">Yes — I own two or more other houses</option>
+              </select>
+            </div>
+          </div>
+          <div class="fg">
+            <div class="ff" id="sec54Field">
+              <label id="sec54Label">Amount Reinvested in New House — Sec 54 (₹) <span class="hint">buy anytime from 1 year before the sale to 2 years after — or build a new one within 3 years; cap ₹10 crore</span></label>
+              <input type="text" inputmode="numeric" id="sec54" placeholder="0" value="0" oninput="formatAmt(this)"/>
+            </div>
+            <div class="ff">
+              <label>Amount Invested in Capital Gains Bonds — Sec 54EC (₹) <span class="hint">NHAI/REC, cap ₹50 lakh, within 6 months</span></label>
+              <input type="text" inputmode="numeric" id="sec54ec" placeholder="0" value="0" oninput="formatAmt(this)"/>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="privacy">🔒 All calculations run in your browser. Nothing you enter is uploaded, stored, or sent to any server.</div>
+
+      <button class="btn-primary" onclick="calculate()">Calculate My Capital Gains Tax →</button>
+      <div class="err" id="err"></div>
+    </div>
+  </div>
+
+  <!-- REPORT -->
+  <div class="report" id="report">
+    <div class="rpt-hdr">
+      <div class="rpt-logo">ReportEdge · Capital Gains Report</div>
+      <div class="rpt-title" id="rptTitle">Property Capital Gains Tax</div>
+      <div class="rpt-meta" id="rptMeta"></div>
+    </div>
+    <div class="rpt-body">
+
+      <div class="conf" id="gainTypeConf"></div>
+
+      <div class="db-metrics">
+        <div class="db-card db-card-dark">
+          <div class="db-card-label">Holding Period</div>
+          <div class="db-card-value" id="mHolding">–</div>
+          <div class="db-card-sub" id="mHoldingSub">–</div>
+        </div>
+        <div class="db-card db-card-accent">
+          <div class="db-card-label">Gain Type</div>
+          <div class="db-card-value" id="mGainType">–</div>
+          <div class="db-card-sub" id="mGainTypeSub">–</div>
+        </div>
+        <div class="db-card db-card-green">
+          <div class="db-card-label">Capital Gain (before exemption)</div>
+          <div class="db-card-value" id="mGain">–</div>
+          <div class="db-card-sub">Sale − cost − expenses</div>
+        </div>
+        <div class="db-card db-card-red">
+          <div class="db-card-label">Final Tax Payable</div>
+          <div class="db-card-value" id="mTax">–</div>
+          <div class="db-card-sub">incl. 4% health &amp; education cess</div>
+        </div>
+      </div>
+
+      <div id="indexationSection" style="display:none;">
+        <div class="db-regime-row">
+          <div class="db-regime-card" id="cardFlat">
+            <div class="db-regime-header">
+              <div>
+                <div class="db-regime-name">Without Indexation</div>
+                <div class="db-regime-hint">Flat 12.5% on gain</div>
+              </div>
+              <span class="db-winner-badge" id="badgeFlat" style="display:none;">✓ LOWER TAX</span>
+            </div>
+            <div class="db-regime-tax" id="taxFlat">–</div>
+            <div class="db-regime-breakdown" id="breakdownFlat"></div>
+          </div>
+          <div class="db-vs">
+            <div class="db-vs-line"></div>
+            <div class="db-vs-badge">VS</div>
+            <div class="db-savings-chip">
+              <div class="db-savings-amt" id="savingsAmt">–</div>
+              <div class="db-savings-lbl">You Save</div>
+            </div>
+            <div class="db-vs-line"></div>
+          </div>
+          <div class="db-regime-card" id="cardIndexed">
+            <div class="db-regime-header">
+              <div>
+                <div class="db-regime-name">With Indexation</div>
+                <div class="db-regime-hint">20% on inflation-adjusted gain</div>
+              </div>
+              <span class="db-winner-badge" id="badgeIndexed" style="display:none;">✓ LOWER TAX</span>
+            </div>
+            <div class="db-regime-tax" id="taxIndexed">–</div>
+            <div class="db-regime-breakdown" id="breakdownIndexed"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="tax-card">
+        <div class="tax-card-hdr">Computation Summary</div>
+        <div class="tx-row"><div class="tx-row-l">Sale Consideration</div><div class="tx-row-r" id="rSale">–</div></div>
+        <div class="tx-row"><div class="tx-row-l" id="rCostLabel">Less: Cost of Acquisition</div><div class="tx-row-r" id="rCost">–</div></div>
+        <div class="tx-row formula-row" id="rCostFormulaRow" style="display:none;"><div class="tx-row-l" id="rCostFormula">–</div></div>
+        <div class="tx-row" id="rImpRow"><div class="tx-row-l" id="rImpLabel">Less: Cost of Improvement</div><div class="tx-row-r" id="rImp">–</div></div>
+        <div class="tx-row formula-row" id="rImpFormulaRow" style="display:none;"><div class="tx-row-l" id="rImpFormula">–</div></div>
+        <div class="tx-row"><div class="tx-row-l">Less: Transfer Expenses</div><div class="tx-row-r" id="rTransfer">–</div></div>
+        <div class="tx-row"><div class="tx-row-l">Capital Gain</div><div class="tx-row-r" id="rGain">–</div></div>
+        <div class="tx-row"><div class="tx-row-l" id="rExemptionLabel">Less: Exemption Claimed</div><div class="tx-row-r g" id="rExemption">–</div></div>
+        <div class="tx-row formula-row" id="rExemptionFormulaRow" style="display:none;"><div class="tx-row-l" id="rExemptionFormula">–</div></div>
+        <div class="tx-row"><div class="tx-row-l">Net Taxable Gain</div><div class="tx-row-r" id="rTaxableGain">–</div></div>
+        <div class="tx-row"><div class="tx-row-l">Tax (before cess)</div><div class="tx-row-r" id="rTaxBeforeCess">–</div></div>
+        <div class="tx-row"><div class="tx-row-l">Health &amp; Education Cess (4%)</div><div class="tx-row-r" id="rCess">–</div></div>
+        <div class="tx-row total-row" id="rTotalRow"><div class="tx-row-l">Total Tax Payable</div><div class="tx-row-r" id="rTotal">–</div></div>
+      </div>
+
+      <div class="obs-list" id="obsList"></div>
+
+      <div class="cta">
+        <h4>Need help filing this correctly?</h4>
+        <p>Capital gains on property involve surcharge, TDS on sale (Section 194-IA/equivalent), and exemption deadlines that this calculator simplifies for planning purposes. Our team can help prepare and file it accurately.</p>
+        <a href="itr.html#contact" class="btn-cta">Get Expert Help →</a>
+      </div>
+
+      <div class="reset-wrap">
+        <button class="btn-outline" onclick="resetPage()">← Recalculate with Different Numbers</button>
+      </div>
+
+      <div class="watermark">This is an estimate for planning purposes only and does not constitute tax advice. Surcharge (applicable above ₹50L/₹1Cr total income) is not included. Consult a CA before filing. CII for FY 2026-27 has not yet been officially notified by CBDT; the FY 2025-26 value is used as a provisional estimate.</div>
+    </div>
+  </div>
+
+</div>
+
+<footer>© 2026 ReportEdge · Financial Intelligence Platform</footer>
+
+<script>
+// Cost Inflation Index table (CBDT notified, base year 2001-02 = 100)
+const CII = {
+  '2001-02':100,'2002-03':105,'2003-04':109,'2004-05':113,'2005-06':117,
+  '2006-07':122,'2007-08':129,'2008-09':137,'2009-10':148,'2010-11':167,
+  '2011-12':184,'2012-13':200,'2013-14':220,'2014-15':240,'2015-16':254,
+  '2016-17':264,'2017-18':272,'2018-19':280,'2019-20':289,'2020-21':301,
+  '2021-22':317,'2022-23':331,'2023-24':348,'2024-25':363,'2025-26':376,
+  '2026-27':376 // provisional — CBDT had not yet notified FY 2026-27 CII at time of writing; 2025-26 value used as estimate
+};
+
+function toFY(dateObj){
+  const y = dateObj.getFullYear();
+  const m = dateObj.getMonth(); // 0=Jan
+  const startY = m>=3 ? y : y-1; // FY starts April
+  return startY+'-'+String((startY+1)%100).padStart(2,'0');
+}
+function getCII(fy){
+  if(CII[fy]!==undefined) return CII[fy];
+  const startY = parseInt(fy.split('-')[0]);
+  if(startY < 2001) return 100;
+  return CII['2025-26']; // fallback to latest notified
+}
+function fmt(n){
+  n = Math.round(n);
+  const neg = n<0; n=Math.abs(n);
+  const s = n.toLocaleString('en-IN');
+  return (neg?'-':'')+'₹'+s;
+}
+function formatAmt(el){
+  const raw = el.value.replace(/[^0-9]/g,'');
+  el.value = raw ? Number(raw).toLocaleString('en-IN') : '';
+}
+function parseAmt(id){
+  const raw = (document.getElementById(id).value||'').replace(/[^0-9.]/g,'');
+  return parseFloat(raw)||0;
+}
+function monthsBetween(d1,d2){
+  return (d2.getFullYear()-d1.getFullYear())*12 + (d2.getMonth()-d1.getMonth()) + (d2.getDate()>=d1.getDate()?0:-1);
+}
+
+function onPropTypeChange(){
+  const propType = document.getElementById('propType').value;
+  const isAgri = propType==='agri';
+  const isCommercial = propType==='commercial';
+  document.getElementById('agriTypeField').style.display = isAgri ? 'flex' : 'none';
+  document.getElementById('commercialHint').style.display = isCommercial ? 'block' : 'none';
+  document.getElementById('depreciableField').style.display = isCommercial ? 'flex' : 'none';
+  if(!isCommercial){
+    document.getElementById('depreciableToggle').value = 'no';
+  }
+  onDepreciableToggleChange();
+
+  const label = document.getElementById('sec54Label');
+  const toggleLabel = document.getElementById('reinvestToggleLabel');
+  if(isAgri){
+    label.innerHTML = 'Amount Reinvested in New Agricultural Land — Sec 54B (₹) <span class="hint">buy the new agricultural land within 2 years after the sale</span>';
+    toggleLabel.innerHTML = 'Reinvesting to claim exemption? <small>Section 54B (new agricultural land) &amp; Section 54EC (capital gains bonds)</small>';
+    document.getElementById('ownsOtherHouseWrap').style.display = 'none';
+  } else if(propType==='plot' || propType==='commercial'){
+    label.innerHTML = 'Amount Reinvested in New House — Sec 54F (₹) <span class="hint">buy anytime from 1 year before the sale to 2 years after — or build a new one within 3 years; invest the full sale proceeds for full exemption, or a part of it for proportionate exemption; cap ₹10 crore; you must not own more than 1 other house on the sale date</span>';
+    toggleLabel.innerHTML = 'Reinvesting to claim exemption? <small>Section 54F (new house, full proceeds, single-house condition applies) &amp; Section 54EC (capital gains bonds)</small>';
+    document.getElementById('ownsOtherHouseWrap').style.display = 'grid';
+  } else {
+    label.innerHTML = 'Amount Reinvested in New House — Sec 54 (₹) <span class="hint">buy anytime from 1 year before the sale to 2 years after — or build a new one within 3 years; cap ₹10 crore</span>';
+    toggleLabel.innerHTML = 'Reinvesting to claim exemption? <small>Section 54 (new house) &amp; Section 54EC (capital gains bonds)</small>';
+    document.getElementById('ownsOtherHouseWrap').style.display = 'none';
+  }
+}
+
+function onDepreciableToggleChange(){
+  const isDepreciable = document.getElementById('propType').value==='commercial' && document.getElementById('depreciableToggle').value==='yes';
+  document.getElementById('depreciableSubFields').style.display = isDepreciable ? 'grid' : 'none';
+  document.getElementById('purchaseBoxTitle').textContent = isDepreciable ? 'Business Asset Details (Section 50)' : 'Purchase Details';
+  document.getElementById('purchasePriceLabel').textContent = isDepreciable ? 'Original Cost of Asset (₹)' : 'Purchase Price (₹)';
+  document.getElementById('improvementCostLabel').innerHTML = isDepreciable ? 'Additions to Block This Year (₹) <span class="hint">optional</span>' : 'Cost of Improvement (₹) <span class="hint">optional</span>';
+  // Section 50 gains are always short-term — reinvestment (Sec 54/54F) not applicable; hide that field, keep 54EC visible
+  document.getElementById('sec54Field').style.display = isDepreciable ? 'none' : 'flex';
+  const propTypeNow = document.getElementById('propType').value;
+  const showOwnsOtherHouse = !isDepreciable && (propTypeNow==='plot' || propTypeNow==='commercial');
+  document.getElementById('ownsOtherHouseWrap').style.display = showOwnsOtherHouse ? 'grid' : 'none';
+  document.getElementById('reinvestToggle').style.display = isDepreciable ? 'none' : 'flex';
+  if(isDepreciable){
+    document.getElementById('reinvestBody').classList.remove('open');
+    document.getElementById('reinvestChev').classList.remove('open');
+  }
+  checkHoldingUI();
+}
+
+document.getElementById('taxYear').addEventListener('change', checkHoldingUI);
+document.getElementById('purchaseDate').addEventListener('change', checkHoldingUI);
+document.getElementById('saleDate').addEventListener('change', checkHoldingUI);
+function checkHoldingUI(){
+  const pd = new Date(document.getElementById('purchaseDate').value);
+  const sd = new Date(document.getElementById('saleDate').value);
+  const isDepreciable = document.getElementById('propType').value==='commercial' && document.getElementById('depreciableToggle').value==='yes';
+  if(isDepreciable){
+    document.getElementById('stcgSlabBox').style.display = 'block';
+    return;
+  }
+  if(isNaN(pd)||isNaN(sd))return;
+  const months = monthsBetween(pd,sd);
+  document.getElementById('stcgSlabBox').style.display = months<=24 ? 'block' : 'none';
+}
+checkHoldingUI();
+
+function toggleReinvest(){
+  document.getElementById('reinvestBody').classList.toggle('open');
+  document.getElementById('reinvestChev').classList.toggle('open');
+}
+
+function showErr(msg){
+  const e=document.getElementById('err');
+  e.textContent='⚠️ '+msg; e.style.display='block';
+}
+function hideErr(){document.getElementById('err').style.display='none';}
+
+function calculate(){
+  hideErr();
+  const purchaseDate = new Date(document.getElementById('purchaseDate').value);
+  const saleDate = new Date(document.getElementById('saleDate').value);
+  const purchasePrice = parseAmt('purchasePrice');
+  const improvementCost = parseAmt('improvementCost');
+  const salePrice = parseAmt('salePrice');
+  const transferExpenses = parseAmt('transferExpenses');
+  const residentStatus = document.getElementById('residentStatus').value;
+  const propType = document.getElementById('propType').value;
+  const agriType = document.getElementById('agriType').value;
+  const isRuralAgri = propType==='agri' && agriType==='rural';
+  const taxYear = document.getElementById('taxYear').value;
+  const isSec54FCase = propType==='plot' || propType==='commercial';
+  const ownsOtherHouse = isSec54FCase && document.getElementById('ownsOtherHouse').value==='yes';
+  let sec54 = Math.min(parseAmt('sec54'), 100000000); // ₹10 crore cap (Sec 54/54F, effective AY 2024-25 onwards)
+  const sec54ec = Math.min(parseAmt('sec54ec'), 5000000);
+  const sec54Blocked = isSec54FCase && ownsOtherHouse && sec54>0;
+  if(sec54Blocked) sec54 = 0; // Sec 54F disallowed — owns more than one other house on sale date
+  const isDepreciable = propType==='commercial' && document.getElementById('depreciableToggle').value==='yes';
+  const depreciationClaimed = isDepreciable ? parseAmt('depreciationClaimed') : 0;
+  const blockContinues = isDepreciable && document.getElementById('blockContinues').value==='yes';
+
+  if(isNaN(purchaseDate)||isNaN(saleDate)){showErr('Please enter valid purchase and sale dates.');return;}
+  if(saleDate<=purchaseDate){showErr('Sale date must be after the purchase date.');return;}
+  if(purchasePrice<=0||salePrice<=0){showErr('Please enter valid purchase and sale amounts.');return;}
+  if(isDepreciable && depreciationClaimed>=(purchasePrice+improvementCost)){showErr('Depreciation claimed cannot equal or exceed the original cost plus additions.');return;}
+
+  const months = monthsBetween(purchaseDate, saleDate);
+  let isLTCG = months > 24;
+  const baseGain = salePrice - purchasePrice - improvementCost - transferExpenses;
+
+  const cutoff = new Date('2024-07-23');
+  let eligibleForIndexationChoice = isLTCG && purchaseDate < cutoff && residentStatus==='resident';
+
+  let taxFlatFinal=null, taxIndexedFinal=null, exemptionFlat=0, exemptionIndexed=null;
+  let gainFlat=baseGain, gainIndexed=null, ciiPurchase=null, ciiSale=null;
+  let chosenGain, exemption=0, netTaxableGain, taxBeforeCess, cess, totalTax, chosenMethod;
+  let wdv=null, sec50IsLoss=false, sec50NoGainBlockContinues=false;
+
+  if(isDepreciable){
+    // Section 50 — always short-term, regardless of holding period
+    isLTCG = false;
+    eligibleForIndexationChoice = false;
+    wdv = Math.max(0, (purchasePrice + improvementCost) - depreciationClaimed);
+    const netConsideration = salePrice - transferExpenses;
+    const diff = netConsideration - wdv;
+    const slabRate = parseFloat(document.getElementById('slabRate').value);
+    if(diff >= 0){
+      chosenGain = diff;
+    } else if(blockContinues){
+      chosenGain = 0;
+      sec50NoGainBlockContinues = true;
+    } else {
+      chosenGain = diff; // negative — short-term capital loss
+      sec50IsLoss = true;
+    }
+    chosenMethod='sec50';
+    netTaxableGain = Math.max(0, chosenGain);
+    taxBeforeCess = netTaxableGain * slabRate;
+    cess = taxBeforeCess * 0.04;
+    totalTax = taxBeforeCess + cess;
+  } else if(isLTCG){
+    const netSaleConsideration = salePrice - transferExpenses;
+    // Sec 54 / 54B: exemption = amount invested, capped at the gain itself.
+    // Sec 54F: exemption is PROPORTIONATE — gain × (amount invested ÷ net sale consideration), capped at 100%.
+    // Sec 54EC (bonds) always works the simple "capped at gain" way, on top of either.
+    function computeExemption(gain){
+      if(gain<=0) return 0;
+      let houseExemption = 0;
+      if(isSec54FCase){
+        const ratio = netSaleConsideration>0 ? Math.min(1, sec54/netSaleConsideration) : 0;
+        houseExemption = gain * ratio;
+      } else {
+        houseExemption = Math.min(gain, sec54);
+      }
+      const remaining = Math.max(0, gain - houseExemption);
+      const ecExemption = Math.min(remaining, sec54ec);
+      return Math.min(gain, houseExemption + ecExemption);
+    }
+
+    // Method 1: flat 12.5%, no indexation — apply exemption BEFORE comparing
+    exemptionFlat = computeExemption(gainFlat);
+    const netFlat = Math.max(0, gainFlat - exemptionFlat);
+    const taxFlatBeforeCess = netFlat * 0.125;
+    taxFlatFinal = taxFlatBeforeCess * 1.04;
+
+    let netIndexed=null, taxIndexedBeforeCess=null;
+    if(eligibleForIndexationChoice){
+      const fyPurchase = toFY(purchaseDate);
+      const fySale = toFY(saleDate);
+      ciiPurchase = getCII(fyPurchase);
+      ciiSale = getCII(fySale);
+      const indexedCost = purchasePrice * (ciiSale/ciiPurchase);
+      const indexedImprovement = improvementCost * (ciiSale/ciiPurchase);
+      gainIndexed = salePrice - indexedCost - indexedImprovement - transferExpenses;
+      exemptionIndexed = computeExemption(gainIndexed);
+      netIndexed = Math.max(0, gainIndexed - exemptionIndexed);
+      taxIndexedBeforeCess = netIndexed * 0.20;
+      taxIndexedFinal = taxIndexedBeforeCess * 1.04;
+    }
+
+    // Winner is decided on FINAL tax payable (post-exemption, post-cess) — not the raw pre-exemption rate
+    if(taxIndexedFinal!==null && taxIndexedFinal < taxFlatFinal){
+      chosenMethod='indexed'; chosenGain=gainIndexed; exemption=exemptionIndexed;
+      netTaxableGain=netIndexed; taxBeforeCess=taxIndexedBeforeCess; cess=taxIndexedBeforeCess*0.04; totalTax=taxIndexedFinal;
+    } else {
+      chosenMethod='flat'; chosenGain=gainFlat; exemption=exemptionFlat;
+      netTaxableGain=netFlat; taxBeforeCess=taxFlatBeforeCess; cess=taxFlatBeforeCess*0.04; totalTax=taxFlatFinal;
+    }
+  } else {
+    const slabRate = parseFloat(document.getElementById('slabRate').value);
+    chosenGain = baseGain;
+    chosenMethod='stcg';
+    netTaxableGain = Math.max(0, chosenGain);
+    taxBeforeCess = netTaxableGain * slabRate;
+    cess = taxBeforeCess * 0.04;
+    totalTax = taxBeforeCess + cess;
+  }
+
+  let finalTaxBeforeCess = taxBeforeCess, finalCess = cess, finalNetTaxableGain = netTaxableGain;
+
+  if(isRuralAgri){
+    totalTax = 0; finalTaxBeforeCess = 0; finalCess = 0; finalNetTaxableGain = 0;
+  }
+
+  // ---- RENDER ----
+  document.getElementById('form-section').style.display='none';
+  document.getElementById('report').style.display='block';
+
+  const propLabel = propType==='plot'?'Plot / Land':propType==='commercial'?'Commercial Property':propType==='agri'?(isRuralAgri?'Rural Agricultural Land':'Urban Agricultural Land'):'Residential Property';
+  document.getElementById('rptTitle').textContent = propLabel + ' — Capital Gains Tax';
+  document.getElementById('rptMeta').textContent = 'Tax Year '+taxYear+' · '+(isDepreciable?'Short-Term (Sec 50)':(isLTCG?'Long-Term':'Short-Term'))+' Capital Gains · '+(isRuralAgri?'Not a Capital Asset':'Estimate');
+
+  document.getElementById('ruralBanner').style.display = isRuralAgri ? 'flex' : 'none';
+  document.getElementById('reinvestToggle').style.display = (isRuralAgri || isDepreciable) ? 'none' : 'flex';
+  document.getElementById('reinvestBody').classList.remove('open');
+  document.getElementById('reinvestChev').classList.remove('open');
+
+  document.getElementById('mHolding').textContent = Math.floor(months/12)+'y '+(months%12)+'m';
+  document.getElementById('mHoldingSub').textContent = isDepreciable ? 'Holding period irrelevant under Sec 50' : (months+' months held');
+  document.getElementById('mGainType').textContent = isDepreciable ? 'STCG (Sec 50)' : (isLTCG?'LTCG':'STCG');
+  document.getElementById('mGainTypeSub').textContent = isDepreciable ? 'Always short-term — depreciable asset' : (isLTCG?'Held over 24 months':'Held 24 months or less');
+  document.getElementById('mGain').textContent = isDepreciable ? fmt(chosenGain) : fmt(baseGain);
+  document.getElementById('mTax').textContent = fmt(totalTax);
+  if(isRuralAgri){ document.getElementById('mTax').style.color = '#34D399'; } else { document.getElementById('mTax').style.color = ''; }
+
+  const conf = document.getElementById('gainTypeConf');
+  if(isDepreciable){
+    conf.className = sec50IsLoss ? 'conf amber' : (sec50NoGainBlockContinues ? 'conf amber' : 'conf');
+    if(sec50IsLoss){
+      conf.textContent = '📉 Under Section 50, since this was the last asset in its block and the sale proceeds are below its Written Down Value, this results in a Short-Term Capital Loss of '+fmt(Math.abs(chosenGain))+'. This can be set off against other capital gains this year, or carried forward for up to 8 years.';
+    } else if(sec50NoGainBlockContinues){
+      conf.textContent = 'ℹ️ Since other assets remain in this depreciation block, no capital gain or loss is recognized this year — the block\'s Written Down Value simply reduces, and depreciation continues on the remaining balance.';
+    } else {
+      conf.textContent = '⚠️ Since depreciation was claimed on this asset, Section 50 applies — the gain is treated as Short-Term Capital Gain regardless of how long you held it, and taxed at your income slab rate (no indexation, no 12.5%/20% LTCG rates).';
+    }
+  } else if(isLTCG){
+    conf.className='conf';
+    conf.textContent = '✓ This qualifies as a Long-Term Capital Gain (held over 24 months). '+(eligibleForIndexationChoice ? 'Since this property was purchased before 23 July 2024, you can choose between two calculation methods — we\'ve compared both below and picked the lower-tax option.' : 'Purchased on/after 23 July 2024, so a flat 12.5% rate applies without indexation.');
+  } else {
+    conf.className='conf amber';
+    conf.textContent = '⚠️ This qualifies as a Short-Term Capital Gain (held 24 months or less). It is added to your total income and taxed at your regular income tax slab rate — selected above.';
+  }
+
+  const indexSection = document.getElementById('indexationSection');
+  if(eligibleForIndexationChoice && !isRuralAgri){
+    indexSection.style.display='block';
+    document.getElementById('taxFlat').textContent = fmt(taxFlatFinal);
+    let flatRows = '<div class="db-rb-row"><span>Gain</span><span>'+fmt(gainFlat)+'</span></div>';
+    if(exemptionFlat>0) flatRows += '<div class="db-rb-row green"><span>Exemption (Sec 54/54EC)</span><span>−'+fmt(exemptionFlat)+'</span></div>';
+    flatRows += '<div class="db-rb-row"><span>Taxable Gain</span><span>'+fmt(Math.max(0,gainFlat-exemptionFlat))+'</span></div>';
+    flatRows += '<div class="db-rb-row"><span>Rate</span><span>12.5%</span></div>';
+    flatRows += '<div class="db-rb-row bold total"><span>Total Tax Payable</span><span>'+fmt(taxFlatFinal)+'</span></div>';
+    document.getElementById('breakdownFlat').innerHTML = flatRows;
+
+    document.getElementById('taxIndexed').textContent = fmt(taxIndexedFinal);
+    let idxRows = '<div class="db-rb-row"><span>Gain (indexed)</span><span>'+fmt(gainIndexed)+'</span></div>';
+    idxRows += '<div class="db-rb-row"><span>CII '+toFY(purchaseDate)+' → '+toFY(saleDate)+'</span><span>'+ciiPurchase+' → '+ciiSale+'</span></div>';
+    if(exemptionIndexed>0) idxRows += '<div class="db-rb-row green"><span>Exemption (Sec 54/54EC)</span><span>−'+fmt(exemptionIndexed)+'</span></div>';
+    idxRows += '<div class="db-rb-row"><span>Taxable Gain</span><span>'+fmt(Math.max(0,gainIndexed-exemptionIndexed))+'</span></div>';
+    idxRows += '<div class="db-rb-row"><span>Rate</span><span>20%</span></div>';
+    idxRows += '<div class="db-rb-row bold total"><span>Total Tax Payable</span><span>'+fmt(taxIndexedFinal)+'</span></div>';
+    document.getElementById('breakdownIndexed').innerHTML = idxRows;
+
+    document.getElementById('badgeFlat').style.display = chosenMethod==='flat' ? 'inline-flex':'none';
+    document.getElementById('badgeIndexed').style.display = chosenMethod==='indexed' ? 'inline-flex':'none';
+    document.getElementById('cardFlat').classList.toggle('db-regime-winner', chosenMethod==='flat');
+    document.getElementById('cardIndexed').classList.toggle('db-regime-winner', chosenMethod==='indexed');
+    document.getElementById('savingsAmt').textContent = fmt(Math.abs(taxFlatFinal-taxIndexedFinal));
+  } else {
+    indexSection.style.display='none';
+  }
+
+  document.getElementById('rSale').textContent = fmt(salePrice);
+
+  let costUsed = purchasePrice, impUsed = improvementCost;
+  if(chosenMethod==='indexed'){
+    costUsed = purchasePrice * (ciiSale/ciiPurchase);
+    impUsed = improvementCost * (ciiSale/ciiPurchase);
+    document.getElementById('rCostLabel').textContent = 'Less: Indexed Cost of Acquisition';
+    document.getElementById('rImpLabel').textContent = 'Less: Indexed Cost of Improvement';
+    document.getElementById('rImpRow').style.display = 'flex';
+    document.getElementById('rCostFormulaRow').style.display = 'flex';
+    document.getElementById('rCostFormula').textContent = '= '+fmt(purchasePrice)+' × '+ciiSale+' ÷ '+ciiPurchase+'  (CII '+toFY(saleDate)+' ÷ CII '+toFY(purchaseDate)+')';
+    if(improvementCost>0){
+      document.getElementById('rImpFormulaRow').style.display = 'flex';
+      document.getElementById('rImpFormula').textContent = '= '+fmt(improvementCost)+' × '+ciiSale+' ÷ '+ciiPurchase;
+    } else {
+      document.getElementById('rImpFormulaRow').style.display = 'none';
+    }
+  } else if(chosenMethod==='sec50'){
+    costUsed = wdv;
+    impUsed = 0;
+    document.getElementById('rCostLabel').textContent = 'Less: Written Down Value (WDV)';
+    document.getElementById('rImpRow').style.display = 'none';
+    document.getElementById('rImpFormulaRow').style.display = 'none';
+    document.getElementById('rCostFormulaRow').style.display = 'flex';
+    document.getElementById('rCostFormula').textContent = '= ('+fmt(purchasePrice)+' + '+fmt(improvementCost)+' additions) − '+fmt(depreciationClaimed)+' depreciation claimed';
+  } else {
+    document.getElementById('rCostLabel').textContent = 'Less: Cost of Acquisition';
+    document.getElementById('rImpLabel').textContent = 'Less: Cost of Improvement';
+    document.getElementById('rImpRow').style.display = 'flex';
+    document.getElementById('rCostFormulaRow').style.display = 'none';
+    document.getElementById('rImpFormulaRow').style.display = 'none';
+  }
+  document.getElementById('rCost').textContent = fmt(costUsed);
+  document.getElementById('rImp').textContent = fmt(impUsed);
+  document.getElementById('rTransfer').textContent = fmt(transferExpenses);
+
+  let exemptionSectionText = 'Exemption Claimed';
+  if(!isRuralAgri && !isDepreciable && isLTCG){
+    if(propType==='agri') exemptionSectionText = 'Exemption Claimed (Sec 54B / 54EC)';
+    else if(propType==='plot' || propType==='commercial') exemptionSectionText = 'Exemption Claimed (Sec 54F / 54EC)';
+    else exemptionSectionText = 'Exemption Claimed (Sec 54 / 54EC)';
+  }
+  document.getElementById('rExemptionLabel').textContent = 'Less: '+exemptionSectionText;
+  document.getElementById('rGain').textContent = (isDepreciable && chosenGain<0) ? '−'+fmt(Math.abs(chosenGain))+' (loss)' : fmt(chosenGain);
+  document.getElementById('rExemption').textContent = (isRuralAgri || isDepreciable) ? 'N/A' : (exemption>0 ? '−'+fmt(exemption) : fmt(0));
+
+  const formulaRow = document.getElementById('rExemptionFormulaRow');
+  if(!isRuralAgri && !isDepreciable && isLTCG && isSec54FCase && sec54>0){
+    const netSC = salePrice - transferExpenses;
+    const ratioPct = netSC>0 ? Math.min(1, sec54/netSC)*100 : 0;
+    formulaRow.style.display='flex';
+    document.getElementById('rExemptionFormula').textContent = '= Gain × ('+fmt(sec54)+' invested ÷ '+fmt(netSC)+' net proceeds) = '+ratioPct.toFixed(1)+'% of gain exempt'+(sec54ec>0?' + Sec 54EC portion':'');
+  } else if(!isRuralAgri && !isDepreciable && isLTCG && (sec54>0||sec54ec>0)){
+    formulaRow.style.display='flex';
+    document.getElementById('rExemptionFormula').textContent = '= lower of Capital Gain or Amount Invested ('+fmt(sec54+sec54ec)+')';
+  } else {
+    formulaRow.style.display='none';
+  }
+  if(isRuralAgri){
+    document.getElementById('rTaxableGain').textContent = fmt(0)+' (not a capital asset)';
+  } else if(isDepreciable && sec50IsLoss){
+    document.getElementById('rTaxableGain').textContent = fmt(0)+' (short-term loss carried forward)';
+  } else if(isDepreciable && sec50NoGainBlockContinues){
+    document.getElementById('rTaxableGain').textContent = fmt(0)+' (no gain recognized — block continues)';
+  } else {
+    document.getElementById('rTaxableGain').textContent = fmt(netTaxableGain);
+  }
+  document.getElementById('rTaxBeforeCess').textContent = fmt(finalTaxBeforeCess);
+  document.getElementById('rCess').textContent = fmt(finalCess);
+  document.getElementById('rTotal').textContent = fmt(totalTax);
+  document.getElementById('rTotalRow').classList.toggle('zero', totalTax===0);
+
+  const obs=[];
+
+  if(isRuralAgri){
+    obs.push('Rural agricultural land is excluded from the definition of "capital asset" under Section 2(14) — so this gain isn\'t taxed under Capital Gains at all. Report it as exempt income under Section 10(1) in Schedule EI of your ITR, not in Schedule CG.');
+    obs.push('No TDS under Section 194-IA applies here, since rural agricultural land is specifically excluded from that section\'s definition of immovable property. (Note: this exclusion does not extend to urban agricultural land, which is treated like ordinary property for TDS purposes.)');
+  } else if(isDepreciable){
+    if(salePrice>5000000){
+      obs.push('The buyer is still required to deduct 1% TDS under Sec 194-IA since the sale value exceeds ₹50 lakh — this applies to depreciable business property the same way it applies to any other immovable property.');
+    }
+    obs.push('Because depreciation was claimed, Section 54 (new house) and the 12.5%/20% LTCG rates don\'t apply here — the gain is deemed short-term regardless of your actual holding period.');
+    obs.push('Section 54EC (capital gains bonds) is strictly available only against "long-term" capital gains. Some courts (e.g. Bombay High Court in CIT v. ACE Builders) have allowed it for Sec 50 assets actually held long-term, but this is disputed and fact-specific — don\'t assume it applies without your CA\'s sign-off.');
+    if(!sec50IsLoss && !sec50NoGainBlockContinues){
+      obs.push('This calculation assumes this property was the only asset in its depreciation block. If you sold multiple assets from the same block this year, the WDV and gain must be computed for the block as a whole — get your CA to verify against your fixed asset register.');
+    }
+    if(sec50IsLoss){
+      obs.push('A short-term capital loss under Section 50 can be set off against both short-term and long-term capital gains in the same year, and carried forward for up to 8 assessment years if unused (provided your ITR is filed on time).');
+    }
+  } else {
+    if(propType==='agri'){
+      if(salePrice>5000000){
+        obs.push('The Section 194-IA TDS exclusion only covers rural agricultural land — since this is urban agricultural land, the buyer must still deduct 1% TDS on the sale consideration as it exceeds ₹50 lakh. This can be claimed back while filing your ITR.');
+      }
+      obs.push('Section 54B lets you claim exemption by reinvesting in another agricultural land (rural or urban) within 2 years of sale — this is what the reinvestment field above calculates, in place of Section 54.');
+    } else if(salePrice>5000000){
+      obs.push('The buyer is required to deduct 1% TDS on the sale consideration since it exceeds ₹50 lakh (Sec 194-IA under the old Act; corresponding provision under the Income Tax Act, 2025). This TDS can be claimed back while filing your ITR.');
+    }
+    if(isLTCG && exemption>0){
+      obs.push('If your reinvestment isn\'t completed before your ITR due date, the unutilised amount must be deposited in a Capital Gains Account Scheme (CGAS) with an authorised bank before filing.');
+    }
+    if(!isLTCG){
+      obs.push('There is no indexation benefit or flat concessional rate for short-term gains on property — the full slab-rate impact applies, including surcharge if your total income is high.');
+    }
+    if(propType==='plot' || propType==='commercial'){
+      if(sec54Blocked){
+        obs.push('⚠️ The amount you entered for Sec 54F was NOT counted toward your exemption, because you indicated you already own more than one other house — Section 54F specifically disqualifies you in that case. Only your Sec 54EC bond investment (if any) reduced your tax below.');
+      } else {
+        obs.push('Section 54 exemption (reinvestment in a new house) is not available against gains from selling a plot, land, or commercial property — Section 54F applies instead. Unlike Sec 54, it\'s based on your sale proceeds, not your gain: invest the full net sale consideration for full exemption, or a smaller amount for a proportionate exemption (Gain × Amount Invested ÷ Net Sale Consideration). You must also not own more than one other house on the sale date.');
+      }
+    }
+  }
+  obs.push('The Income Tax Act, 2025 has renumbered sections (old Sections 45/48/50/54/54EC/54B) but has not materially changed the computation method — the same logic applies for both FY 2025-26 and FY 2026-27.');
+  document.getElementById('obsList').innerHTML = obs.map(o=>'<div class="obs-item"><span class="obs-icon">ⓘ</span>'+o+'</div>').join('');
+
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function resetPage(){
+  document.getElementById('report').style.display='none';
+  document.getElementById('form-section').style.display='block';
+  hideErr();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+</script>
+
+</body>
+</html>

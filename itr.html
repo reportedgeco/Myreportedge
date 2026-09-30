@@ -1,0 +1,2093 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-8TTRNTLB48"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-8TTRNTLB48');
+</script>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>ReportEdge — Free ITR Preview from Form-16</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --navy:    #0F172A;
+  --navy2:   #1E293B;
+  --navy3:   #334155;
+  --blue:    #0F3D91;
+  --blue-h:  #1E40AF;
+  --blue-bg: #EFF6FF;
+  --emerald: #059669;
+  --em-bg:   #ECFDF5;
+  --em-dark: #047857;
+  --white:   #FFFFFF;
+  --bg:      #F8FAFC;
+  --bg2:     #F1F5F9;
+  --text1:   #0F172A;
+  --text2:   #1E293B;
+  --text3:   #475569;
+  --border:  #E2E8F0;
+  --border2: #CBD5E1;
+  --red:     #DC2626;
+  --red-bg:  #FEF2F2;
+  --amber:   #D97706;
+  --shadow-xs: 0 1px 2px rgba(0,0,0,0.05);
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.07),0 1px 2px rgba(0,0,0,0.05);
+  --shadow-md: 0 4px 6px rgba(0,0,0,0.05),0 2px 4px rgba(0,0,0,0.04);
+  --shadow-lg: 0 10px 25px rgba(0,0,0,0.08),0 4px 10px rgba(0,0,0,0.05);
+  --shadow-xl: 0 20px 50px rgba(0,0,0,0.12),0 8px 20px rgba(0,0,0,0.07);
+  --r:6px; --r-md:10px; --r-lg:14px;
+}
+html{scroll-behavior:smooth;}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--white);color:var(--text1);-webkit-font-smoothing:antialiased;font-size:14px;line-height:1.6;}
+
+/* ═══ NAV ═══ */
+nav{background:var(--navy);display:flex;align-items:center;justify-content:space-between;padding:0 48px;height:56px;position:sticky;top:0;z-index:200;}
+.nav-logo{font-size:17px;font-weight:800;color:var(--white);letter-spacing:-0.5px;display:flex;align-items:center;gap:8px;}
+.nav-logo-dot{width:8px;height:8px;background:var(--emerald);border-radius:50%;}
+.nav-right{display:flex;align-items:center;gap:10px;}
+.nav-badge{font-size:11px;font-weight:600;padding:3px 10px;border-radius:4px;}
+.nb-em{background:rgba(5,150,105,0.2);color:#34D399;border:1px solid rgba(5,150,105,0.3);}
+.nb-bl{background:rgba(15,61,145,0.4);color:#93C5FD;border:1px solid rgba(15,61,145,0.5);}
+
+/* ═══ HERO — SPLIT SCREEN ═══ */
+.hero{background:var(--navy);min-height:calc(100vh - 56px);display:grid;grid-template-columns:1fr 1fr;align-items:center;gap:0;overflow:hidden;position:relative;}
+.hero::before{content:'';position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(135deg,rgba(15,61,145,0.15) 0%,transparent 60%);pointer-events:none;}
+.hero-left{padding:72px 56px 72px 56px;position:relative;z-index:1;}
+.hero-label{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:600;color:var(--emerald);background:rgba(5,150,105,0.12);border:1px solid rgba(5,150,105,0.25);padding:4px 12px;border-radius:4px;margin-bottom:24px;letter-spacing:0.5px;text-transform:uppercase;}
+.hero h1{font-size:clamp(32px,3.5vw,48px);font-weight:800;color:var(--white);line-height:1.1;letter-spacing:-1.5px;margin-bottom:20px;}
+.hero h1 em{color:#93C5FD;font-style:normal;}
+.hero-sub{font-size:16px;color:rgba(255,255,255,0.55);line-height:1.7;margin-bottom:36px;max-width:420px;}
+.hero-cta{display:flex;align-items:center;gap:12px;margin-bottom:36px;flex-wrap:wrap;}
+.btn-hero{background:var(--emerald);color:var(--white);font-size:15px;font-weight:600;padding:13px 28px;border-radius:var(--r);border:none;cursor:pointer;transition:all 0.2s;box-shadow:0 4px 12px rgba(5,150,105,0.4);letter-spacing:-0.2px;display:inline-flex;align-items:center;gap:8px;text-decoration:none;}
+.btn-hero:hover{background:var(--em-dark);box-shadow:0 6px 18px rgba(5,150,105,0.5);transform:translateY(-1px);}
+.btn-hero-sec{background:transparent;color:rgba(255,255,255,0.75);font-size:14px;font-weight:500;padding:13px 24px;border-radius:var(--r);border:1px solid rgba(255,255,255,0.2);cursor:pointer;transition:all 0.2s;}
+.btn-hero-sec:hover{background:rgba(255,255,255,0.08);color:var(--white);}
+.hero-trust{display:flex;flex-direction:column;gap:10px;}
+.ht-item{display:flex;align-items:center;gap:10px;font-size:13px;color:rgba(255,255,255,0.5);}
+.ht-icon{width:18px;height:18px;border-radius:3px;background:var(--emerald);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.ht-icon svg{width:10px;height:10px;stroke:#fff;fill:none;stroke-width:3;}
+
+/* ═══ HERO RIGHT — DASHBOARD MOCKUP ═══ */
+.hero-right{padding:32px 48px 32px 24px;display:flex;align-items:center;justify-content:center;position:relative;z-index:1;}
+.dashboard-mockup{width:100%;max-width:460px;background:var(--bg);border-radius:var(--r-lg);border:1px solid rgba(255,255,255,0.1);box-shadow:var(--shadow-xl);overflow:hidden;}
+.dm-topbar{background:var(--navy2);padding:10px 16px;display:flex;align-items:center;gap:8px;border-bottom:1px solid rgba(255,255,255,0.07);}
+.dm-dot{width:10px;height:10px;border-radius:50%;}
+.dm-dot-r{background:#FF5F57;}
+.dm-dot-y{background:#FEBC2E;}
+.dm-dot-g{background:#28C840;}
+.dm-title{font-size:12px;font-weight:500;color:rgba(255,255,255,0.4);margin-left:8px;}
+.dm-body{padding:20px;background:var(--white);}
+
+/* Report header inside mockup */
+.dm-report-hdr{background:var(--navy);border-radius:var(--r-md);padding:16px 18px;margin-bottom:16px;}
+.dm-report-logo{font-size:9px;font-weight:700;color:rgba(255,255,255,0.35);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px;}
+.dm-report-name{font-size:15px;font-weight:700;color:var(--white);margin-bottom:2px;letter-spacing:-0.3px;}
+.dm-report-meta{font-size:11px;color:rgba(255,255,255,0.35);}
+
+/* Metrics row */
+.dm-metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px;}
+.dm-metric{background:var(--bg);border:1px solid var(--border);border-radius:var(--r-md);padding:12px 10px;}
+.dm-mv{font-size:16px;font-weight:700;color:var(--text1);letter-spacing:-0.5px;line-height:1;}
+.dm-mv.g{color:var(--emerald);}
+.dm-mv.b{color:var(--blue);}
+.dm-ml{font-size:10px;color:var(--text3);margin-top:4px;text-transform:uppercase;letter-spacing:0.3px;font-weight:500;}
+
+/* Income rows */
+.dm-section-label{font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;}
+.dm-rows{display:flex;flex-direction:column;gap:1px;margin-bottom:14px;}
+.dm-row{display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:var(--bg);border-radius:4px;}
+.dm-row-l{font-size:12px;color:var(--text2);}
+.dm-row-r{font-size:12px;font-weight:600;color:var(--text1);}
+.dm-row-r.g{color:var(--emerald);}
+.dm-row-r.muted{color:var(--text3);font-size:11px;font-weight:400;}
+.dm-row.highlight{background:var(--bg2);}
+
+/* Regime comparison inside mockup */
+.dm-regime{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;}
+.dm-regime-card{border-radius:var(--r-md);padding:12px 10px;border:1px solid var(--border);}
+.dm-regime-card.rec{border-color:var(--emerald);background:var(--em-bg);}
+.dm-regime-lbl{font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;}
+.dm-regime-tax{font-size:17px;font-weight:700;color:var(--text1);letter-spacing:-0.5px;}
+.dm-regime-rec{font-size:10px;color:var(--emerald);font-weight:600;margin-top:4px;}
+
+/* Refund pill in mockup */
+.dm-refund{display:flex;align-items:center;justify-content:space-between;background:var(--em-bg);border:1px solid rgba(5,150,105,0.25);border-radius:var(--r);padding:10px 14px;}
+.dm-refund-l{font-size:12px;color:var(--em-dark);font-weight:500;}
+.dm-refund-amt{font-size:16px;font-weight:700;color:var(--emerald);letter-spacing:-0.5px;}
+
+/* Floating elements on mockup */
+.dm-badge{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:600;padding:3px 8px;border-radius:20px;}
+.dm-badge-g{background:var(--em-bg);color:var(--emerald);}
+.dm-badge-b{background:var(--blue-bg);color:var(--blue);}
+
+/* ═══ FEATURES STRIP ═══ */
+.features-strip{background:var(--bg);border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:20px 48px;display:flex;align-items:center;justify-content:center;gap:48px;flex-wrap:wrap;}
+.fs-item{display:flex;align-items:center;gap:10px;font-size:13px;font-weight:500;color:var(--text2);}
+.fs-icon{width:26px;height:26px;border-radius:5px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.fs-icon svg{width:13px;height:13px;fill:none;stroke-width:2.5;}
+.fsi-g{background:var(--em-bg);} .fsi-g svg{stroke:var(--emerald);}
+.fsi-b{background:var(--blue-bg);} .fsi-b svg{stroke:var(--blue);}
+.fsi-a{background:#FFFBEB;} .fsi-a svg{stroke:var(--amber);}
+
+/* ═══ HOW IT WORKS ═══ */
+.section{padding:64px 48px;max-width:1100px;margin:0 auto;}
+.section-eyebrow{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--emerald);margin-bottom:10px;}
+.section-title{font-size:28px;font-weight:800;color:var(--text1);letter-spacing:-0.8px;margin-bottom:8px;}
+.section-sub{font-size:15px;color:var(--text2);margin-bottom:40px;max-width:480px;line-height:1.65;}
+.steps-grid{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden;box-shadow:var(--shadow-sm);}
+.step-card{padding:28px 24px;background:var(--white);border-right:1px solid var(--border);transition:background 0.2s;}
+.step-card:last-child{border-right:none;}
+.step-card:hover{background:var(--bg);}
+.step-num{width:30px;height:30px;background:var(--navy);color:var(--white);border-radius:6px;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;margin-bottom:14px;}
+.step-title{font-size:14px;font-weight:700;color:var(--text1);margin-bottom:6px;}
+.step-desc{font-size:13px;color:var(--text2);line-height:1.55;}
+
+/* ═══ MAIN UPLOAD ═══ */
+.main{max-width:920px;margin:0 auto;padding:40px 24px 80px;}
+
+.upload-panel{background:var(--white);border:1px solid var(--border);border-radius:var(--r-lg);box-shadow:var(--shadow-md);overflow:hidden;margin-bottom:20px;}
+.upload-panel-hdr{background:var(--navy);padding:20px 28px;display:flex;align-items:center;gap:14px;}
+.uph-icon{width:40px;height:40px;background:rgba(5,150,105,0.2);border:1px solid rgba(5,150,105,0.3);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.uph-icon svg{width:20px;height:20px;stroke:#6EE7B7;fill:none;stroke-width:2;}
+.uph-text h2{font-size:17px;font-weight:700;color:var(--white);margin-bottom:2px;letter-spacing:-0.3px;}
+.uph-text p{font-size:12px;color:rgba(255,255,255,0.4);}
+.upload-panel-body{padding:28px;}
+
+.drop-zone{border:2px dashed var(--border2);border-radius:var(--r-md);padding:48px 24px;text-align:center;cursor:pointer;transition:all 0.2s;background:var(--bg);position:relative;}
+.drop-zone:hover,.drop-zone.over{border-color:var(--emerald);background:var(--em-bg);}
+.drop-zone input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
+.dz-icon{width:52px;height:52px;margin:0 auto 16px;background:var(--blue-bg);border-radius:12px;display:flex;align-items:center;justify-content:center;}
+.dz-icon svg{width:24px;height:24px;stroke:var(--blue);fill:none;stroke-width:2;}
+.dz-title{font-size:16px;font-weight:700;color:var(--text1);margin-bottom:6px;letter-spacing:-0.3px;}
+.dz-title span{color:var(--blue);}
+.dz-sub{font-size:13px;color:var(--text2);margin-bottom:16px;}
+.dz-pills{display:flex;gap:6px;justify-content:center;}
+.dz-pill{font-size:11px;font-weight:600;text-transform:uppercase;padding:3px 9px;border-radius:4px;background:var(--white);color:var(--text2);border:1px solid var(--border);letter-spacing:0.3px;}
+
+.file-attached{display:none;align-items:center;gap:12px;padding:13px 16px;background:var(--em-bg);border:1px solid rgba(5,150,105,0.25);border-radius:var(--r);margin-top:14px;}
+.file-attached.show{display:flex;}
+.file-icon{width:34px;height:34px;background:var(--emerald);border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.file-icon svg{width:16px;height:16px;stroke:#fff;fill:none;stroke-width:2.5;}
+.file-name{font-size:13px;font-weight:600;color:var(--text1);flex:1;}
+.file-size{font-size:11px;color:var(--text2);margin-top:2px;}
+.file-remove{background:none;border:none;cursor:pointer;color:var(--text3);font-size:18px;padding:0 4px;}
+.file-remove:hover{color:var(--red);}
+
+.details-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:20px;}
+.dbox{background:var(--bg);border:1px solid var(--border);border-radius:var(--r-md);padding:20px;}
+.dbox-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text3);margin-bottom:14px;}
+.fg{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.ff{display:flex;flex-direction:column;gap:5px;}
+.ff label{font-size:12px;font-weight:500;color:var(--text2);}
+.ff input,.ff select{padding:9px 12px;border:1px solid var(--border);border-radius:var(--r);font-size:13px;font-family:'Inter',sans-serif;color:var(--text1);background:var(--white);outline:none;transition:border-color 0.2s,box-shadow 0.2s;}
+.ff input:focus,.ff select:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(15,61,145,0.08);}
+
+.privacy{margin-top:16px;background:var(--bg);border:1px solid var(--border);border-radius:var(--r);padding:12px 16px;font-size:12px;color:var(--text2);line-height:1.6;display:flex;gap:8px;}
+
+.btn-primary{margin-top:20px;background:var(--blue);color:var(--white);font-size:15px;font-weight:600;padding:13px 28px;border-radius:var(--r);border:none;cursor:pointer;width:100%;transition:all 0.2s;box-shadow:0 2px 8px rgba(15,61,145,0.3);letter-spacing:-0.2px;}
+.btn-primary:hover{background:var(--blue-h);box-shadow:0 4px 14px rgba(15,61,145,0.4);transform:translateY(-1px);}
+.btn-outline{background:var(--white);color:var(--blue);font-size:13px;font-weight:500;padding:9px 20px;border-radius:var(--r);border:1px solid var(--blue);cursor:pointer;transition:all 0.2s;}
+.btn-outline:hover{background:var(--blue-bg);}
+.err{background:var(--red-bg);border:1px solid #FECACA;border-radius:var(--r);padding:12px 16px;font-size:13px;color:var(--red);margin-top:14px;display:none;line-height:1.6;}
+
+/* ═══ LOADING ═══ */
+.loading{display:none;padding:80px 0;text-align:center;}
+.spinner{width:36px;height:36px;border:2.5px solid var(--border);border-top-color:var(--blue);border-radius:50%;animation:spin 0.7s linear infinite;margin:0 auto 22px;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.loading-title{font-size:21px;font-weight:700;color:var(--text1);margin-bottom:6px;letter-spacing:-0.5px;}
+.loading-sub{font-size:14px;color:var(--text2);}
+.loading-steps{margin:24px auto 0;display:flex;flex-direction:column;gap:6px;max-width:340px;}
+.ls{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--text2);padding:10px 16px;border-radius:var(--r);background:var(--white);border:1px solid var(--border);}
+.ls.active{color:var(--blue);border-color:var(--blue);background:var(--blue-bg);font-weight:500;}
+.ls.done{color:var(--emerald);border-color:rgba(5,150,105,0.3);background:var(--em-bg);}
+.ls-dot{width:6px;height:6px;border-radius:50%;background:currentColor;flex-shrink:0;}
+
+/* ═══ REPORT ═══ */
+.report{display:none;}
+.rpt-hdr{background:var(--navy);border-radius:var(--r-lg) var(--r-lg) 0 0;padding:28px 32px;}
+.rpt-logo{font-size:10px;font-weight:700;color:rgba(255,255,255,0.25);letter-spacing:2px;text-transform:uppercase;margin-bottom:12px;}
+.rpt-title{font-size:23px;font-weight:700;color:var(--white);margin-bottom:5px;letter-spacing:-0.5px;}
+.rpt-meta{font-size:11px;color:rgba(255,255,255,0.3);}
+.rpt-body{background:var(--white);border:1px solid var(--border);border-top:none;border-radius:0 0 var(--r-lg) var(--r-lg);padding:32px;}
+
+.conf{padding:11px 16px;border-radius:var(--r);font-size:13px;margin-bottom:22px;display:flex;gap:10px;align-items:flex-start;line-height:1.6;font-weight:500;}
+.conf-h{background:var(--em-bg);border:1px solid rgba(5,150,105,0.25);color:var(--em-dark);}
+.conf-m{background:#FFFBEB;border:1px solid rgba(217,119,6,0.25);color:#92400E;}
+.conf-l{background:var(--red-bg);border:1px solid rgba(220,38,38,0.2);color:#991B1B;}
+
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:28px;}
+.metric{background:var(--bg);border:1px solid var(--border);border-radius:var(--r-md);padding:16px 14px;}
+.mv{font-size:20px;font-weight:700;color:var(--text1);line-height:1;letter-spacing:-0.5px;}
+.mv.g{color:var(--emerald);} .mv.r{color:var(--red);} .mv.b{color:var(--blue);}
+.ml{font-size:10px;font-weight:500;color:var(--text3);margin-top:5px;text-transform:uppercase;letter-spacing:0.5px;}
+
+.divider{height:1px;background:var(--border);margin:24px 0;}
+.sec{font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:14px;}
+
+/* SIMPLIFIED TAX SUMMARY */
+.tax-card{background:var(--bg);border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden;margin-bottom:16px;}
+.tax-card-hdr{background:var(--navy2);padding:12px 20px;font-size:11px;font-weight:700;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:1px;display:flex;justify-content:space-between;align-items:center;}
+.tax-card-hdr span{color:rgba(255,255,255,0.3);font-weight:400;font-size:10px;}
+.tx-row{display:flex;justify-content:space-between;align-items:center;padding:11px 20px;border-bottom:1px solid var(--border);font-size:14px;}
+.tx-row:last-child{border-bottom:none;}
+.tx-row-l{color:var(--text2);font-weight:400;}
+.tx-row-r{font-weight:600;color:var(--text1);text-align:right;}
+.tx-row-r.g{color:var(--emerald);}
+.tx-row-r.muted{color:var(--text3);font-size:12px;font-weight:400;}
+.tx-row-r.na{color:var(--text3);font-size:12px;font-weight:400;font-style:italic;}
+.tx-row.sub .tx-row-l{padding-left:16px;color:var(--text3);font-size:13px;}
+.tx-row.sub .tx-row-r{color:var(--emerald);font-size:13px;}
+.tx-row.total-row{background:var(--white);}
+.tx-row.total-row .tx-row-l{font-weight:700;color:var(--text1);}
+.tx-row.total-row .tx-row-r{font-size:16px;font-weight:700;}
+.tx-row.tax-row{background:rgba(15,61,145,0.04);}
+.tx-row.tax-row .tx-row-l{font-weight:600;color:var(--navy);}
+.tx-row.tax-row .tx-row-r{color:var(--blue);}
+
+/* REGIME WINNER BANNER */
+.regime-winner{border-radius:var(--r-md);padding:20px 24px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;}
+.rw-new{background:var(--em-bg);border:2px solid var(--emerald);}
+.rw-old{background:var(--blue-bg);border:2px solid var(--blue);}
+.rw-label{font-size:12px;font-weight:600;margin-bottom:4px;}
+.rw-label.g{color:var(--emerald);}
+.rw-label.b{color:var(--blue);}
+.rw-title{font-size:18px;font-weight:700;color:var(--text1);margin-bottom:2px;}
+.rw-sub{font-size:13px;color:var(--text2);}
+.rw-saving{text-align:right;}
+.rw-saving-amt{font-size:26px;font-weight:700;letter-spacing:-0.5px;}
+.rw-saving-amt.g{color:var(--emerald);}
+.rw-saving-amt.b{color:var(--blue);}
+.rw-saving-label{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;font-weight:500;margin-top:2px;}
+
+/* TDS REFUND RESULT */
+.refund-banner{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-radius:var(--r-md);margin-bottom:16px;}
+.rb-refund{background:var(--em-bg);border:1px solid rgba(5,150,105,0.3);}
+.rb-due{background:var(--red-bg);border:1px solid rgba(220,38,38,0.2);}
+.rb-label{font-size:13px;font-weight:500;}
+.rb-label.g{color:var(--em-dark);}
+.rb-label.r{color:var(--red);}
+.rb-amount{font-size:24px;font-weight:700;letter-spacing:-0.5px;}
+.rb-amount.g{color:var(--emerald);}
+.rb-amount.r{color:var(--red);}
+
+.itbl{width:100%;border-collapse:collapse;}
+.itbl thead tr{border-bottom:2px solid var(--border);}
+.itbl tbody tr{border-bottom:1px solid var(--bg2);transition:background 0.1s;}
+.itbl tbody tr:hover{background:var(--bg);}
+.itbl tbody tr:last-child{border-bottom:none;}
+.itbl th{padding:9px 8px;font-size:10px;text-align:right;color:var(--text2);font-weight:700;letter-spacing:0.5px;text-transform:uppercase;}
+.itbl th:first-child{text-align:left;}
+.itbl td{padding:9px 8px;font-size:13px;}
+.itbl td:first-child{color:var(--text2);width:52%;}
+.itbl td:not(:first-child){text-align:right;font-weight:600;color:var(--text1);}
+.itbl tr.ded td:nth-child(2){color:var(--emerald);}
+.itbl tr.ded td:nth-child(3){color:var(--text3);font-size:11px;font-weight:400;}
+.itbl tr.both td:nth-child(2),.itbl tr.both td:nth-child(3){color:var(--emerald);}
+.itbl tr.tot td{font-weight:700;border-top:2px solid var(--border);padding-top:10px;background:var(--bg);}
+.itbl tr.tot td:not(:first-child){font-size:13px;}
+
+.regime-box{background:var(--navy);border-radius:var(--r-lg);padding:24px;margin-bottom:4px;}
+.regime-label{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.25);margin-bottom:16px;}
+.regime-cols{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;}
+.rc{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:var(--r-md);padding:18px 16px;}
+.rc.rec{border-color:rgba(5,150,105,0.5);background:rgba(5,150,105,0.1);}
+.rc-lbl{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,0.35);margin-bottom:8px;font-weight:600;}
+.rc-tax{font-size:24px;font-weight:700;color:var(--white);line-height:1;letter-spacing:-1px;}
+.rc-sub{font-size:11px;color:rgba(255,255,255,0.3);margin-top:5px;}
+.rc-badge{display:inline-flex;align-items:center;gap:4px;background:var(--emerald);color:var(--white);font-size:10px;font-weight:700;padding:4px 10px;border-radius:20px;margin-top:10px;}
+.sav-mid{text-align:center;padding:0 18px;}
+.sav-amt{font-size:24px;font-weight:700;color:var(--white);line-height:1;letter-spacing:-1px;}
+.sav-lbl{font-size:10px;color:rgba(255,255,255,0.3);margin-top:5px;letter-spacing:1.5px;text-transform:uppercase;font-weight:600;}
+.sav-pct{font-size:14px;font-weight:700;color:#6EE7B7;margin-top:3px;}
+
+.slab-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.slab-card{border:1px solid var(--border);border-radius:var(--r-md);overflow:hidden;}
+.slab-head{background:var(--navy2);padding:9px 14px;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,0.4);}
+.slab-tbl{width:100%;border-collapse:collapse;}
+.slab-tbl tr{border-bottom:1px solid var(--border);}
+.slab-tbl tr:last-child{border-bottom:none;}
+.slab-tbl td{padding:8px 14px;font-size:12px;}
+.slab-tbl td:first-child{color:var(--text2);}
+.slab-tbl td:not(:first-child){text-align:right;font-weight:600;color:var(--text1);}
+.slab-tbl tr.hl{background:var(--em-bg);}
+.slab-tbl tr.hl td{color:var(--emerald);font-weight:700;}
+
+.obs-list{display:flex;flex-direction:column;gap:8px;}
+.obs-item{display:flex;gap:10px;align-items:flex-start;padding:12px 16px;background:var(--bg);border-radius:var(--r);font-size:13px;color:var(--text2);line-height:1.6;border:1px solid var(--border);}
+.obs-icon{color:var(--blue);flex-shrink:0;font-weight:700;margin-top:1px;font-size:13px;}
+
+.trow{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--bg2);font-size:13px;}
+.trow:last-child{border-bottom:none;}
+.trow-l{color:var(--text2);}
+.trow-r{font-weight:600;color:var(--text1);}
+.pill{font-size:12px;padding:4px 11px;border-radius:4px;font-weight:600;}
+.pill.refund{background:var(--em-bg);color:var(--emerald);border:1px solid rgba(5,150,105,0.25);}
+.pill.due{background:var(--red-bg);color:var(--red);border:1px solid rgba(220,38,38,0.2);}
+
+.summary{background:var(--bg);border-left:3px solid var(--blue);padding:16px 20px;font-size:14px;color:var(--text2);line-height:1.8;margin-bottom:22px;border-radius:0 var(--r) var(--r) 0;}
+.missing{background:#FFFBEB;border:1px solid rgba(217,119,6,0.25);border-radius:var(--r);padding:12px 16px;font-size:13px;color:#92400E;line-height:1.65;margin-top:14px;}
+
+/* DEDUCTION PANEL */
+.ded-panel{background:var(--white);border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden;margin-top:24px;box-shadow:var(--shadow-md);}
+.ded-panel-hdr{background:var(--navy2);padding:18px 28px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none;}
+.ded-panel-hdr-left{display:flex;align-items:center;gap:12px;}
+.ded-panel-icon{width:36px;height:36px;background:rgba(5,150,105,0.2);border:1px solid rgba(5,150,105,0.3);border-radius:7px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.ded-panel-icon svg{width:18px;height:18px;stroke:#6EE7B7;fill:none;stroke-width:2;}
+.ded-panel-title{font-size:15px;font-weight:700;color:var(--white);letter-spacing:-0.3px;}
+.ded-panel-sub{font-size:12px;color:rgba(255,255,255,0.4);margin-top:2px;}
+.ded-panel-badge{font-size:11px;font-weight:600;background:rgba(5,150,105,0.2);color:#6EE7B7;border:1px solid rgba(5,150,105,0.3);padding:3px 10px;border-radius:4px;}
+.ded-panel-arrow{color:rgba(255,255,255,0.4);font-size:18px;transition:transform 0.3s;}
+.ded-panel-arrow.open{transform:rotate(180deg);}
+.ded-body{display:none;padding:28px;}
+.ded-body.open{display:block;}
+.ded-note{background:var(--em-bg);border:1px solid rgba(5,150,105,0.2);border-radius:var(--r);padding:12px 16px;font-size:13px;color:var(--em-dark);margin-bottom:24px;line-height:1.6;}
+.ded-section{margin-bottom:24px;}
+.ded-section-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text3);margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid var(--border);}
+.ded-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;}
+.ded-field{display:flex;flex-direction:column;gap:5px;}
+.ded-field label{font-size:12px;font-weight:500;color:var(--text2);}
+.ded-field .ded-limit{font-size:10px;color:var(--text3);font-weight:400;}
+.ded-field input{padding:9px 12px;border:1px solid var(--border);border-radius:var(--r);font-size:13px;font-family:'Inter',sans-serif;color:var(--text1);background:var(--bg);outline:none;transition:border-color 0.2s,box-shadow 0.2s;}
+.ded-field input:focus{border-color:var(--emerald);box-shadow:0 0 0 3px rgba(5,150,105,0.08);background:var(--white);}
+.ded-field input::placeholder{color:var(--text3);}
+.ded-total{background:var(--bg);border:1px solid var(--border);border-radius:var(--r-md);padding:16px 20px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;}
+.ded-total-label{font-size:13px;font-weight:600;color:var(--text1);}
+.ded-total-amount{font-size:20px;font-weight:700;color:var(--emerald);letter-spacing:-0.5px;}
+.btn-recalc{background:var(--emerald);color:var(--white);font-size:14px;font-weight:600;padding:12px 28px;border-radius:var(--r);border:none;cursor:pointer;width:100%;transition:all 0.2s;box-shadow:0 2px 8px rgba(5,150,105,0.3);}
+.btn-recalc:hover{background:var(--em-dark);transform:translateY(-1px);}
+
+/* REGIME RESULT BANNER */
+.regime-result{border-radius:var(--r-md);padding:16px 20px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;}
+.regime-result.new-wins{background:var(--em-bg);border:1px solid rgba(5,150,105,0.25);}
+.regime-result.old-wins{background:var(--blue-bg);border:1px solid rgba(15,61,145,0.2);}
+.rr-left h4{font-size:15px;font-weight:700;color:var(--text1);margin-bottom:4px;}
+.rr-left p{font-size:13px;color:var(--text2);}
+.rr-right{text-align:right;}
+.rr-saving{font-size:22px;font-weight:700;letter-spacing:-0.5px;}
+.rr-saving.g{color:var(--emerald);}
+.rr-saving.b{color:var(--blue);}
+.rr-saving-label{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;font-weight:500;}
+
+@media(max-width:768px){.ded-grid{grid-template-columns:1fr 1fr;}}
+
+.cta{background:var(--navy);border-radius:var(--r-lg);padding:36px;margin-top:28px;}
+.cta h4{font-size:22px;font-weight:700;color:var(--white);margin-bottom:6px;letter-spacing:-0.5px;}
+.cta p{font-size:14px;color:rgba(255,255,255,0.45);line-height:1.6;margin-bottom:24px;}
+.cta-form{display:flex;flex-wrap:wrap;gap:10px;}
+.cta-input{flex:1;min-width:140px;padding:11px 16px;border:1px solid rgba(255,255,255,0.12);border-radius:var(--r);background:rgba(255,255,255,0.07);color:var(--white);font-size:13px;font-family:'Inter',sans-serif;outline:none;transition:border-color 0.2s;}
+.cta-input:focus{border-color:rgba(5,150,105,0.5);}
+.cta-input::placeholder{color:rgba(255,255,255,0.3);}
+.btn-cta{background:var(--emerald);color:var(--white);font-size:14px;font-weight:600;padding:11px 24px;border-radius:var(--r);border:none;cursor:pointer;white-space:nowrap;transition:all 0.2s;box-shadow:0 2px 8px rgba(5,150,105,0.4);}
+.btn-cta:hover{background:var(--em-dark);transform:translateY(-1px);}
+.cta-success{display:none;margin-top:14px;padding:12px 16px;background:var(--em-bg);border:1px solid rgba(5,150,105,0.25);border-radius:var(--r);font-size:13px;color:var(--emerald);font-weight:500;}
+
+.watermark{font-size:11px;color:var(--text3);text-align:center;margin-top:20px;}
+.reset-wrap{margin-top:16px;text-align:center;}
+
+@media(max-width:900px){
+  .hero{grid-template-columns:1fr;min-height:auto;}
+  .hero-right{display:none;}
+  .hero-left{padding:48px 24px;}
+  nav{padding:0 24px;}
+  .features-strip{padding:16px 24px;gap:20px;}
+  .section{padding:48px 24px;}
+  .steps-grid{grid-template-columns:1fr 1fr;}
+  .step-card:nth-child(2){border-right:none;}
+  .step-card:nth-child(3){border-top:1px solid var(--border);}
+  .step-card:nth-child(4){border-top:1px solid var(--border);}
+  .main{padding:28px 16px 60px;}
+  .metrics{grid-template-columns:1fr 1fr;}
+  .details-row{grid-template-columns:1fr;}
+  .fg{grid-template-columns:1fr;}
+  .regime-cols{grid-template-columns:1fr;gap:10px;}
+  .slab-grid{grid-template-columns:1fr;}
+  .upload-panel-body{padding:20px;}
+}
+
+/* ═══ DASHBOARD LAYOUT ═══ */
+.rpt-body { background: #0F172A; border: none; border-radius: 0 0 var(--r-lg) var(--r-lg); padding: 24px; }
+.rpt-hdr  { border-radius: var(--r-lg) var(--r-lg) 0 0; }
+
+/* TOP METRIC CARDS */
+.db-metrics { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; margin-bottom: 16px; }
+.db-card { border-radius: 10px; padding: 16px 18px; }
+.db-card-dark  { background: #1E293B; border: 1px solid #334155; }
+.db-card-accent{ background: #1E3A5F; border: 1px solid #2563EB44; }
+.db-card-green { background: #052E16; border: 1px solid #16A34A44; }
+.db-card-red   { background: #2D0A0A; border: 1px solid #DC262644; }
+.db-card-label { font-size: 11px; font-weight: 600; color: #64748B; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 8px; }
+.db-card-value { font-size: 26px; font-weight: 800; color: #F1F5F9; line-height: 1; letter-spacing: -1px; margin-bottom: 6px; }
+.db-card-sub   { font-size: 11px; color: #475569; }
+
+/* REGIME COMPARISON ROW */
+.db-regime-row { display: grid; grid-template-columns: 1fr 80px 1fr; gap: 0; margin-bottom: 16px; align-items: stretch; }
+.db-regime-card { background: #1E293B; border: 1px solid #334155; border-radius: 10px; padding: 20px; }
+.db-regime-card.db-regime-winner { background: #0F2A1A; border: 1.5px solid #16A34A; }
+.db-regime-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 12px; }
+.db-regime-name  { font-size: 13px; font-weight: 700; color: #CBD5E1; }
+.db-regime-hint  { font-size: 11px; color: #475569; margin-top: 2px; }
+.db-winner-badge { font-size: 10px; font-weight: 700; color: #34D399; background: rgba(52,211,153,0.12); border: 1px solid rgba(52,211,153,0.25); padding: 3px 8px; border-radius: 4px; white-space: nowrap; }
+.db-regime-tax   { font-size: 36px; font-weight: 800; color: #F1F5F9; letter-spacing: -1.5px; margin-bottom: 16px; line-height: 1; }
+.db-regime-winner .db-regime-tax { color: #34D399; }
+
+.db-regime-breakdown { display: flex; flex-direction: column; gap: 5px; }
+.db-rb-row { display: flex; justify-content: space-between; align-items: center; font-size: 12px; padding: 4px 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
+.db-rb-row:last-child { border-bottom: none; }
+.db-rb-row span:first-child { color: #64748B; }
+.db-rb-row span:last-child  { font-weight: 500; color: #CBD5E1; }
+.db-rb-row.green span:last-child { color: #34D399; }
+.db-rb-row.muted span:last-child { color: #475569; }
+.db-rb-row.bold  span { font-weight: 700; color: #F1F5F9 !important; font-size: 13px; }
+.db-rb-row.total { border-top: 1px solid #334155; padding-top: 8px; margin-top: 4px; }
+.db-refund-chip  { display: inline-flex; align-items: center; font-size: 12px; font-weight: 700; padding: 5px 12px; border-radius: 20px; margin-top: 12px; }
+.chip-green { background: rgba(22,163,74,0.15); color: #34D399; border: 1px solid rgba(22,163,74,0.3); }
+.chip-red   { background: rgba(220,38,38,0.15); color: #F87171; border: 1px solid rgba(220,38,38,0.3); }
+
+/* VS COLUMN */
+.db-vs { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0; padding: 0 8px; }
+.db-vs-line  { flex: 1; width: 1px; background: #1E293B; }
+.db-vs-badge { font-size: 11px; font-weight: 700; color: #475569; background: #1E293B; border: 1px solid #334155; padding: 4px 8px; border-radius: 20px; margin: 8px 0; }
+.db-savings-chip { background: #0F2A1A; border: 1px solid rgba(52,211,153,0.25); border-radius: 10px; padding: 12px 10px; text-align: center; margin: 8px 0; width: 100%; }
+
+/* RECOMMENDATION BANNER */
+.db-rec-banner { display: flex; align-items: center; gap: 16px; padding: 16px 20px; border-radius: 10px; margin-bottom: 16px; flex-wrap: wrap; }
+.db-rec-new  { background: linear-gradient(135deg, #052E16 0%, #14532D 100%); border: 1px solid #16A34A55; }
+.db-rec-old  { background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%); border: 1px solid #6366F155; }
+.db-rec-icon { font-size: 24px; color: #34D399; flex-shrink: 0; }
+.db-rec-content { flex: 1; }
+.db-rec-title { font-size: 16px; font-weight: 700; color: #F1F5F9; margin-bottom: 4px; }
+.db-rec-sub   { font-size: 12px; color: #64748B; line-height: 1.5; }
+.db-rec-tax   { text-align: right; color: #F1F5F9; }
+
+/* SLAB PILLS */
+.db-slabs-row  { display: grid; grid-template-columns: 1fr 240px; gap: 12px; }
+.db-slabs-card { background: #1E293B; border: 1px solid #334155; border-radius: 10px; padding: 16px; }
+.db-slabs-title{ font-size: 11px; font-weight: 600; color: #94A3B8; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 12px; }
+.db-tds-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #334155; font-size: 14px; }
+.db-tds-row:last-child { border-bottom: none; }
+.db-tds-row span:first-child { color: #CBD5E1; font-weight: 400; }
+.db-tds-row span:last-child  { color: #F1F5F9; font-weight: 700; font-size: 16px; }
+.db-slabs-pills{ display: flex; flex-wrap: wrap; gap: 8px; }
+.db-slab-pill  { background: #0F172A; border: 1px solid #334155; border-radius: 8px; padding: 10px 12px; min-width: 80px; }
+.db-slab-rate  { font-size: 16px; font-weight: 800; color: #60A5FA; line-height: 1; margin-bottom: 4px; }
+.db-slab-income{ font-size: 11px; color: #64748B; margin-bottom: 2px; }
+.db-slab-tax   { font-size: 12px; font-weight: 600; color: #34D399; }
+
+@media(max-width:900px){
+  .db-metrics { grid-template-columns: 1fr 1fr; }
+  .db-regime-row { grid-template-columns: 1fr; }
+  .db-vs { flex-direction: row; padding: 8px 0; }
+  .db-vs-line { flex: 1; height: 1px; width: auto; }
+  .db-slabs-row { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div style="display:flex;align-items:center;gap:20px;">
+    <a href="index.html" style="font-size:12px;color:rgba(255,255,255,0.4);text-decoration:none;display:flex;align-items:center;gap:5px;" onmouseover="this.style.color='rgba(255,255,255,0.8)'" onmouseout="this.style.color='rgba(255,255,255,0.4)'">&#8592; Home</a>
+    <div class="nav-logo"><div class="nav-logo-dot"></div>ReportEdge</div>
+  </div>
+  <div class="nav-right">
+    <span class="nav-badge nb-em">&#10003; Free Preview</span>
+    <span class="nav-badge nb-bl">FY 2025-26</span>
+  </div>
+</nav>
+
+<!-- HERO — SPLIT -->
+<div class="hero">
+  <div class="hero-left">
+    <div class="hero-label">&#9679; Income Tax &middot; India &middot; FY 2025-26</div>
+    <h1>Upload Form-16.<br>Get your <em>ITR preview</em><br>in minutes.</h1>
+    <p class="hero-sub">Upload your Form-16 PDF and get a complete income tax summary &mdash; income breakdown, old vs new regime comparison, and your exact refund or tax due status.</p>
+    <div class="hero-cta">
+      <a href="#upload" class="btn-hero">Get Free Preview &rarr;</a>
+      <button class="btn-hero-sec" onclick="document.getElementById('upload').scrollIntoView({behavior:'smooth'})">How it works</button>
+    </div>
+    <div class="hero-trust">
+      <div class="ht-item"><div class="ht-icon"><svg viewBox="0 0 12 12"><polyline points="10 3 5 9 2 6"/></svg></div>Documents never stored on any server</div>
+      <div class="ht-item"><div class="ht-icon"><svg viewBox="0 0 12 12"><polyline points="10 3 5 9 2 6"/></svg></div>FY 2025-26 Budget 2025 slabs applied</div>
+      <div class="ht-item"><div class="ht-icon"><svg viewBox="0 0 12 12"><polyline points="10 3 5 9 2 6"/></svg></div>Old vs New regime comparison included</div>
+    </div>
+  </div>
+
+  <!-- DASHBOARD MOCKUP -->
+  <div class="hero-right">
+    <div class="dashboard-mockup">
+      <div class="dm-topbar">
+        <div class="dm-dot dm-dot-r"></div>
+        <div class="dm-dot dm-dot-y"></div>
+        <div class="dm-dot dm-dot-g"></div>
+        <div class="dm-title">ITR Preview &mdash; ReportEdge</div>
+      </div>
+      <div class="dm-body">
+        <div class="dm-report-hdr">
+          <div class="dm-report-logo">ReportEdge &middot; ITR Preview</div>
+          <div class="dm-report-name">Rahul Sharma &mdash; FY 2025-26</div>
+          <div class="dm-report-meta">AY 2026-27 &middot; Employer: TechCorp Pvt Ltd &middot; <span style="color:#6EE7B7;font-weight:600;">&#10003; High confidence</span></div>
+        </div>
+        <div class="dm-metrics">
+          <div class="dm-metric"><div class="dm-mv">&#8377;12.4L</div><div class="dm-ml">Gross Salary</div></div>
+          <div class="dm-metric"><div class="dm-mv b">&#8377;94,580</div><div class="dm-ml">Tax Payable</div></div>
+          <div class="dm-metric"><div class="dm-mv g">&#8377;32,420</div><div class="dm-ml">Est. Refund</div></div>
+        </div>
+        <div class="dm-section-label">Income Breakdown</div>
+        <div class="dm-rows">
+          <div class="dm-row"><span class="dm-row-l">Gross Salary</span><span class="dm-row-r">&#8377;12,40,000</span></div>
+          <div class="dm-row"><span class="dm-row-l">Less: Standard Deduction</span><span class="dm-row-r g">&#8722; &#8377;75,000</span></div>
+          <div class="dm-row"><span class="dm-row-l">Less: HRA Exemption</span><span class="dm-row-r muted">&#10007; New regime</span></div>
+          <div class="dm-row highlight"><span class="dm-row-l" style="font-weight:600;color:var(--text1)">Taxable Income</span><span class="dm-row-r" style="color:var(--blue)">&#8377;11,65,000</span></div>
+        </div>
+        <div class="dm-section-label">Regime Comparison</div>
+        <div class="dm-regime">
+          <div class="dm-regime-card">
+            <div class="dm-regime-lbl">Old Regime</div>
+            <div class="dm-regime-tax">&#8377;1,52,100</div>
+            <div style="font-size:11px;color:var(--text3);margin-top:3px;">After deductions</div>
+          </div>
+          <div class="dm-regime-card rec">
+            <div class="dm-regime-lbl">New Regime</div>
+            <div class="dm-regime-tax" style="color:var(--emerald)">&#8377;94,580</div>
+            <div class="dm-regime-rec">&#10003; Saves &#8377;57,520</div>
+          </div>
+        </div>
+        <div class="dm-refund">
+          <span class="dm-refund-l">&#8593; Estimated Refund (New Regime)</span>
+          <span class="dm-refund-amt">&#8377;32,420</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FEATURES STRIP -->
+<div class="features-strip">
+  <div class="fs-item"><div class="fs-icon fsi-g"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>Documents never stored</div>
+  <div class="fs-item"><div class="fs-icon fsi-b"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></div>Preview in 2 minutes</div>
+  <div class="fs-item"><div class="fs-icon fsi-a"><svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5M2 17l10 5 10-5M2 12l10 5 10-5"/></svg></div>Budget 2025 &amp; FY 2025-26 slabs</div>
+  <div class="fs-item"><div class="fs-icon fsi-g"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>Old vs New regime comparison</div>
+  <div class="fs-item"><div class="fs-icon fsi-b"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>Exact refund &amp; tax due status</div>
+</div>
+
+<!-- HOW IT WORKS -->
+<div class="section">
+  <div class="section-eyebrow">How it works</div>
+  <div class="section-title">Four steps to your ITR preview</div>
+  <div class="section-sub">No manual data entry. Upload your document and your complete tax summary is ready in minutes.</div>
+  <div class="steps-grid">
+    <div class="step-card"><div class="step-num">1</div><div class="step-title">Upload Form-16</div><div class="step-desc">PDF or image from your employer HR portal or email.</div></div>
+    <div class="step-card"><div class="step-num">2</div><div class="step-title">We read it</div><div class="step-desc">Salary, TDS &amp; deduction data extracted automatically.</div></div>
+    <div class="step-card"><div class="step-num">3</div><div class="step-title">Preview ready</div><div class="step-desc">Full breakdown with regime comparison in 2 minutes.</div></div>
+    <div class="step-card"><div class="step-num">4</div><div class="step-title">Get support</div><div class="step-desc">Contact us for full ITR filing assistance.</div></div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main" id="upload">
+  <div id="form-section">
+    <div class="upload-panel">
+      <div class="upload-panel-hdr">
+        <div class="uph-icon"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></div>
+        <div class="uph-text"><h2>Upload Form 16 / Form 26AS</h2><p>Accepted: Form 16 &middot; Form 26AS &middot; PDF, JPG or PNG</p></div>
+      </div>
+      <div class="upload-panel-body">
+        <div class="drop-zone" id="dropzone" ondragover="dzOver(event)" ondragleave="dzLeave()" ondrop="dzDrop(event)">
+          <input type="file" accept=".pdf,.jpg,.jpeg,.png" onchange="onFile(event)" id="fileinput"/>
+          <div class="dz-icon"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></div>
+          <div class="dz-title"><span>Click to upload</span> or drag &amp; drop</div>
+          <div class="dz-sub">Form 16 &nbsp;/&nbsp; Form 26AS &nbsp;&middot;&nbsp; PDF, JPG or PNG &nbsp;&middot;&nbsp; Max 10MB</div>
+          <div class="dz-pills"><span class="dz-pill">PDF</span><span class="dz-pill">JPG</span><span class="dz-pill">PNG</span><span class="dz-pill">Max 10MB</span></div>
+        </div>
+
+        <!-- FILE ATTACHED — appears immediately below the dropzone -->
+        <div class="file-attached" id="file-attached">
+          <div class="file-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+          <div><div class="file-name" id="file-name"></div><div class="file-size" id="file-size"></div></div>
+          <button class="file-remove" onclick="removeFile()">&#215;</button>
+        </div>
+
+        <!-- INCOME SCOPE NOTE -->
+        <div style="margin-top:12px;background:#ECFDF5;border:1px solid #A7F3D0;border-radius:10px;padding:10px 14px;display:flex;align-items:flex-start;gap:10px;">
+          <span style="font-size:16px;flex-shrink:0;margin-top:1px;">ℹ️</span>
+          <div style="font-size:12px;color:#065F46;line-height:1.6;">
+            <strong style="color:#064E3B;">Income considered in this preview:</strong><br/>
+            ✅ <strong style="color:#059669;">Salary Income</strong> — from Form 16 (one or two employers)<br/>
+            ✅ <strong style="color:#059669;">Business / Professional Income</strong> — Section 194J / 194JB from Form 26AS (50% presumptive)<br/>
+            ✅ <strong style="color:#059669;">Other Income</strong> — Interest &amp; Dividend TDS from Form 26AS<br/>
+            <span style="color:#6B9080;font-size:11px;">❌ Capital Gains &nbsp;·&nbsp; ❌ Rental Income &nbsp;·&nbsp; ❌ Foreign Income — not covered in this preview</span>
+          </div>
+        </div>
+
+        <!-- MULTI EMPLOYER TOGGLE — big, bold, impossible to miss -->
+        <div style="margin-top:16px;">
+          <button type="button" onclick="toggleMultiMode()" id="multi-toggle-btn"
+            style="width:100%;display:flex;align-items:center;gap:14px;text-align:left;
+            background:linear-gradient(135deg,#ECFDF5,#D1FAE5);border:2px solid #10B981;border-radius:12px;
+            padding:16px 20px;color:#064E3B;font-size:15px;font-weight:700;
+            cursor:pointer;font-family:inherit;transition:all 0.2s;
+            box-shadow:0 2px 8px rgba(16,185,129,0.15);">
+            <span style="flex-shrink:0;width:38px;height:38px;background:#10B981;border-radius:10px;
+              display:flex;align-items:center;justify-content:center;color:#fff;font-size:22px;font-weight:800;">+</span>
+            <span style="flex:1;">
+              <span style="display:block;font-size:15px;font-weight:700;color:#064E3B;">Worked in 2 companies this year?</span>
+              <span style="display:block;font-size:13px;font-weight:500;color:#059669;margin-top:2px;">Click here to upload your 2nd Form-16 — we'll combine both automatically</span>
+            </span>
+            <span style="flex-shrink:0;color:#059669;font-size:20px;">›</span>
+          </button>
+        </div>
+
+        <!-- SECOND EMPLOYER AREA — only shown when toggle is ON -->
+        <div id="second-upload-area" style="display:none;margin-top:10px;">
+          <div style="background:#ECFDF5;border:1px solid #A7F3D0;border-radius:12px;padding:12px 14px;">
+            <div style="font-size:10px;font-weight:700;color:#059669;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">
+              📄 Employer 2 — Form 16
+            </div>
+            <div class="drop-zone" id="dropzone2" style="padding:14px 12px;"
+              ondragover="dzOver2(event)" ondragleave="dzLeave2()" ondrop="dzDrop2(event)">
+              <input type="file" id="fileinput2" accept=".pdf,.jpg,.jpeg,.png" onchange="onFile2(event)"/>
+              <div class="dz-icon" style="margin-bottom:8px;"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></div>
+              <div class="dz-title"><span onclick="document.getElementById('fileinput2').click()" style="cursor:pointer;color:#059669;">Click to upload</span> 2nd Form 16</div>
+              <div class="dz-sub">From your second employer · Same FY · PDF, JPG or PNG</div>
+            </div>
+            <div id="file-attached2" style="display:none;margin-top:8px;background:#D1FAE5;border:1px solid #A7F3D0;border-radius:8px;padding:8px 12px;align-items:center;gap:10px;">
+              <span style="color:#059669;font-size:16px;">📄</span>
+              <div style="flex:1;min-width:0;"><div style="font-size:12px;font-weight:600;color:#064E3B;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" id="file-name2">—</div>
+              <div style="font-size:10px;color:#0F766E;">Form 16 — Employer 2</div></div>
+              <button onclick="removeFile2()" style="margin-left:auto;background:none;border:none;color:#6B9080;cursor:pointer;font-size:16px;flex-shrink:0;">✕</button>
+            </div>
+          </div>
+          <div style="margin-top:6px;font-size:11px;color:var(--text3);line-height:1.6;padding:0 2px;">
+            ✓ Both salaries combined · Standard deduction applied once · TDS summed
+          </div>
+        </div>
+
+        <!-- FORM 26AS UPLOAD PANEL — separate panel, same style as Form 16 -->
+        <div class="upload-panel" style="margin-top:18px;margin-bottom:0;">
+          <div class="upload-panel-hdr">
+            <div class="uph-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="13" y2="17"/></svg></div>
+            <div class="uph-text"><h2>Upload Form 26AS <span style="font-weight:400;font-size:13px;color:var(--text3);">(Optional)</span></h2><p>Download from TRACES portal &middot; For 194J income &amp; TDS cross-verification</p></div>
+          </div>
+          <div class="upload-panel-body">
+            <div class="drop-zone" id="dropzoneAIS"
+              ondragover="dzOverAIS(event)" ondragleave="dzLeaveAIS()" ondrop="dzDropAIS(event)">
+              <input type="file" id="fileinputAIS" accept=".pdf,.jpg,.jpeg,.png" onchange="onFileAIS(event)"/>
+              <div class="dz-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="13" y2="17"/></svg></div>
+              <div class="dz-title"><span>Click to upload</span> or drag &amp; drop your Form 26AS</div>
+              <div class="dz-sub">PDF, JPG or PNG &middot; Max 10MB</div>
+              <div class="dz-pills"><span class="dz-pill">PDF</span><span class="dz-pill">JPG</span><span class="dz-pill">PNG</span><span class="dz-pill">Max 10MB</span></div>
+            </div>
+            <div class="file-attached" id="file-attached-ais">
+              <div class="file-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+              <div><div class="file-name" id="ais-file-name"></div><div class="file-size" id="ais-file-size">Form 26AS</div></div>
+              <button class="file-remove" onclick="removeFileAIS()">&#215;</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="details-row">
+          <div class="dbox">
+            <div class="dbox-title">Your Details</div>
+            <div class="fg">
+              <div class="ff"><label>Name <span style="color:var(--text3);font-weight:400">(optional)</span></label><input type="text" id="f-name" placeholder="Rahul Sharma"/></div>
+              <div class="ff"><label>Email <span style="color:var(--text3);font-weight:400">(optional)</span></label><input type="email" id="f-email" placeholder="rahul@email.com"/></div>
+            </div>
+          </div>
+          <div class="dbox">
+            <div class="dbox-title">Tax Details</div>
+            <div class="fg">
+              <div class="ff"><label>Financial Year</label><select id="f-year"><option value="2025-26">FY 2025-26 (AY 2026-27)</option><option value="2024-25">FY 2024-25 (AY 2025-26)</option><option value="2023-24">FY 2023-24 (AY 2024-25)</option></select></div>
+              <div class="ff"><label>Age Category</label><select id="f-age"><option value="general">Below 60 years</option><option value="senior">60&ndash;80 years (Senior)</option><option value="supersenior">Above 80 years</option></select></div>
+            </div>
+          </div>
+        </div>
+        <div class="privacy">&#128274; Your Form-16 is processed securely to generate this preview only. <strong>Not stored. Not shared.</strong> Deleted immediately after processing.</div>
+        <div class="err" id="err"></div>
+        <button class="btn-primary" onclick="submitForm()">Generate My ITR Preview &rarr;</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="loading" id="loading">
+    <div class="spinner"></div>
+    <div class="loading-title" id="load-title">Reading your Form-16...</div>
+    <div class="loading-sub" id="load-sub">This takes about 1&ndash;2 minutes</div>
+    <div class="loading-steps">
+      <div class="ls active" id="ls1"><div class="ls-dot"></div>Reading and extracting document data</div>
+      <div class="ls" id="ls2"><div class="ls-dot"></div>Identifying income and TDS figures</div>
+      <div class="ls" id="ls3"><div class="ls-dot"></div>Calculating old vs new regime tax</div>
+      <div class="ls" id="ls4"><div class="ls-dot"></div>Preparing your ITR preview</div>
+    </div>
+  </div>
+
+  <div class="report" id="report">
+    <div class="rpt-hdr">
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+        <div>
+          <div style="font-size:11px;font-weight:600;color:rgba(255,255,255,0.3);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;">ReportEdge &middot; ITR Preview</div>
+          <div class="rpt-title" id="r-title">ITR Preview Report</div>
+          <div class="rpt-meta" id="r-meta"></div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-size:11px;color:rgba(255,255,255,0.3);margin-bottom:4px;">This is a free preview estimate</div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.2);">Not a substitute for professional tax advice</div>
+        </div>
+      </div>
+    </div>
+    <div class="rpt-body">
+      <!-- DASHBOARD -->
+      <div id="r-dashboard"></div>
+
+      <!-- DEDUCTION PANEL — shown after preview -->
+      <div class="ded-panel" id="ded-panel" style="display:none;">
+        <div class="ded-panel-hdr" onclick="toggleDedPanel()">
+          <div class="ded-panel-hdr-left">
+            <div class="ded-panel-icon"><svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></div>
+            <div>
+              <div class="ded-panel-title">Compare with Old Regime Deductions</div>
+              <div class="ded-panel-sub">Add your investments &amp; deductions to see if Old Regime saves you more</div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <span class="ded-panel-badge">Optional</span>
+            <span class="ded-panel-arrow" id="ded-arrow">&#8964;</span>
+          </div>
+        </div>
+        <div class="ded-body" id="ded-body">
+          <div class="ded-note">
+            &#128161; <strong>Your Form-16 is likely under New Regime</strong> — so deductions are not included. Enter your actual investments below to check if Old Regime gives you a lower tax. Leave blank if not applicable.
+          </div>
+
+          <!-- SECTION 80C -->
+          <div class="ded-section">
+            <div class="ded-section-title">Section 80C — Investments &amp; Savings <span style="color:var(--emerald);font-weight:600;">Max &#8377;1,50,000</span></div>
+            <div class="ded-grid">
+              <div class="ded-field"><label>PPF / EPF (&#8377;) <span class="ded-limit">Public Provident Fund</span></label><input type="number" id="d-ppf" placeholder="0"/></div>
+              <div class="ded-field"><label>ELSS Mutual Funds (&#8377;) <span class="ded-limit">Tax saving MF</span></label><input type="number" id="d-elss" placeholder="0"/></div>
+              <div class="ded-field"><label>LIC / Life Insurance (&#8377;) <span class="ded-limit">Premium paid</span></label><input type="number" id="d-lic" placeholder="0"/></div>
+              <div class="ded-field"><label>Home Loan Principal (&#8377;) <span class="ded-limit">Repaid this year</span></label><input type="number" id="d-hlp" placeholder="0"/></div>
+              <div class="ded-field"><label>NSC / Post Office (&#8377;) <span class="ded-limit">National Savings Cert.</span></label><input type="number" id="d-nsc" placeholder="0"/></div>
+              <div class="ded-field"><label>School / Tuition Fees (&#8377;) <span class="ded-limit">Children education</span></label><input type="number" id="d-tuition" placeholder="0"/></div>
+            </div>
+          </div>
+
+          <!-- SECTION 80D -->
+          <div class="ded-section">
+            <div class="ded-section-title">Section 80D — Health Insurance</div>
+            <div class="ded-grid">
+              <div class="ded-field"><label>Self &amp; Family Premium (&#8377;) <span class="ded-limit">Max &#8377;25,000</span></label><input type="number" id="d-80d-self" placeholder="0"/></div>
+              <div class="ded-field"><label>Parents Premium (&#8377;) <span class="ded-limit">Max &#8377;50,000 if senior</span></label><input type="number" id="d-80d-par" placeholder="0"/></div>
+              <div class="ded-field"><label>Preventive Health Checkup (&#8377;) <span class="ded-limit">Max &#8377;5,000</span></label><input type="number" id="d-80d-chk" placeholder="0"/></div>
+            </div>
+          </div>
+
+          <!-- HRA -->
+          <div class="ded-section">
+            <div class="ded-section-title">HRA Exemption — if not already in Form-16</div>
+            <div style="background:var(--bg);border:1px solid var(--border);border-radius:var(--r-md);padding:18px;margin-bottom:14px;">
+              <!-- Auto-estimation notice — shown when Form-16 has no breakup -->
+              <div id="hra-estimation-notice" style="display:none;background:#FFFBEB;border:1px solid rgba(217,119,6,0.25);border-radius:var(--r);padding:12px 16px;margin-bottom:14px;font-size:13px;color:#92400E;line-height:1.7;">
+                <div style="font-weight:600;margin-bottom:6px;">&#9432; No salary breakup found in Form-16 — estimated as per standard rule:</div>
+                <div style="display:flex;gap:24px;flex-wrap:wrap;">
+                  <span>Basic = <strong id="hra-est-basic">&#8377;0</strong> (40% of gross)</span>
+                  <span>HRA Received = <strong id="hra-est-hra">&#8377;0</strong> (50% of Basic)</span>
+                  <span>Other Allowances = <strong id="hra-est-other">&#8377;0</strong></span>
+                </div>
+                <div style="font-size:11px;margin-top:6px;color:#b45309;">You can override Basic &amp; HRA Received in the fields below if you know the exact figures.</div>
+              </div>
+
+              <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:14px;">
+                <div class="ded-field">
+                  <label>Monthly Rent Paid (&#8377;) <span class="ded-limit">Actual rent you pay</span></label>
+                  <input type="number" id="d-rent-monthly" placeholder="15000" oninput="calcHRA()"/>
+                </div>
+                <div class="ded-field">
+                  <label>City Type <span class="ded-limit">Affects HRA calculation</span></label>
+                  <select id="d-city-type" onchange="calcHRA()" style="padding:9px 12px;border:1px solid var(--border);border-radius:var(--r);font-size:13px;font-family:'Inter',sans-serif;color:var(--text1);background:var(--white);outline:none;">
+                    <option value="metro">Metro — Delhi, Mumbai, Chennai, Kolkata (50%)</option>
+                    <option value="nonmetro">Non-Metro City (40%)</option>
+                  </select>
+                </div>
+                <div class="ded-field">
+                  <label>Basic Salary (&#8377;) Annual <span class="ded-limit">Auto-read from Form-16 if available</span></label>
+                  <input type="number" id="d-basic-sal" placeholder="600000" oninput="calcHRA()"/>
+                </div>
+              </div>
+              <!-- HRA Auto Calculation Result -->
+              <div id="hra-calc-result" style="display:none;background:var(--em-bg);border:1px solid rgba(5,150,105,0.2);border-radius:var(--r);padding:14px 16px;">
+                <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--em-dark);margin-bottom:10px;">HRA Exemption Calculation</div>
+                <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:12px;">
+                  <div style="background:var(--white);border-radius:6px;padding:10px 12px;">
+                    <div style="font-size:11px;color:var(--text3);margin-bottom:3px;">Actual HRA Received</div>
+                    <div style="font-size:14px;font-weight:700;color:var(--text1);" id="hra-actual">&#8377;0</div>
+                  </div>
+                  <div style="background:var(--white);border-radius:6px;padding:10px 12px;">
+                    <div style="font-size:11px;color:var(--text3);margin-bottom:3px;">Rent minus 10% Basic</div>
+                    <div style="font-size:14px;font-weight:700;color:var(--text1);" id="hra-rent-calc">&#8377;0</div>
+                  </div>
+                  <div style="background:var(--white);border-radius:6px;padding:10px 12px;">
+                    <div style="font-size:11px;color:var(--text3);margin-bottom:3px;">40/50% of Basic</div>
+                    <div style="font-size:14px;font-weight:700;color:var(--text1);" id="hra-pct-calc">&#8377;0</div>
+                  </div>
+                </div>
+                <div style="display:flex;align-items:center;justify-content:space-between;">
+                  <div>
+                    <div style="font-size:12px;color:var(--em-dark);font-weight:600;">&#10003; HRA Exempt = Minimum of above 3</div>
+                    <div style="font-size:11px;color:var(--text3);margin-top:2px;">This will be applied to Old Regime taxable income</div>
+                  </div>
+                  <div style="font-size:22px;font-weight:700;color:var(--emerald);" id="hra-exempt-result">&#8377;0</div>
+                </div>
+              </div>
+              <!-- Hidden field stores computed HRA -->
+              <input type="hidden" id="d-hra-ex"/>
+            </div>
+            <!-- Optional fields -->
+            <details style="margin-top:4px;">
+              <summary style="font-size:12px;font-weight:500;color:var(--text2);cursor:pointer;padding:8px 0;list-style:none;display:flex;align-items:center;gap:6px;">
+                <span style="font-size:16px;">&#8250;</span> Other salary exemptions (optional)
+              </summary>
+              <div style="margin-top:12px;">
+                <div class="ded-grid">
+                  <div class="ded-field"><label>HRA Received Annual (&#8377;) <span class="ded-limit">If different from Form-16</span></label><input type="number" id="d-hra-rec" placeholder="0" oninput="calcHRA()"/></div>
+                  <div class="ded-field"><label>Professional Tax (&#8377;) <span class="ded-limit">Max &#8377;2,500/year</span></label><input type="number" id="d-ptax" placeholder="0"/></div>
+                  <div class="ded-field"><label>LTA Exempt Amount (&#8377;) <span class="ded-limit">Leave travel allowance</span></label><input type="number" id="d-lta" placeholder="0"/></div>
+                </div>
+              </div>
+            </details>
+          </div>
+
+          <!-- NPS -->
+          <div class="ded-section">
+            <div class="ded-section-title">NPS &amp; Employer Contributions</div>
+            <div class="ded-grid">
+              <div class="ded-field"><label>Employee NPS 80CCD(1B) (&#8377;) <span class="ded-limit">Extra &#8377;50,000</span></label><input type="number" id="d-nps" placeholder="0"/></div>
+              <div class="ded-field"><label>Employer NPS 80CCD(2) (&#8377;) <span class="ded-limit">Both regimes</span></label><input type="number" id="d-enps" placeholder="0"/></div>
+            </div>
+          </div>
+
+          <!-- HOME LOAN -->
+          <div class="ded-section">
+            <div class="ded-section-title">Home Loan Interest — Section 24b <span style="color:var(--emerald);font-weight:600;">Max &#8377;2,00,000</span></div>
+            <div class="ded-grid">
+              <div class="ded-field"><label>Home Loan Interest Paid (&#8377;) <span class="ded-limit">Self-occupied property</span></label><input type="number" id="d-hl" placeholder="0"/></div>
+              <div class="ded-field"><label>80EEA — Affordable Housing (&#8377;) <span class="ded-limit">Extra &#8377;1,50,000</span></label><input type="number" id="d-80eea" placeholder="0"/></div>
+            </div>
+          </div>
+
+          <!-- OTHER -->
+          <div class="ded-section">
+            <div class="ded-section-title">Other Deductions</div>
+            <div class="ded-grid">
+              <div class="ded-field"><label>80E — Education Loan Interest (&#8377;) <span class="ded-limit">Full interest amount</span></label><input type="number" id="d-80e" placeholder="0"/></div>
+              <div class="ded-field"><label>80G — Donations (&#8377;) <span class="ded-limit">Approved institutions</span></label><input type="number" id="d-80g" placeholder="0"/></div>
+              <div class="ded-field"><label>80TTA — Savings Interest (&#8377;) <span class="ded-limit">Max &#8377;10,000</span></label><input type="number" id="d-80tta" placeholder="0"/></div>
+              <div class="ded-field"><label>80TTB — Sr. Citizen Interest (&#8377;) <span class="ded-limit">60+ only, Max &#8377;50,000</span></label><input type="number" id="d-80ttb" placeholder="0"/></div>
+              <div class="ded-field"><label>80DD — Disabled Dependent (&#8377;) <span class="ded-limit">&#8377;75,000 / &#8377;1.25L</span></label><input type="number" id="d-80dd" placeholder="0"/></div>
+              <div class="ded-field"><label>80U — Self Disability (&#8377;) <span class="ded-limit">&#8377;75,000 / &#8377;1.25L</span></label><input type="number" id="d-80u" placeholder="0"/></div>
+            </div>
+          </div>
+
+          <!-- TOTAL + RECALCULATE -->
+          <div class="ded-total">
+            <div><div class="ded-total-label">Total Old Regime Deductions</div><div style="font-size:12px;color:var(--text3);margin-top:2px;">80C capped at &#8377;1.5L &middot; 80D &amp; others as entered</div></div>
+            <div class="ded-total-amount" id="ded-total-amt">&#8377;0</div>
+          </div>
+          <button class="btn-recalc" onclick="recalcWithDeductions()">Recalculate &amp; Compare Old vs New Regime &rarr;</button>
+        </div>
+      </div>
+
+      <div class="cta">
+        <h4>Need help with your ITR filing?</h4>
+        <p>Leave your details and we will contact you with personalised ITR assistance.</p>
+        <form class="cta-form" id="contact-form" action="https://formspree.io/f/xlgkjowr" method="POST" onsubmit="submitContact(event)">
+          <input type="hidden" name="_subject" value="ReportEdge — New ITR Support Request"/>
+          <input type="hidden" name="_replyto" id="cf-email-hidden"/>
+          <input type="hidden" id="cf-fy" name="financial_year" value=""/>
+          <input type="hidden" id="cf-income" name="gross_income" value=""/>
+          <input type="hidden" id="cf-tname" name="taxpayer_name" value=""/>
+          <input class="cta-input" name="name" placeholder="Your name (optional)"/>
+          <input class="cta-input" name="email" type="email" placeholder="Your email address" required/>
+          <button class="btn-cta" type="submit" id="cta-btn">Get ITR Support</button>
+        </form>
+        <div class="cta-success" id="cta-success">&#10003; Request received! We will contact you within 24 hours.</div>
+      </div>
+      <div class="watermark">ReportEdge &middot; Free Preview &middot; FY 2025-26 &middot; Your documents are not stored</div>
+    </div>
+    <div class="reset-wrap"><button class="btn-outline" onclick="resetPage()">&larr; Upload another Form-16</button></div>
+  </div>
+</div>
+<script>
+let fileData=null, fileMime=null;
+
+function dzOver(e){e.preventDefault();document.getElementById('dropzone').classList.add('over');}
+function dzLeave(){document.getElementById('dropzone').classList.remove('over');}
+function dzDrop(e){e.preventDefault();dzLeave();const f=e.dataTransfer.files[0];if(f)attachFile(f);}
+function onFile(e){const f=e.target.files[0];if(f)attachFile(f);}
+
+function attachFile(file){
+  const ok=['application/pdf','image/jpeg','image/jpg','image/png'];
+  if(!ok.includes(file.type)){showErr('Please upload a PDF, JPG or PNG file.');return;}
+  if(file.size>10*1024*1024){showErr('File must be under 10MB.');return;}
+  fileMime=file.type;
+  hideErr();
+  // Detect password-protected PDF
+  if(file.type==='application/pdf'){
+    const fr=new FileReader();
+    fr.onload=e=>{
+      const bytes=new Uint8Array(e.target.result).slice(0,2048);
+      const str=new TextDecoder('latin1').decode(bytes);
+      if(str.includes('/Encrypt')){
+        // PW protected — show modal
+        window._pwPendingFile=file;
+        window._pwTarget='main';
+        document.getElementById('pw-filename').textContent=file.name;
+        document.getElementById('pw-input').value='';
+        document.getElementById('pw-error').style.display='none';
+        document.getElementById('pw-modal').style.display='flex';
+        setTimeout(()=>document.getElementById('pw-input').focus(),100);
+        return;
+      }
+      // Not protected — proceed normally
+      const r2=new FileReader();
+      r2.onload=ev=>{
+        fileData=ev.target.result.split(',')[1];
+        document.getElementById('file-name').textContent=file.name;
+        document.getElementById('file-size').textContent=(file.size/1024).toFixed(0)+' KB · PDF';
+        document.getElementById('file-attached').classList.add('show');
+      };
+      r2.readAsDataURL(file);
+    };
+    fr.readAsArrayBuffer(file);
+  } else {
+    const r=new FileReader();
+    r.onload=e=>{
+      fileData=e.target.result.split(',')[1];
+      document.getElementById('file-name').textContent=file.name;
+      document.getElementById('file-size').textContent=(file.size/1024).toFixed(0)+' KB · '+file.type.split('/')[1].toUpperCase();
+      document.getElementById('file-attached').classList.add('show');
+    };
+    r.readAsDataURL(file);
+  }
+}
+function removeFile(){
+  fileData=null;fileMime=null;
+  document.getElementById('file-attached').classList.remove('show');
+  document.getElementById('fileinput').value='';
+}
+function showErr(m){const b=document.getElementById('err');b.textContent=m;b.style.display='block';}
+function hideErr(){document.getElementById('err').style.display='none';}
+function fmt(n){
+  if(!n||isNaN(n))return '₹0';
+  const num=Math.round(n);
+  // Indian number format: XX,XX,XXX
+  const s=num.toString();
+  if(s.length<=3)return '₹'+s;
+  const last3=s.slice(-3);
+  const rest=s.slice(0,-3);
+  const formatted=rest.replace(/\B(?=(\d{2})+(?!\d))/g,',')+','+last3;
+  return '₹'+formatted;
+}
+
+let stepInt;
+function animSteps(){
+  const ids=['ls1','ls2','ls3','ls4'];
+  let i=0;
+  stepInt=setInterval(()=>{
+    ids.forEach((id,idx)=>{
+      const el=document.getElementById(id);
+      el.className='ls';
+      if(idx<i)el.classList.add('done');
+      else if(idx===i)el.classList.add('active');
+    });
+    i=(i+1)%ids.length;
+  },4000);
+}
+
+async function safeParseJSON(resp){
+  const raw = await resp.text();
+  try{
+    return JSON.parse(raw);
+  }catch(e){
+    // Response was not valid JSON — likely a server timeout or gateway error
+    if(resp.status===504||resp.status===502||resp.status===503){
+      return {error:"This is taking longer than expected — usually when analysing multiple documents together. Please try again, or upload Form-16 alone first."};
+    }
+    if(/timeout/i.test(raw)){
+      return {error:"The analysis took too long to complete. Please try again — uploading just your Form-16 first usually works instantly."};
+    }
+    return {error:"Something went wrong while reading the response. Please try again in a moment."};
+  }
+}
+
+async function submitForm(){
+  hideErr();
+  if(!fileData){showErr('Please upload your Form-16 first.');return;}
+  const name=document.getElementById('f-name').value.trim();
+  const year=document.getElementById('f-year').value;
+  document.getElementById('form-section').style.display='none';
+  document.getElementById('loading').style.display='block';
+  animSteps();
+  try{
+    let data;
+
+    /* ── ROUTING LOGIC ──
+       Use documents[] (multi mode) when:
+       - 2 Form-16s uploaded  OR
+       - 1 Form-16 + Form 26AS uploaded
+       Use single base64 only when just 1 Form-16, no AIS
+    ── */
+    const hasTwo  = window._multiMode && fileData2;
+    const hasAIS  = !!fileDataAIS;
+
+    if(hasTwo || hasAIS){
+      const documents=[
+        {docType:'form16',base64:fileData,mimeType:fileMime,label:'Employer 1',password:window._filePwd||null},
+      ];
+      if(hasTwo)  documents.push({docType:'form16',base64:fileData2,mimeType:fileMime2,label:'Employer 2',password:window._filePwd2||null});
+      if(hasAIS)  documents.push({docType:'26as',base64:fileDataAIS,mimeType:fileMimeAIS,label:'Form 26AS',password:window._filePwdAIS||null});
+      const resp=await fetch('/.netlify/functions/analyze',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({documents,year,name})
+      });
+      clearInterval(stepInt);
+      data=await safeParseJSON(resp);
+    } else {
+      /* ── SINGLE FORM-16 ONLY: no AIS ── */
+      const resp=await fetch('/.netlify/functions/analyze',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({base64:fileData,mimeType:fileMime,name,year,password:window._filePwd||null})
+      });
+      clearInterval(stepInt);
+      data=await safeParseJSON(resp);
+    }
+
+    if(data.error)throw new Error(data.error);
+    renderReport(data,name,year);
+
+  }catch(err){
+    clearInterval(stepInt);
+    document.getElementById('loading').style.display='none';
+    document.getElementById('form-section').style.display='block';
+    showErr('⚠️ '+(err.message||'Something went wrong. Please try again with a clearer PDF.'));
+  }
+}
+
+/* TAX CALCULATORS — as per Income Tax portal */
+function calcTaxNew(taxable,year){
+  let slabs;
+  if(year==='2025-26'){
+    slabs=[
+      {lo:0,      hi:400000,  rate:0,    label:'Up to ₹4,00,000'},
+      {lo:400000, hi:800000,  rate:0.05, label:'₹4,00,001 – ₹8,00,000'},
+      {lo:800000, hi:1200000, rate:0.10, label:'₹8,00,001 – ₹12,00,000'},
+      {lo:1200000,hi:1600000, rate:0.15, label:'₹12,00,001 – ₹16,00,000'},
+      {lo:1600000,hi:2000000, rate:0.20, label:'₹16,00,001 – ₹20,00,000'},
+      {lo:2000000,hi:2400000, rate:0.25, label:'₹20,00,001 – ₹24,00,000'},
+      {lo:2400000,hi:Infinity,rate:0.30, label:'Above ₹24,00,000'},
+    ];
+  } else {
+    slabs=[
+      {lo:0,      hi:300000,  rate:0,    label:'Up to ₹3,00,000'},
+      {lo:300000, hi:600000,  rate:0.05, label:'₹3,00,001 – ₹6,00,000'},
+      {lo:600000, hi:900000,  rate:0.10, label:'₹6,00,001 – ₹9,00,000'},
+      {lo:900000, hi:1200000, rate:0.15, label:'₹9,00,001 – ₹12,00,000'},
+      {lo:1200000,hi:1500000, rate:0.20, label:'₹12,00,001 – ₹15,00,000'},
+      {lo:1500000,hi:Infinity,rate:0.30, label:'Above ₹15,00,000'},
+    ];
+  }
+  let tax=0;const bd=[];
+  for(const sl of slabs){
+    const tis=taxable>sl.lo?Math.min(taxable,sl.hi)-sl.lo:0;
+    bd.push({...sl,tis,taxInSlab:tis*sl.rate});tax+=tis*sl.rate;
+  }
+  return{tax,bd};
+}
+
+function calcTaxOld(taxable,age){
+  let ex=250000;
+  if(age==='senior')ex=300000;
+  if(age==='supersenior')ex=500000;
+  const slabs=[
+    {lo:0,      hi:ex,       rate:0,    label:'Up to '+fmt(ex)},
+    {lo:ex,     hi:500000,   rate:0.05, label:fmt(ex)+' – ₹5,00,000'},
+    {lo:500000, hi:1000000,  rate:0.20, label:'₹5,00,001 – ₹10,00,000'},
+    {lo:1000000,hi:Infinity, rate:0.30, label:'Above ₹10,00,000'},
+  ];
+  let tax=0;const bd=[];
+  for(const sl of slabs){
+    const tis=taxable>sl.lo?Math.min(taxable,sl.hi)-sl.lo:0;
+    bd.push({...sl,tis,taxInSlab:tis*sl.rate});tax+=tis*sl.rate;
+  }
+  return{tax,bd};
+}
+
+/* CORRECT ORDER: Base Tax → Surcharge → Rebate 87A → Cess 4% */
+function applyTax(rawTax,taxable,regime,year){
+  // Step 1 — Surcharge on base tax
+  let sur=0;
+  if(taxable>5000000  &&taxable<=10000000)sur=rawTax*0.10;
+  if(taxable>10000000 &&taxable<=20000000)sur=rawTax*0.15;
+  if(taxable>20000000 &&taxable<=50000000)sur=rawTax*0.25;
+  if(taxable>50000000)sur=rawTax*(regime==='new'?0.25:0.37);
+  const taxWithSur=rawTax+sur;
+
+  // Step 2 — Rebate 87A (only when no surcharge)
+  let reb=0;
+  if(sur===0){
+    if(regime==='new'){
+      if(year==='2025-26'&&taxable<=1200000)reb=Math.min(rawTax,60000);
+      else if(taxable<=700000)reb=Math.min(rawTax,25000);
+    }
+    if(regime==='old'&&taxable<=500000)reb=Math.min(rawTax,12500);
+  }
+
+  // Step 3 — Cess 4%
+  const afterReb=Math.max(0,taxWithSur-reb);
+  const cess=Math.round(afterReb*0.04);
+  return{total:Math.round(afterReb+cess),reb,sur:Math.round(sur),cess};
+}
+
+function stdDed(year){return year==='2025-26'?75000:50000;}
+
+function renderReport(d, inputName, year) {
+  document.getElementById('loading').style.display = 'none';
+  const age = document.getElementById('f-age').value;
+  const name = d.taxpayer_name || inputName || 'Taxpayer';
+  const pan  = d.pan ? ` · PAN: ${d.pan.slice(0,3)}XXXXX${d.pan.slice(-1)}` : '';
+  const fy   = d.fy || year;
+  const ay   = fy==='2025-26'?'2026-27':fy==='2024-25'?'2025-26':'2024-25';
+  const isConsolidated = d.is_consolidated === true;
+
+  // ── ALWAYS trust backend-computed tax figures.
+  //     The backend now uses a deterministic JS tax engine (not LLM arithmetic)
+  //     for BOTH single Form-16 and consolidated modes, so these numbers are
+  //     guaranteed correct against the actual FY slabs, surcharge and cess rules. ──
+  const tds_d   = d.tds || {};
+  const totalPaid = tds_d.total_tax_paid || 0;
+
+  const tNew  = d.tax_new  || {income_tax:0,surcharge:0,rebate_87a:0,cess:0,total:0};
+  const tOld  = d.tax_old  || {income_tax:0,surcharge:0,rebate_87a:0,cess:0,total:0};
+  const txNew = d.taxable_income_new || 0;
+  const txOld = d.taxable_income_old || 0;
+
+  const savings = (tOld.total||0) - (tNew.total||0);
+  const rec     = (tNew.total||0) <= (tOld.total||0) ? 'new' : 'old';
+  const bestTax = rec==='new' ? (tNew.total||0) : (tOld.total||0);
+  const bestRef = totalPaid - bestTax;
+  const isRef   = bestRef >= 0;
+  const pct     = tOld.total > 0 ? (Math.abs(savings)/tOld.total*100).toFixed(1) : '0.0';
+  const conf    = d.confidence || 'medium';
+  const sal     = d.salary || {};
+  const ded     = d.deductions_old || {};
+  const oth_inc = d.other_income || {};
+  const biz     = d.business_income || {};
+  const gross   = sal.gross_salary || 0;
+  const otherInc = (oth_inc.total||0) + (biz.taxable_business_income||0);
+
+  // Build slab-by-slab breakdown for display purposes only.
+  // Tax totals themselves always come from the backend (tNew/tOld above);
+  // these arrays just decompose the taxable income into per-slab rows
+  // so the "Tax Slab Breakdown" panel has something to render on the
+  // very first preview, not only after clicking Recalculate.
+  const bdNew = calcTaxNew(txNew, fy).bd;
+  const bdOld = calcTaxOld(txOld, age).bd;
+
+  _renderReportCore(d, name, pan, fy, ay, age, conf,
+    gross, otherInc, sal, ded, tds_d, oth_inc, biz,
+    txNew, txOld, tNew, tOld, totalPaid, savings, rec,
+    bestTax, bestRef, isRef, pct, bdNew, bdOld, isConsolidated);
+}
+
+function _renderReportCore(d, name, pan, fy, ay, age, conf,
+  gross, otherInc, sal, ded, tds_d, oth_inc, biz,
+  txNew, txOld, tNew, tOld, totalPaid, savings, rec,
+  bestTax, bestRef, isRef, pct, bdNew, bdOld, isConsolidated) {
+  // emp label — show multiple employers if consolidated
+  let emp = '';
+  if(isConsolidated && d.employers && d.employers.length > 0){
+    emp = ' · ' + d.employers.map(e=>e.name||'Employer').join(' + ');
+  } else if(d.employer_name){
+    emp = ' · ' + d.employer_name;
+  }
+
+  // Safe variable fallbacks for template use
+  const stdNew   = 75000;
+  const stdOld   = 50000;
+  const hraEx    = sal.hra_exempt || 0;
+  const othEx    = sal.other_exempt || 0;
+  const ptax     = sal.professional_tax || 0;
+  const enps     = ded.sec_80ccd_2_employer_nps || 0;
+  const totalDed = ded.total || 0;
+  const rOld     = tOld.income_tax || 0;
+  const rNew     = tNew.income_tax || 0;
+
+  const confColor = conf==='high' ? '#10B981' : conf==='medium' ? '#F59E0B' : '#EF4444';
+  const confIcon  = conf==='high' ? '✓' : conf==='medium' ? '◐' : '!';
+  const confText  = conf==='high' ? 'High confidence' : conf==='medium' ? 'Medium confidence' : 'Low confidence';
+
+  document.getElementById('cf-fy').value     = fy;
+  document.getElementById('cf-tname').value  = name;
+  document.getElementById('cf-income').value = fmt(gross);
+
+  document.getElementById('r-title').textContent = `ITR Preview · FY ${fy} (AY ${ay})`;
+  document.getElementById('r-meta').textContent  = `${name}${pan}${emp}`;
+
+  const dash = document.getElementById('r-dashboard');
+  dash.innerHTML = `
+
+  <!-- CONSOLIDATED BADGE — shown when multiple employers/AIS -->
+  ${isConsolidated ? `
+  <div style="background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.25);border-radius:10px;padding:10px 14px;margin-bottom:14px;display:flex;align-items:flex-start;gap:10px;">
+    <span style="font-size:18px;flex-shrink:0;">📊</span>
+    <div style="font-size:12px;color:rgba(255,255,255,0.7);line-height:1.6;">
+      <strong style="color:#10B981;">Consolidated Report</strong> — ${d.employer_count||1} employer(s) + ${d.business_income&&d.business_income.gross_receipts_194j>0?'194J business income + ':''}${(d.other_income&&d.other_income.total>0)||(d.business_income&&d.business_income.taxable_business_income>0)?'Other income':'Form 26AS data'}
+      ${d.employers&&d.employers.length>0?`<br/>${d.employers.map((e,i)=>`<span style="color:rgba(255,255,255,0.5);">Employer ${i+1}:</span> ${e.name||'Unknown'} — Salary ${fmt(e.gross_salary||0)} · TDS ${fmt(e.tds||0)}`).join(' &nbsp;|&nbsp; ')}`:''}
+      ${d.business_income&&d.business_income.gross_receipts_194j>0?`<br/><span style="color:rgba(255,255,255,0.5);">194J Professional:</span> Gross ${fmt(d.business_income.gross_receipts_194j)} → Taxable ${fmt(d.business_income.taxable_business_income)} (50% presumptive)`:''}
+      ${d.other_income&&d.other_income.total>0?`<br/><span style="color:rgba(255,255,255,0.5);">Other Income:</span> Interest ${fmt((d.other_income.savings_interest||0)+(d.other_income.fd_interest||0))} · Dividend ${fmt(d.other_income.dividend||0)}`:''}
+      ${d.deduplication_notes&&d.deduplication_notes.length>0&&d.deduplication_notes[0]?`<br/><span style="color:rgba(255,200,0,0.6);font-size:11px;">⚠ Deduplication: ${d.deduplication_notes[0]}</span>`:''}
+    </div>
+  </div>` : ''}
+
+  <!-- CONF BADGE -->
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:10px;">
+    <div style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:500;color:${confColor};">
+      <span style="width:20px;height:20px;background:${confColor}22;border:1px solid ${confColor}44;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:10px;">${confIcon}</span>
+      ${confText} — ${isConsolidated?`consolidated from ${(d.data_sources||[]).join(' + ')||'all documents'}`:'data extracted from Form-16'}
+    </div>
+    <div style="font-size:12px;color:var(--text3);">FY ${fy} · AY ${ay}</div>
+  </div>
+
+  <!-- TOP METRIC CARDS -->
+  <div class="db-metrics">
+    <div class="db-card db-card-dark">
+      <div class="db-card-label">${isConsolidated&&d.employer_count>1?'Total Gross Salary':'Gross Salary'}</div>
+      <div class="db-card-value">${fmt(gross)}</div>
+      <div class="db-card-sub">${isConsolidated&&d.employer_count>1?`Combined from ${d.employer_count} employers`:'Annual CTC from employer'}</div>
+    </div>
+    <div class="db-card db-card-dark">
+      <div class="db-card-label">Taxable Income</div>
+      <div class="db-card-value">${fmt(rec==='new'?txNew:txOld)}</div>
+      <div class="db-card-sub">${rec==='new'?'After ₹75K std deduction':'After all deductions'}</div>
+    </div>
+    <div class="db-card db-card-accent">
+      <div class="db-card-label">Tax Payable</div>
+      <div class="db-card-value" style="color:#60A5FA;">${fmt(bestTax)}</div>
+      <div class="db-card-sub">${rec==='new'?'New':'Old'} Regime · incl. cess</div>
+    </div>
+    <div class="db-card ${isRef?'db-card-green':'db-card-red'}">
+      <div class="db-card-label">${isRef?'Estimated Refund':'Additional Tax Due'}</div>
+      <div class="db-card-value" style="color:${isRef?'#34D399':'#F87171'};">${fmt(Math.abs(bestRef))}</div>
+      <div class="db-card-sub">${isRef?'TDS paid excess':'Pay before filing ITR'}</div>
+    </div>
+  </div>
+
+  <!-- REGIME COMPARISON — HORIZONTAL -->
+  <div class="db-regime-row">
+
+    <!-- OLD REGIME -->
+    <div class="db-regime-card ${rec==='old'?'db-regime-winner':''}">
+      <div class="db-regime-header">
+        <div>
+          <div class="db-regime-name">Old Regime</div>
+          <div class="db-regime-hint">With deductions &amp; exemptions</div>
+        </div>
+        ${rec==='old'?'<div class="db-winner-badge">✓ Recommended</div>':''}
+      </div>
+      <div class="db-regime-tax">${fmt(tOld.total)}</div>
+      <div class="db-regime-breakdown">
+        <div class="db-rb-row"><span>Gross Salary</span><span>${fmt(gross)}</span></div>
+        <div class="db-rb-row green"><span>Std Deduction</span><span>- ${fmt(stdOld)}</span></div>
+        ${hraEx>0?`<div class="db-rb-row green"><span>HRA Exempt</span><span>- ${fmt(hraEx)}</span></div>`:''}
+        ${ptax>0?`<div class="db-rb-row green"><span>Prof. Tax</span><span>- ${fmt(ptax)}</span></div>`:''}
+        ${totalDed>0?`<div class="db-rb-row green"><span>Chapter VI-A</span><span>- ${fmt(totalDed)}</span></div>`:''}
+        ${(biz&&biz.taxable_business_income>0)?`<div class="db-rb-row" style="color:#A78BFA;"><span>+ Business Income (194J/194JB, 50%)</span><span>+ ${fmt(biz.taxable_business_income)}</span></div>`:''}
+        ${(oth_inc&&((oth_inc.interest_194a||0)+(oth_inc.dividend_194||0))>0)?`<div class="db-rb-row" style="color:#60A5FA;"><span>+ Other Income (Interest/Dividend)</span><span>+ ${fmt((oth_inc.interest_194a||0)+(oth_inc.dividend_194||0))}</span></div>`:''}
+        <div class="db-rb-row bold"><span>Taxable Income</span><span>${fmt(txOld)}</span></div>
+        <div class="db-rb-row"><span>Base Tax</span><span>${fmt(rOld)}</span></div>
+        ${tOld.sur>0?`<div class="db-rb-row"><span>Surcharge</span><span>+ ${fmt(tOld.sur)}</span></div>`:''}
+        ${tOld.reb>0?`<div class="db-rb-row green"><span>Rebate 87A</span><span>- ${fmt(tOld.reb)}</span></div>`:''}
+        <div class="db-rb-row"><span>Cess 4%</span><span>+ ${fmt(tOld.cess)}</span></div>
+        <div class="db-rb-row bold total"><span>Total Tax</span><span>${fmt(tOld.total)}</span></div>
+        <div class="db-refund-chip ${(totalPaid-tOld.total)>=0?'chip-green':'chip-red'}">
+          ${(totalPaid-tOld.total)>=0?'↑ Refund':'↓ Due'} ${fmt(Math.abs(totalPaid-tOld.total))}
+        </div>
+      </div>
+    </div>
+
+    <!-- VS DIVIDER -->
+    <div class="db-vs">
+      <div class="db-vs-line"></div>
+      <div class="db-vs-badge">VS</div>
+      <div class="db-vs-line"></div>
+    </div>
+
+    <!-- NEW REGIME -->
+    <div class="db-regime-card ${rec==='new'?'db-regime-winner':''}">
+      <div class="db-regime-header">
+        <div>
+          <div class="db-regime-name">New Regime</div>
+          <div class="db-regime-hint">${fy==='2025-26'?'Budget 2025 · Revised slabs':'Simplified slabs'}</div>
+        </div>
+        ${rec==='new'?'<div class="db-winner-badge">✓ Recommended</div>':''}
+      </div>
+      <div class="db-regime-tax">${fmt(tNew.total)}</div>
+      <div class="db-regime-breakdown">
+        <div class="db-rb-row"><span>Gross Salary</span><span>${fmt(gross)}</span></div>
+        <div class="db-rb-row green"><span>Std Deduction</span><span>- ${fmt(stdNew)}</span></div>
+        ${hraEx>0?`<div class="db-rb-row muted"><span>HRA Exempt</span><span style="color:#94A3B8;font-size:11px;">❌ Not allowed</span></div>`:''}
+        ${totalDed>0?`<div class="db-rb-row muted"><span>80C / 80D / Deductions</span><span style="color:#94A3B8;font-size:11px;">❌ Not allowed</span></div>`:''}
+        ${enps>0?`<div class="db-rb-row green"><span>Employer NPS 80CCD(2)</span><span>- ${fmt(enps)}</span></div>`:''}
+        ${(biz&&biz.taxable_business_income>0)?`<div class="db-rb-row" style="color:#A78BFA;"><span>+ Business Income (194J/194JB, 50%)</span><span>+ ${fmt(biz.taxable_business_income)}</span></div>`:''}
+        ${(oth_inc&&((oth_inc.interest_194a||0)+(oth_inc.dividend_194||0))>0)?`<div class="db-rb-row" style="color:#60A5FA;"><span>+ Other Income (Interest/Dividend)</span><span>+ ${fmt((oth_inc.interest_194a||0)+(oth_inc.dividend_194||0))}</span></div>`:''}
+        <div class="db-rb-row bold"><span>Taxable Income</span><span>${fmt(txNew)}</span></div>
+        <div class="db-rb-row"><span>Base Tax</span><span>${fmt(rNew)}</span></div>
+        ${tNew.sur>0?`<div class="db-rb-row"><span>Surcharge</span><span>+ ${fmt(tNew.sur)}</span></div>`:''}
+        ${tNew.reb>0?`<div class="db-rb-row green"><span>Rebate 87A</span><span>- ${fmt(tNew.reb)}</span></div>`:''}
+        <div class="db-rb-row"><span>Cess 4%</span><span>+ ${fmt(tNew.cess)}</span></div>
+        <div class="db-rb-row bold total"><span>Total Tax</span><span>${fmt(tNew.total)}</span></div>
+        <div class="db-refund-chip ${(totalPaid-tNew.total)>=0?'chip-green':'chip-red'}">
+          ${(totalPaid-tNew.total)>=0?'↑ Refund':'↓ Due'} ${fmt(Math.abs(totalPaid-tNew.total))}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- YOU SAVE BANNER — below regime comparison -->
+  <div style="background:#0F2A1A;border:1px solid rgba(52,211,153,0.25);border-radius:10px;padding:16px 24px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+    <div>
+      <div style="font-size:11px;font-weight:700;color:#34D399;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">You Save with ${rec==='new'?'New':'Old'} Regime</div>
+      <div style="font-size:13px;color:#64748B;">${rec==='new'?'New':'Old'} Regime tax is ${pct}% lower than ${rec==='new'?'Old':'New'} Regime</div>
+    </div>
+    <div style="display:flex;align-items:baseline;gap:8px;">
+      <div style="font-size:36px;font-weight:800;color:#34D399;letter-spacing:-1.5px;">${fmt(Math.abs(savings))}</div>
+      <div style="font-size:13px;color:#475569;">per year</div>
+    </div>
+  </div>
+
+  <!-- FILING RECOMMENDATION BANNER -->
+  <div class="db-rec-banner db-rec-${rec}">
+    <div class="db-rec-icon">${rec==='new'?'★':'★'}</div>
+    <div class="db-rec-content">
+      <div class="db-rec-title">File under ${rec==='new'?'New':'Old'} Regime for FY ${fy}</div>
+      <div class="db-rec-sub">You save ${fmt(Math.abs(savings))} (${pct}% lower tax) · ${isRef?'Estimated refund of '+fmt(Math.abs(bestRef))+' after filing':'Additional tax of '+fmt(Math.abs(bestRef))+' to be paid'}</div>
+    </div>
+    <div class="db-rec-tax">
+      <div style="font-size:11px;color:rgba(255,255,255,0.5);margin-bottom:3px;">Tax payable</div>
+      <div style="font-size:24px;font-weight:700;">${fmt(bestTax)}</div>
+    </div>
+  </div>
+
+  <!-- SLAB BREAKDOWN — compact pills -->
+  <div class="db-slabs-row">
+    <div class="db-slabs-card">
+      <div class="db-slabs-title">Tax Slab Breakdown · ${rec==='new'?'New':'Old'} Regime (Recommended)</div>
+      <div class="db-slabs-pills">
+        ${(rec==='new'?bdNew:bdOld).filter(s=>s.tis>0).map(s=>`
+          <div class="db-slab-pill">
+            <div class="db-slab-rate">${(s.rate*100).toFixed(0)}%</div>
+            <div class="db-slab-income">${s.label}</div>
+            <div class="db-slab-income" style="color:#94A3B8;">Income in slab: ${fmt(s.tis)}</div>
+            <div class="db-slab-tax">Tax = ${fmt(s.taxInSlab)}</div>
+          </div>`).join('')}
+      </div>
+    </div>
+    ${totalPaid>0?`
+    <div class="db-slabs-card">
+      <div class="db-slabs-title">TDS &amp; Refund Summary</div>
+      <div class="db-tds-row"><span>TDS Deducted by Employer</span><span>${fmt(totalPaid)}</span></div>
+      <div class="db-tds-row"><span>Tax Payable (${rec==='new'?'New':'Old'} Regime)</span><span>${fmt(bestTax)}</span></div>
+      <div class="db-tds-row" style="margin-top:4px;">
+        <span style="color:${isRef?'#34D399':'#F87171'};font-size:15px;font-weight:700;">${isRef?'↑ Estimated Refund':'↓ Tax Due'}</span>
+        <span style="color:${isRef?'#34D399':'#F87171'};font-size:22px;font-weight:800;">${fmt(Math.abs(bestRef))}</span>
+      </div>
+    </div>`:''}
+  </div>
+
+  ${d.missing_data&&d.missing_data.length>0?`
+  <div style="background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.25);border-radius:8px;padding:12px 16px;font-size:12px;color:#FCD34D;margin-top:16px;">
+    ⚠ Some fields not found: ${d.missing_data.join(' · ')} — accuracy may vary for these fields.
+  </div>`:''}
+  `;
+
+  document.getElementById('report').style.display = 'block';
+  document.getElementById('ded-panel').style.display = 'block';
+  document.getElementById('report').scrollIntoView({behavior:'smooth'});
+
+  window._reportData = d;
+  window._reportAge  = age;
+  window._reportFY   = fy;
+
+  prefillDeductionsFromForm16(d);
+
+  const dedInputs = ['d-ppf','d-elss','d-lic','d-hlp','d-nsc','d-tuition',
+    'd-80d-self','d-80d-par','d-80d-chk','d-ptax','d-lta','d-nps','d-enps',
+    'd-hl','d-80eea','d-80e','d-80g','d-80tta','d-80ttb','d-80dd','d-80u'];
+  dedInputs.forEach(id => {
+    const el = document.getElementById(id);
+    if(el) el.addEventListener('input', updateDedTotal);
+  });
+}
+
+function gd(id){ return parseFloat(document.getElementById(id)?.value)||0; }
+
+function updateDedTotal(){
+  const c80=Math.min(gd('d-ppf')+gd('d-elss')+gd('d-lic')+gd('d-hlp')+gd('d-nsc')+gd('d-tuition'),150000);
+  const c80d=Math.min(gd('d-80d-self'),25000)+Math.min(gd('d-80d-par'),50000)+Math.min(gd('d-80d-chk'),5000);
+  const nps=Math.min(gd('d-nps'),50000);
+  const enps=gd('d-enps');
+  const hraEx=gd('d-hra-ex');
+  const ptax=Math.min(gd('d-ptax'),2500);
+  const lta=gd('d-lta');
+  const hl=Math.min(gd('d-hl'),200000);
+  const eea=Math.min(gd('d-80eea'),150000);
+  const e80=gd('d-80e');
+  const g80=gd('d-80g');
+  const tta=Math.min(gd('d-80tta'),10000);
+  const ttb=Math.min(gd('d-80ttb'),50000);
+  const dd=Math.min(gd('d-80dd'),125000);
+  const u80=Math.min(gd('d-80u'),125000);
+  const total=c80+c80d+nps+enps+hraEx+ptax+lta+hl+eea+e80+g80+tta+ttb+dd+u80;
+  const el=document.getElementById('ded-total-amt');
+  if(el) el.textContent=fmt(total);
+  return total;
+}
+
+function toggleDedPanel(){
+  const body=document.getElementById('ded-body');
+  const arrow=document.getElementById('ded-arrow');
+  const isOpening=!body.classList.contains('open');
+  body.classList.toggle('open');
+  arrow.classList.toggle('open');
+  if(isOpening&&window._reportData){
+    const sal=window._reportData.salary||{};
+    const gross=sal.gross_salary||0;
+    const basicEl=document.getElementById('d-basic-sal');
+    if(basicEl&&!basicEl.value){
+      const basic=sal.basic||Math.round(gross*0.40);
+      if(basic>0) basicEl.value=basic;
+    }
+    if(sal.hra_received>0){
+      const hraRecEl=document.getElementById('d-hra-rec');
+      if(hraRecEl&&!hraRecEl.value) hraRecEl.value=sal.hra_received;
+    }
+    calcHRA();
+  }
+}
+
+function calcHRA(){
+  const rentMonthly=parseFloat(document.getElementById('d-rent-monthly')?.value)||0;
+  const rentAnnual=rentMonthly*12;
+  const cityType=document.getElementById('d-city-type')?.value||'nonmetro';
+  const pct=cityType==='metro'?0.50:0.40;
+  const sal=window._reportData?.salary||{};
+  const gross=sal.gross_salary||0;
+  const hasBreakup=sal.basic>0;
+  let basicEl=parseFloat(document.getElementById('d-basic-sal')?.value)||0;
+  let basic=basicEl||sal.basic||(gross>0?Math.round(gross*0.40):0);
+  if(!basicEl&&basic>0){const el=document.getElementById('d-basic-sal');if(el&&!el.value)el.value=basic;}
+  let hraRecManual=parseFloat(document.getElementById('d-hra-rec')?.value)||0;
+  let hraRec=sal.hra_received||hraRecManual||(basic>0?Math.round(basic*0.50):0);
+  const notice=document.getElementById('hra-estimation-notice');
+  if(notice){
+    if(!hasBreakup&&gross>0){notice.style.display='flex';document.getElementById('hra-est-basic').textContent=fmt(basic);document.getElementById('hra-est-hra').textContent=fmt(hraRec);document.getElementById('hra-est-other').textContent=fmt(gross-basic-hraRec);}
+    else{notice.style.display='none';}
+  }
+  if(rentMonthly<=0||basic<=0){document.getElementById('hra-calc-result').style.display='none';document.getElementById('d-hra-ex').value='0';return;}
+  const comp1=hraRec;
+  const comp2=Math.max(0,rentAnnual-(basic*0.10));
+  const comp3=Math.round(basic*pct);
+  const exempt=Math.min(comp1,comp2,comp3);
+  document.getElementById('hra-actual').textContent=fmt(comp1);
+  document.getElementById('hra-rent-calc').textContent=fmt(comp2);
+  document.getElementById('hra-pct-calc').textContent=fmt(comp3)+(cityType==='metro'?' (50%)':' (40%)');
+  document.getElementById('hra-exempt-result').textContent=fmt(exempt);
+  document.getElementById('hra-calc-result').style.display='block';
+  document.getElementById('d-hra-ex').value=Math.round(exempt);
+  updateDedTotal();
+}
+
+function prefillDeductionsFromForm16(d){
+  // Auto-populate the "Add Deductions" panel using whatever Form-16 already
+  // declared, so the user sees exactly what's already counted and can simply
+  // add anything missing rather than re-typing everything from scratch.
+  const ded = d.deductions_old || {};
+  const sal = d.salary || {};
+
+  const setVal = (id, val) => {
+    const el = document.getElementById(id);
+    if(el && val && val > 0) el.value = val;
+  };
+
+  // Section 80C — Form-16 reports one combined figure (PPF+ELSS+LIC+etc).
+  // Put the full amount into PPF/EPF field with a clear label change,
+  // so it's visibly editable rather than silently split/guessed.
+  if(ded.sec_80c > 0){
+    setVal('d-ppf', ded.sec_80c);
+    const ppfLabel = document.querySelector('label[for="d-ppf"]') || document.getElementById('d-ppf')?.closest('.ded-field')?.querySelector('label');
+    if(ppfLabel) ppfLabel.innerHTML = 'Section 80C — from Form-16 (₹) <span class="ded-limit" style="color:#059669;">✓ Auto-filled — edit if needed</span>';
+  }
+
+  setVal('d-80d-self', ded.sec_80d_self);
+  setVal('d-80d-par',  ded.sec_80d_parents);
+  setVal('d-nps',      ded.sec_80ccd_1b_nps);
+  setVal('d-enps',     ded.sec_80ccd_2_employer_nps);
+  setVal('d-hl',       ded.sec_24b_home_loan);
+  setVal('d-80e',      ded.sec_80e_edu_loan);
+  setVal('d-80g',      ded.sec_80g_donations);
+  setVal('d-80tta',    ded.sec_80tta);
+
+  // Salary-side exemptions from Form-16
+  setVal('d-ptax', sal.professional_tax);
+  setVal('d-lta',  sal.lta_exempt);
+  if(sal.hra_exempt > 0){
+    setVal('d-hra-rec', sal.hra_received || 0);
+    const hraHidden = document.getElementById('d-hra-ex');
+    if(hraHidden) hraHidden.value = sal.hra_exempt;
+    const hraResult = document.getElementById('hra-calc-result');
+    const hraExResultEl = document.getElementById('hra-exempt-result');
+    if(hraResult && hraExResultEl){
+      hraResult.style.display = 'block';
+      hraExResultEl.textContent = fmt(sal.hra_exempt);
+    }
+  }
+
+  // Show a banner confirming what was auto-filled, so the user trusts the numbers
+  const totalAutoFilled = (ded.sec_80c||0)+(ded.sec_80d_self||0)+(ded.sec_80d_parents||0)+
+    (ded.sec_80ccd_1b_nps||0)+(ded.sec_24b_home_loan||0)+(ded.sec_80e_edu_loan||0)+
+    (ded.sec_80g_donations||0)+(ded.sec_80tta||0)+(sal.hra_exempt||0);
+
+  if(totalAutoFilled > 0){
+    const noteEl = document.querySelector('.ded-note');
+    if(noteEl){
+      noteEl.innerHTML = `💡 <strong>We've auto-filled ${fmt(totalAutoFilled)} worth of deductions already found in your Form-16</strong> — HRA, 80C, 80D, NPS, Home Loan etc. shown below. Review them, edit if any figure looks off, and add anything missing (other investments, donations etc.) before recalculating.`;
+      noteEl.style.background = '#ECFDF5';
+      noteEl.style.borderColor = '#A7F3D0';
+      noteEl.style.color = '#065F46';
+    }
+  }
+
+  // Recompute the running total display
+  updateDedTotal();
+}
+
+function updateDedTotal(){
+  const total = Math.min(gd('d-ppf')+gd('d-elss')+gd('d-lic')+gd('d-hlp')+gd('d-nsc')+gd('d-tuition'),150000)
+    + Math.min(gd('d-80d-self'),25000) + Math.min(gd('d-80d-par'),50000) + Math.min(gd('d-80d-chk'),5000)
+    + Math.min(gd('d-nps'),50000) + gd('d-enps')
+    + Math.min(gd('d-hl'),200000) + Math.min(gd('d-80eea'),150000)
+    + gd('d-80e') + gd('d-80g') + Math.min(gd('d-80tta'),10000) + Math.min(gd('d-80ttb'),50000)
+    + Math.min(gd('d-80dd'),125000) + Math.min(gd('d-80u'),125000)
+    + (parseFloat(document.getElementById('d-hra-ex')?.value)||0);
+  const totalEl = document.getElementById('ded-total-amt');
+  if(totalEl) totalEl.textContent = fmt(total);
+}
+
+function recalcWithDeductions(){
+ try {
+  const d   = window._reportData;
+  const age = window._reportAge;
+  const fy  = window._reportFY;
+  if(!d){ alert('Please generate the preview first.'); return; }
+
+  const c80    = Math.min(gd('d-ppf')+gd('d-elss')+gd('d-lic')+gd('d-hlp')+gd('d-nsc')+gd('d-tuition'), 150000);
+  const c80d   = Math.min(gd('d-80d-self'),25000) + Math.min(gd('d-80d-par'),50000) + Math.min(gd('d-80d-chk'),5000);
+  const nps    = Math.min(gd('d-nps'), 50000);
+  const enpsU  = gd('d-enps');
+  const hraExU = gd('d-hra-ex');
+  const ptaxU  = Math.min(gd('d-ptax'), 2500);
+  const lta    = gd('d-lta');
+  const hl     = Math.min(gd('d-hl'), 200000);
+  const eea    = Math.min(gd('d-80eea'), 150000);
+  const e80    = gd('d-80e');
+  const g80    = gd('d-80g');
+  const tta    = Math.min(gd('d-80tta'), 10000);
+  const ttb    = Math.min(gd('d-80ttb'), 50000);
+  const dd80   = Math.min(gd('d-80dd'), 125000);
+  const u80    = Math.min(gd('d-80u'), 125000);
+
+  const sal      = d.salary || {};
+  const gross    = sal.gross_salary || 0;
+  const stdNew   = fy==='2025-26' ? 75000 : 75000;
+  const stdOld   = 50000;
+  const biz      = d.business_income || {};
+  const otherInc = ((d.other_income?.total) || 0) + (biz.taxable_business_income || 0);
+
+  // HRA: user's calculated value always wins (it's based on actual rent paid,
+  // and is more accurate than any Form-16 estimate). Falls back to Form-16
+  // figure only if the user hasn't touched the HRA calculator at all.
+  const hraEx  = hraExU>0 ? hraExU : (sal.hra_exempt||0);
+  const ptax   = ptaxU>0 ? ptaxU : (sal.professional_tax||0);
+  const otherEx = sal.other_exempt || 0;
+
+  // Employer NPS 80CCD(2) — BOTH regimes
+  const enpsF16 = d.deductions_old?.sec_80ccd_2_employer_nps || 0;
+  const totalENPS = Math.max(enpsF16, enpsU);
+
+  // New regime — only std ded + employer NPS
+  const txNew = Math.max(0, (gross - stdNew) + otherInc - totalENPS);
+
+  // Old regime — salary exemptions + Chapter VI-A
+  const salEx    = hraEx + lta + ptax + otherEx;
+  const chVI     = c80 + c80d + nps + hl + eea + e80 + g80 + tta + ttb + dd80 + u80;
+  const netSal   = Math.max(0, gross - salEx - stdOld) + otherInc;
+  const txOld    = Math.max(0, netSal - chVI - totalENPS);
+  const totalDed = salEx + chVI + totalENPS + stdOld;
+
+  const {tax:rNew, bd:bdNew} = calcTaxNew(txNew, fy);
+  const {tax:rOld, bd:bdOld} = calcTaxOld(txOld, age);
+  const tNew = applyTax(rNew, txNew, 'new', fy);
+  const tOld = applyTax(rOld, txOld, 'old', fy);
+
+  const totalPaid = d.tds?.total_tax_paid || d.tds?.tds_by_employer || 0;
+  const savings   = tOld.total - tNew.total;
+  const rec       = tNew.total <= tOld.total ? 'new' : 'old';
+  const bestTax   = rec==='new' ? tNew.total : tOld.total;
+  const bestRef   = totalPaid - bestTax;
+  const isRef     = bestRef >= 0;
+  const pct       = tOld.total>0 ? (Math.abs(savings)/tOld.total*100).toFixed(1) : '0.0';
+
+  // Re-render the full dashboard using r-dashboard
+  const dash = document.getElementById('r-dashboard');
+  if(!dash){ alert('Dashboard element not found.'); return; }
+
+  dash.innerHTML = `
+  <!-- CONF BADGE -->
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:10px;">
+    <div style="font-size:13px;font-weight:600;color:#10B981;">✓ Recalculated with your deductions</div>
+    <div style="font-size:12px;color:#64748B;">FY ${fy} · Old Regime deductions applied</div>
+  </div>
+
+  <!-- TOP METRICS -->
+  <div class="db-metrics">
+    <div class="db-card db-card-dark"><div class="db-card-label">Gross Salary</div><div class="db-card-value">${fmt(gross)}</div><div class="db-card-sub">Annual CTC from employer</div></div>
+    <div class="db-card db-card-dark"><div class="db-card-label">Taxable Income</div><div class="db-card-value">${fmt(rec==='new'?txNew:txOld)}</div><div class="db-card-sub">${rec==='new'?'After ₹75K std deduction':'After all deductions'}</div></div>
+    <div class="db-card db-card-accent"><div class="db-card-label">Tax Payable</div><div class="db-card-value" style="color:#60A5FA;">${fmt(bestTax)}</div><div class="db-card-sub">${rec==='new'?'New':'Old'} Regime · incl. cess</div></div>
+    <div class="db-card ${isRef?'db-card-green':'db-card-red'}"><div class="db-card-label">${isRef?'Estimated Refund':'Tax Due'}</div><div class="db-card-value" style="color:${isRef?'#34D399':'#F87171'};">${fmt(Math.abs(bestRef))}</div><div class="db-card-sub">${isRef?'TDS paid excess':'Pay before filing'}</div></div>
+  </div>
+
+  <!-- REGIME COMPARISON -->
+  <div class="db-regime-row">
+    <div class="db-regime-card ${rec==='old'?'db-regime-winner':''}">
+      <div class="db-regime-header">
+        <div><div class="db-regime-name">Old Regime</div><div class="db-regime-hint">With your deductions: ${fmt(totalDed)}</div></div>
+        ${rec==='old'?'<div class="db-winner-badge">✓ Recommended</div>':''}
+      </div>
+      <div class="db-regime-tax">${fmt(tOld.total)}</div>
+      <div class="db-regime-breakdown">
+        <div class="db-rb-row"><span>Gross Salary</span><span>${fmt(gross)}</span></div>
+        <div class="db-rb-row green"><span>Std Deduction</span><span>- ${fmt(stdOld)}</span></div>
+        ${hraEx>0?`<div class="db-rb-row green"><span>HRA Exempt</span><span>- ${fmt(hraEx)}</span></div>`:''}
+        ${lta>0?`<div class="db-rb-row green"><span>LTA</span><span>- ${fmt(lta)}</span></div>`:''}
+        ${ptax>0?`<div class="db-rb-row green"><span>Prof. Tax</span><span>- ${fmt(ptax)}</span></div>`:''}
+        ${totalENPS>0?`<div class="db-rb-row green"><span>Employer NPS 80CCD(2)</span><span>- ${fmt(totalENPS)}</span></div>`:''}
+        ${c80>0?`<div class="db-rb-row green"><span>80C Investments</span><span>- ${fmt(c80)}</span></div>`:''}
+        ${c80d>0?`<div class="db-rb-row green"><span>80D Health Insurance</span><span>- ${fmt(c80d)}</span></div>`:''}
+        ${nps>0?`<div class="db-rb-row green"><span>NPS 80CCD(1B)</span><span>- ${fmt(nps)}</span></div>`:''}
+        ${hl>0?`<div class="db-rb-row green"><span>Home Loan Interest</span><span>- ${fmt(hl)}</span></div>`:''}
+        ${(eea+e80+g80+tta+ttb+dd80+u80)>0?`<div class="db-rb-row green"><span>Other deductions</span><span>- ${fmt(eea+e80+g80+tta+ttb+dd80+u80)}</span></div>`:''}
+        ${biz.taxable_business_income>0?`<div class="db-rb-row" style="color:#A78BFA;"><span>+ Business Income (194J/194JB, 50%)</span><span>+ ${fmt(biz.taxable_business_income)}</span></div>`:''}
+        ${(d.other_income?.total||0)>0?`<div class="db-rb-row" style="color:#60A5FA;"><span>+ Other Income (Interest/Dividend)</span><span>+ ${fmt(d.other_income.total)}</span></div>`:''}
+        <div class="db-rb-row bold"><span>Taxable Income</span><span>${fmt(txOld)}</span></div>
+        <div class="db-rb-row"><span>Base Tax</span><span>${fmt(rOld)}</span></div>
+        ${tOld.sur>0?`<div class="db-rb-row"><span>Surcharge</span><span>+ ${fmt(tOld.sur)}</span></div>`:''}
+        ${tOld.reb>0?`<div class="db-rb-row green"><span>Rebate 87A</span><span>- ${fmt(tOld.reb)}</span></div>`:''}
+        <div class="db-rb-row"><span>Cess 4%</span><span>+ ${fmt(tOld.cess)}</span></div>
+        <div class="db-rb-row bold total"><span>Total Tax</span><span>${fmt(tOld.total)}</span></div>
+        <div class="db-refund-chip ${(totalPaid-tOld.total)>=0?'chip-green':'chip-red'}">
+          ${(totalPaid-tOld.total)>=0?'↑ Refund':'↓ Due'} ${fmt(Math.abs(totalPaid-tOld.total))}
+        </div>
+      </div>
+    </div>
+    <div class="db-vs">
+      <div class="db-vs-line"></div>
+      <div class="db-vs-badge">VS</div>
+      <div class="db-vs-line"></div>
+    </div>
+    <div class="db-regime-card ${rec==='new'?'db-regime-winner':''}">
+      <div class="db-regime-header">
+        <div><div class="db-regime-name">New Regime</div><div class="db-regime-hint">${fy==='2025-26'?'Budget 2025 · Revised slabs':'Simplified slabs'}</div></div>
+        ${rec==='new'?'<div class="db-winner-badge">✓ Recommended</div>':''}
+      </div>
+      <div class="db-regime-tax">${fmt(tNew.total)}</div>
+      <div class="db-regime-breakdown">
+        <div class="db-rb-row"><span>Gross Salary</span><span>${fmt(gross)}</span></div>
+        <div class="db-rb-row green"><span>Std Deduction</span><span>- ${fmt(stdNew)}</span></div>
+        ${totalENPS>0?`<div class="db-rb-row green"><span>Employer NPS 80CCD(2)</span><span>- ${fmt(totalENPS)}</span></div>`:''}
+        ${(c80+c80d+nps+hraEx+hl)>0?`<div class="db-rb-row muted"><span>HRA / 80C / 80D / Home Loan</span><span style="color:#64748B;font-size:11px;">❌ Not allowed</span></div>`:''}
+        ${biz.taxable_business_income>0?`<div class="db-rb-row" style="color:#A78BFA;"><span>+ Business Income (194J/194JB, 50%)</span><span>+ ${fmt(biz.taxable_business_income)}</span></div>`:''}
+        ${(d.other_income?.total||0)>0?`<div class="db-rb-row" style="color:#60A5FA;"><span>+ Other Income (Interest/Dividend)</span><span>+ ${fmt(d.other_income.total)}</span></div>`:''}
+        <div class="db-rb-row bold"><span>Taxable Income</span><span>${fmt(txNew)}</span></div>
+        <div class="db-rb-row"><span>Base Tax</span><span>${fmt(rNew)}</span></div>
+        ${tNew.sur>0?`<div class="db-rb-row"><span>Surcharge</span><span>+ ${fmt(tNew.sur)}</span></div>`:''}
+        ${tNew.reb>0?`<div class="db-rb-row green"><span>Rebate 87A</span><span>- ${fmt(tNew.reb)}</span></div>`:''}
+        <div class="db-rb-row"><span>Cess 4%</span><span>+ ${fmt(tNew.cess)}</span></div>
+        <div class="db-rb-row bold total"><span>Total Tax</span><span>${fmt(tNew.total)}</span></div>
+        <div class="db-refund-chip ${(totalPaid-tNew.total)>=0?'chip-green':'chip-red'}">
+          ${(totalPaid-tNew.total)>=0?'↑ Refund':'↓ Due'} ${fmt(Math.abs(totalPaid-tNew.total))}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- YOU SAVE -->
+  <div style="background:#0F2A1A;border:1px solid rgba(52,211,153,0.25);border-radius:10px;padding:16px 24px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+    <div>
+      <div style="font-size:11px;font-weight:700;color:#34D399;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">You Save with ${rec==='new'?'New':'Old'} Regime</div>
+      <div style="font-size:13px;color:#64748B;">${rec==='new'?'New':'Old'} Regime tax is ${pct}% lower</div>
+    </div>
+    <div style="font-size:36px;font-weight:800;color:#34D399;letter-spacing:-1.5px;">${fmt(Math.abs(savings))}</div>
+  </div>
+
+  <!-- REC BANNER -->
+  <div class="db-rec-banner db-rec-${rec}">
+    <div class="db-rec-icon">★</div>
+    <div class="db-rec-content">
+      <div class="db-rec-title">File under ${rec==='new'?'New':'Old'} Regime for FY ${fy}</div>
+      <div class="db-rec-sub">${isRef?'Estimated refund of '+fmt(Math.abs(bestRef))+' after filing':'Additional tax of '+fmt(Math.abs(bestRef))+' to be paid before filing'}</div>
+    </div>
+    <div class="db-rec-tax"><div style="font-size:11px;color:rgba(255,255,255,0.5);margin-bottom:3px;">Tax payable</div><div style="font-size:24px;font-weight:700;">${fmt(bestTax)}</div></div>
+  </div>
+
+  <!-- SLAB + TDS -->
+  <div class="db-slabs-row">
+    <div class="db-slabs-card">
+      <div class="db-slabs-title">Tax Slab Breakdown · ${rec==='new'?'New':'Old'} Regime</div>
+      <div class="db-slabs-pills">
+        ${(rec==='new'?bdNew:bdOld).filter(s=>s.tis>0).map(s=>`
+          <div class="db-slab-pill">
+            <div class="db-slab-rate">${(s.rate*100).toFixed(0)}%</div>
+            <div class="db-slab-income">${s.label}</div>
+            <div class="db-slab-income" style="color:#94A3B8;">Income: ${fmt(s.tis)}</div>
+            <div class="db-slab-tax">Tax = ${fmt(s.taxInSlab)}</div>
+          </div>`).join('')}
+      </div>
+    </div>
+    ${totalPaid>0?`
+    <div class="db-slabs-card">
+      <div class="db-slabs-title">TDS &amp; Refund Summary</div>
+      <div class="db-tds-row"><span>TDS Deducted by Employer</span><span>${fmt(totalPaid)}</span></div>
+      <div class="db-tds-row"><span>Tax Payable (${rec==='new'?'New':'Old'} Regime)</span><span>${fmt(bestTax)}</span></div>
+      <div class="db-tds-row" style="margin-top:4px;">
+        <span style="color:${isRef?'#34D399':'#F87171'};font-size:15px;font-weight:700;">${isRef?'↑ Estimated Refund':'↓ Tax Due'}</span>
+        <span style="color:${isRef?'#34D399':'#F87171'};font-size:22px;font-weight:800;">${fmt(Math.abs(bestRef))}</span>
+      </div>
+    </div>`:''}
+  </div>`;
+
+  dash.scrollIntoView({behavior:'smooth', block:'start'});
+
+ } catch(err) {
+  alert('Calculation error: ' + err.message);
+  console.error(err);
+ }
+}
+
+
+async function submitContact(event){
+  event.preventDefault();
+  const btn = document.getElementById('cta-btn');
+  const form = document.getElementById('contact-form');
+  const emailInput = form.querySelector('input[name="email"]');
+  const nameInput  = form.querySelector('input[name="name"]');
+
+  // Check if Formspree is configured
+  if(form.action.includes('REPLACE_FORM_ID')){
+    // Formspree not set up yet — open mailto as fallback
+    const name  = nameInput?.value  || '';
+    const email = emailInput?.value || '';
+    const fy    = document.getElementById('cf-fy')?.value || '';
+    const inc   = document.getElementById('cf-income')?.value || '';
+    const tname = document.getElementById('cf-tname')?.value || '';
+    const subject = encodeURIComponent('ReportEdge — ITR Support Request');
+    const body = encodeURIComponent(
+      `Name: ${name}
+Email: ${email}
+Taxpayer: ${tname}
+Gross Income: ${inc}
+Financial Year: ${fy}
+
+Please help me with my ITR filing.`
+    );
+    window.location.href = `mailto:reportedge.co@gmail.com?subject=${subject}&body=${body}`;
+    return;
+  }
+
+  // Set replyto to user's email
+  const replytoField = document.getElementById('cf-email-hidden');
+  if(replytoField && emailInput) replytoField.value = emailInput.value;
+
+  btn.textContent = 'Sending...';
+  btn.disabled = true;
+
+  try {
+    const formData = new FormData(form);
+    // Append report context
+    formData.append('gross_income',    document.getElementById('cf-income')?.value || '');
+    formData.append('financial_year',  document.getElementById('cf-fy')?.value || '');
+    formData.append('taxpayer_name',   document.getElementById('cf-tname')?.value || '');
+
+    const resp = await fetch(form.action, {
+      method:  'POST',
+      body:    formData,
+      headers: { 'Accept': 'application/json' }
+    });
+
+    if(resp.ok){
+      form.style.display = 'none';
+      document.getElementById('cta-success').style.display = 'block';
+    } else {
+      const err = await resp.json().catch(()=>({}));
+      console.error('Formspree error:', err);
+      btn.textContent = 'Get ITR Support';
+      btn.disabled = false;
+      alert('Could not send right now. Please email us at reportedge.co@gmail.com');
+    }
+  } catch(err){
+    console.error(err);
+    btn.textContent = 'Get ITR Support';
+    btn.disabled = false;
+    alert('Network error. Please email us at reportedge.co@gmail.com');
+  }
+}
+
+// ── MULTI MODE STATE ──
+let fileData2=null, fileMime2=null;
+let fileDataAIS=null, fileMimeAIS=null;
+window._multiMode = false;
+
+const MULTI_BTN_ON = `
+  <span style="flex-shrink:0;width:38px;height:38px;background:#DC2626;border-radius:10px;
+    display:flex;align-items:center;justify-content:center;color:#fff;font-size:20px;font-weight:800;">✕</span>
+  <span style="flex:1;">
+    <span style="display:block;font-size:15px;font-weight:700;color:#7F1D1D;">2nd Form-16 enabled</span>
+    <span style="display:block;font-size:13px;font-weight:500;color:#B91C1C;margin-top:2px;">Click to remove and go back to single employer</span>
+  </span>
+  <span style="flex-shrink:0;color:#B91C1C;font-size:20px;">›</span>
+`;
+const MULTI_BTN_OFF = `
+  <span style="flex-shrink:0;width:38px;height:38px;background:#10B981;border-radius:10px;
+    display:flex;align-items:center;justify-content:center;color:#fff;font-size:22px;font-weight:800;">+</span>
+  <span style="flex:1;">
+    <span style="display:block;font-size:15px;font-weight:700;color:#064E3B;">Worked in 2 companies this year?</span>
+    <span style="display:block;font-size:13px;font-weight:500;color:#059669;margin-top:2px;">Click here to upload your 2nd Form-16 — we'll combine both automatically</span>
+  </span>
+  <span style="flex-shrink:0;color:#059669;font-size:20px;">›</span>
+`;
+
+function toggleMultiMode(){
+  window._multiMode = !window._multiMode;
+  const area = document.getElementById('second-upload-area');
+  const btn  = document.getElementById('multi-toggle-btn');
+  area.style.display = window._multiMode ? 'block' : 'none';
+  if(window._multiMode){
+    btn.style.background='linear-gradient(135deg,#FEF2F2,#FEE2E2)';
+    btn.style.borderColor='#DC2626';
+    btn.style.boxShadow='0 2px 8px rgba(220,38,38,0.15)';
+    btn.innerHTML = MULTI_BTN_ON;
+  } else {
+    btn.style.background='linear-gradient(135deg,#ECFDF5,#D1FAE5)';
+    btn.style.borderColor='#10B981';
+    btn.style.boxShadow='0 2px 8px rgba(16,185,129,0.15)';
+    btn.innerHTML = MULTI_BTN_OFF;
+    fileData2=null; fileMime2=null;
+    fileDataAIS=null; fileMimeAIS=null;
+    document.getElementById('file-attached2').style.display='none';
+    document.getElementById('file-attached-ais').style.display='none';
+    if(document.getElementById('fileinput2')) document.getElementById('fileinput2').value='';
+    if(document.getElementById('fileinputAIS')) document.getElementById('fileinputAIS').value='';
+  }
+}
+
+// Employer 2 handlers
+function dzOver2(e){e.preventDefault();document.getElementById('dropzone2').classList.add('over');}
+function dzLeave2(){document.getElementById('dropzone2').classList.remove('over');}
+function dzDrop2(e){e.preventDefault();dzLeave2();const f=e.dataTransfer.files[0];if(f)attachFile2(f);}
+function onFile2(e){const f=e.target.files[0];if(f)attachFile2(f);}
+function attachFile2(file){
+  const ok=['application/pdf','image/jpeg','image/jpg','image/png'];
+  if(!ok.includes(file.type)){showErr('2nd Form-16: Please upload PDF, JPG or PNG.');return;}
+  if(file.size>10*1024*1024){showErr('2nd Form-16: File must be under 10MB.');return;}
+  fileMime2=file.type;
+  if(file.type==='application/pdf'){
+    const fr=new FileReader();
+    fr.onload=e=>{
+      const str=new TextDecoder('latin1').decode(new Uint8Array(e.target.result).slice(0,2048));
+      if(str.includes('/Encrypt')){
+        window._pwPendingFile=file; window._pwTarget='emp2';
+        document.getElementById('pw-filename').textContent=file.name+' (Employer 2)';
+        document.getElementById('pw-input').value='';
+        document.getElementById('pw-error').style.display='none';
+        document.getElementById('pw-modal').style.display='flex';
+        setTimeout(()=>document.getElementById('pw-input').focus(),100);
+        return;
+      }
+      const r2=new FileReader();
+      r2.onload=ev=>{fileData2=ev.target.result.split(',')[1];};
+      r2.readAsDataURL(file);
+    };
+    fr.readAsArrayBuffer(file);
+  } else {
+    const r=new FileReader();
+    r.onload=e=>{fileData2=e.target.result.split(',')[1];};
+    r.readAsDataURL(file);
+  }
+  document.getElementById('file-name2').textContent=file.name;
+  const fa2=document.getElementById('file-attached2');
+  fa2.style.display='flex';
+}
+function removeFile2(){
+  fileData2=null;fileMime2=null;
+  document.getElementById('file-attached2').style.display='none';
+  document.getElementById('fileinput2').value='';
+}
+
+// AIS / 26AS handlers
+function dzOverAIS(e){e.preventDefault();document.getElementById('dropzoneAIS').classList.add('over');}
+function dzLeaveAIS(){document.getElementById('dropzoneAIS').classList.remove('over');}
+function dzDropAIS(e){e.preventDefault();dzLeaveAIS();const f=e.dataTransfer.files[0];if(f)attachFileAIS(f);}
+function onFileAIS(e){const f=e.target.files[0];if(f)attachFileAIS(f);}
+function attachFileAIS(file){
+  const ok=['application/pdf','image/jpeg','image/jpg','image/png'];
+  if(!ok.includes(file.type)){showErr('Form 26AS: Please upload PDF, JPG or PNG.');return;}
+  fileMimeAIS=file.type;
+  if(file.type==='application/pdf'){
+    const fr=new FileReader();
+    fr.onload=e=>{
+      const str=new TextDecoder('latin1').decode(new Uint8Array(e.target.result).slice(0,2048));
+      if(str.includes('/Encrypt')){
+        window._pwPendingFile=file; window._pwTarget='ais';
+        document.getElementById('pw-filename').textContent=file.name+' (Form 26AS)';
+        document.getElementById('pw-input').value='';
+        document.getElementById('pw-error').style.display='none';
+        document.getElementById('pw-modal').style.display='flex';
+        setTimeout(()=>document.getElementById('pw-input').focus(),100);
+        return;
+      }
+      const r2=new FileReader();
+      r2.onload=ev=>{fileDataAIS=ev.target.result.split(',')[1];};
+      r2.readAsDataURL(file);
+    };
+    fr.readAsArrayBuffer(file);
+  } else {
+    const r=new FileReader();
+    r.onload=e=>{fileDataAIS=e.target.result.split(',')[1];};
+    r.readAsDataURL(file);
+  }
+  document.getElementById('ais-file-name').textContent=file.name;
+  const szKB=Math.round(file.size/1024);
+  const szEl=document.getElementById('ais-file-size');
+  if(szEl)szEl.textContent=(szKB>1024?`${(szKB/1024).toFixed(1)} MB`:`${szKB} KB`)+' · Form 26AS';
+  document.getElementById('file-attached-ais').classList.add('show');
+}
+function removeFileAIS(){
+  fileDataAIS=null;fileMimeAIS=null;
+  document.getElementById('file-attached-ais').classList.remove('show');
+  if(document.getElementById('fileinputAIS'))document.getElementById('fileinputAIS').value='';
+}
+
+// ── PASSWORD MODAL FUNCTIONS ──
+function pwCancel(){
+  document.getElementById('pw-modal').style.display='none';
+  window._pwPendingFile=null;
+  window._pwTarget=null;
+  // Reset file input
+  if(document.getElementById('fileinput')) document.getElementById('fileinput').value='';
+}
+
+function pwConfirm(){
+  const pwd = document.getElementById('pw-input').value.trim();
+  if(!pwd){ document.getElementById('pw-error').style.display='block'; return; }
+  const file = window._pwPendingFile;
+  if(!file) return;
+  document.getElementById('pw-error').style.display='none';
+  // We cannot unlock PDF in browser — inform user and pass password to backend
+  // Store password alongside base64 for backend to use
+  const r=new FileReader();
+  r.onload=e=>{
+    const b64=e.target.result.split(',')[1];
+    const target=window._pwTarget||'main';
+    if(target==='main'){
+      fileData=b64; fileMime=file.type;
+      window._filePwd=pwd;
+      document.getElementById('file-name').textContent=file.name;
+      const sizeKB=Math.round(file.size/1024);
+      document.getElementById('file-size').textContent=sizeKB>1024?`${(sizeKB/1024).toFixed(1)} MB`:`${sizeKB} KB`;
+      document.getElementById('file-attached').classList.add('show');
+    } else if(target==='emp2'){
+      fileData2=b64; fileMime2=file.type;
+      window._filePwd2=pwd;
+      document.getElementById('file-name2').textContent=file.name;
+      document.getElementById('file-attached2').style.display='flex';
+    } else if(target==='ais'){
+      fileDataAIS=b64; fileMimeAIS=file.type;
+      window._filePwdAIS=pwd;
+      document.getElementById('ais-file-name').textContent=file.name;
+      document.getElementById('file-attached-ais').style.display='flex';
+    }
+    document.getElementById('pw-modal').style.display='none';
+    window._pwPendingFile=null;
+  };
+  r.readAsDataURL(file);
+}
+
+function resetPage(){
+  fileData=null;fileMime=null;
+  document.getElementById('file-attached').classList.remove('show');
+  document.getElementById('fileinput').value='';
+  document.getElementById('report').style.display='none';
+  document.getElementById('ded-panel').style.display='none';
+  document.getElementById('form-section').style.display='block';
+  const err=document.getElementById('err');if(err)err.style.display='none';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+</script>
+
+<!-- PASSWORD MODAL -->
+<div id="pw-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:9999;align-items:center;justify-content:center;">
+  <div style="background:#1E293B;border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:28px 28px 24px;width:340px;max-width:92vw;box-shadow:0 24px 60px rgba(0,0,0,0.5);">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
+      <span style="font-size:22px;">🔐</span>
+      <div>
+        <div style="font-size:15px;font-weight:700;color:#fff;">Password Protected PDF</div>
+        <div style="font-size:12px;color:rgba(255,255,255,0.4);margin-top:2px;" id="pw-filename"></div>
+      </div>
+    </div>
+    <div style="font-size:13px;color:rgba(255,255,255,0.5);margin-bottom:14px;">
+      This PDF is password protected. Please enter the password to continue.
+    </div>
+    <input type="password" id="pw-input"
+      placeholder="Enter PDF password"
+      style="width:100%;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.15);
+      border-radius:8px;padding:10px 14px;color:#fff;font-size:14px;font-family:inherit;
+      outline:none;margin-bottom:8px;"
+      onkeydown="if(event.key==='Enter')pwConfirm()"/>
+    <div id="pw-error" style="font-size:12px;color:#F87171;margin-bottom:10px;display:none;">
+      ⚠️ Incorrect password or unable to unlock. Please try again.
+    </div>
+    <div style="display:flex;gap:8px;margin-top:6px;">
+      <button onclick="pwCancel()"
+        style="flex:1;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);
+        border-radius:8px;padding:9px;color:rgba(255,255,255,0.5);font-size:13px;
+        cursor:pointer;font-family:inherit;">Cancel</button>
+      <button onclick="pwConfirm()"
+        style="flex:2;background:linear-gradient(135deg,#047857,#10B981);border:none;
+        border-radius:8px;padding:9px;color:#fff;font-size:13px;font-weight:600;
+        cursor:pointer;font-family:inherit;">Unlock &amp; Upload</button>
+    </div>
+    <div style="margin-top:14px;font-size:11px;color:rgba(255,255,255,0.25);line-height:1.5;">
+      🔒 Your password is used only to unlock this file locally and is never sent to any server.
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

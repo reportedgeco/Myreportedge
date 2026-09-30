@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Financial Health — ReportEdge</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.184.0/build/three.module.js",
+    "three/addons/controls/OrbitControls.js": "https://unpkg.com/three@0.184.0/examples/jsm/controls/OrbitControls.js",
+    "three/addons/exporters/OBJExporter.js": "https://unpkg.com/three@0.184.0/examples/jsm/exporters/OBJExporter.js",
+    "three/addons/exporters/GLTFExporter.js": "https://unpkg.com/three@0.184.0/examples/jsm/exporters/GLTFExporter.js"
+  },
+  "integrity": {
+    "https://unpkg.com/three@0.184.0/build/three.module.js": "sha384-8FCZ1eVO6it4+pbec2aDtnTrwjWXZLJRC+MAGCIPDgsYnUrl/E0A2YlF8ioMKI/J",
+    "https://unpkg.com/three@0.184.0/build/three.core.js": "sha384-dw2ooPewaEIrAgl6oFDBmmBWCE9oW9LxRGcfwZ0hLvEprzo202wXl7vCYHRlSnOT",
+    "https://unpkg.com/three@0.184.0/examples/jsm/controls/OrbitControls.js": "sha384-4rziNxOBZKQ69i+w+f89KJ55TCYquwchVbByQwmaOeIOXdOU2PLDn3kOfXHwIJC9",
+    "https://unpkg.com/three@0.184.0/examples/jsm/exporters/OBJExporter.js": "sha384-nbwtoZENJD3Vq+ACK0CuGQdPMuDWHkamC2KJD70EV5nfg6jQjfppKOea07YJN+N3",
+    "https://unpkg.com/three@0.184.0/examples/jsm/exporters/GLTFExporter.js": "sha384-VofkvpG6HERhFCYbsUOHeNXBCqID2nfqkQqnVzE1jc/oPcz+qJ13ADdXH08hE+cQ"
+  }
+}
+</script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --navy:#0A1628;--navy2:#0F2040;--emerald:#059669;--em2:#10B981;
+  --amber:#D97706;--blue:#1D4ED8;--gold:#C9A84C;
+  --text3:#94A3B8;
+}
+html{scroll-behavior:smooth;}
+body{font-family:'Inter',sans-serif;background:#050B15;color:#F1F5F9;-webkit-font-smoothing:antialiased;overflow-x:hidden;}
+a{color:var(--em2);text-decoration:none;}
+a:hover{color:#34D399;}
+
+#fh-wrap{position:relative;height:260vh;}
+#fh{position:sticky;top:0;height:100vh;overflow:hidden;
+  background:
+    radial-gradient(900px 620px at 28% 46%, rgba(16,185,129,0.13), transparent 68%),
+    radial-gradient(760px 540px at 80% 22%, rgba(29,78,216,0.12), transparent 70%),
+    linear-gradient(180deg,#071020 0%,#050B15 55%,#04080F 100%);}
+#scene{position:absolute;inset:0;width:100%;height:100%;display:block;}
+#grain{position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(120% 90% at 50% 45%, transparent 40%, rgba(2,6,14,0.75) 100%);}
+
+.scene-layer{position:absolute;inset:0;transition:opacity .5s ease;}
+
+/* ── heading ── */
+.head{position:absolute;left:clamp(20px,5vw,72px);top:clamp(64px,10vh,110px);max-width:430px;z-index:4;}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:11px;font-weight:700;letter-spacing:1.6px;
+  text-transform:uppercase;color:#6EE7B7;background:rgba(16,185,129,0.10);border:1px solid rgba(16,185,129,0.28);
+  border-radius:999px;padding:6px 13px;backdrop-filter:blur(8px);}
+.head h1{margin-top:18px;font-size:clamp(30px,3.6vw,50px);font-weight:800;letter-spacing:-1.4px;line-height:1.08;
+  color:#F8FAFC;text-wrap:pretty;}
+.head h1 em{font-style:normal;color:#6EE7B7;}
+.head p{margin-top:14px;font-size:15px;line-height:1.65;color:#94A3B8;max-width:370px;text-wrap:pretty;}
+
+/* ── flow caption ── */
+.flow{position:absolute;left:clamp(20px,5vw,72px);bottom:clamp(28px,6vh,56px);z-index:4;display:flex;flex-direction:column;gap:12px;}
+.flow-steps{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.flow-steps span{font-size:10.5px;font-weight:700;letter-spacing:1.3px;text-transform:uppercase;color:rgba(148,163,184,0.42);
+  transition:color .45s ease;}
+.flow-steps span.on{color:#F1F5F9;}
+.flow-steps i{font-style:normal;color:rgba(148,163,184,0.28);font-size:11px;}
+.caption{font-size:13px;color:#CBD5E1;min-height:20px;opacity:0;transform:translateY(6px);transition:opacity .4s,transform .4s;}
+.caption.on{opacity:1;transform:none;}
+
+/* ── floating 3D-anchored labels ── */
+#labels{position:absolute;inset:0;pointer-events:none;z-index:3;}
+.chip{position:absolute;transform:translate(-50%,-50%) scale(.9);opacity:0;
+  display:flex;align-items:center;gap:9px;white-space:nowrap;
+  padding:7px 13px 7px 10px;border-radius:12px;
+  background:rgba(12,24,42,0.55);border:1px solid rgba(148,163,184,0.20);
+  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  box-shadow:0 10px 30px rgba(0,0,0,0.35);
+  transition:opacity .5s ease, transform .5s cubic-bezier(.2,.7,.3,1);}
+.chip.on{opacity:1;transform:translate(-50%,-50%) scale(1);}
+.chip .dot{width:7px;height:7px;border-radius:50%;box-shadow:0 0 10px currentColor;background:currentColor;}
+.chip .lb{font-size:11.5px;font-weight:600;letter-spacing:.2px;color:#E2E8F0;}
+.chip .vl{font-size:11px;font-weight:600;color:rgba(226,232,240,0.48);font-variant-numeric:tabular-nums;}
+
+/* ── result panel ── */
+.panel{position:absolute;right:clamp(20px,5vw,72px);top:50%;transform:translateY(-50%);width:min(390px,42vw);z-index:5;
+  display:flex;flex-direction:column;gap:14px;}
+.card{background:rgba(11,22,38,0.58);border:1px solid rgba(148,163,184,0.16);border-radius:20px;
+  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);box-shadow:0 24px 70px rgba(0,0,0,0.45);
+  opacity:0;transform:translateY(18px);transition:opacity .7s ease, transform .7s cubic-bezier(.2,.7,.3,1);}
+.card.on{opacity:1;transform:none;}
+.score-card{padding:26px 26px 24px;display:flex;align-items:center;gap:22px;}
+.score-ring{position:relative;width:104px;height:104px;flex:none;}
+.score-ring svg{transform:rotate(-90deg);}
+.score-ring .val{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.score-ring .num{font-size:30px;font-weight:800;letter-spacing:-1px;color:#F8FAFC;font-variant-numeric:tabular-nums;line-height:1;}
+.score-ring .den{font-size:10px;font-weight:600;color:rgba(148,163,184,0.7);margin-top:3px;}
+.score-meta .t{font-size:10.5px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;color:#6EE7B7;}
+.score-meta .h{font-size:19px;font-weight:700;color:#F8FAFC;letter-spacing:-.4px;margin-top:7px;}
+.score-meta .s{font-size:12.5px;line-height:1.55;color:#94A3B8;margin-top:7px;}
+.ind-card{padding:18px 22px 20px;display:grid;grid-template-columns:1fr 1fr;gap:16px 18px;}
+.ind{opacity:0;transform:translateY(10px);transition:opacity .55s ease,transform .55s ease;}
+.ind.on{opacity:1;transform:none;}
+.ind-top{display:flex;align-items:baseline;justify-content:space-between;gap:8px;}
+.ind-name{font-size:11.5px;font-weight:600;color:#CBD5E1;white-space:nowrap;}
+.ind-num{font-size:12px;font-weight:700;color:#F8FAFC;font-variant-numeric:tabular-nums;}
+.bar{height:4px;border-radius:99px;background:rgba(148,163,184,0.16);margin-top:8px;overflow:hidden;}
+.bar i{display:block;height:100%;width:0;border-radius:99px;transition:width 1.1s cubic-bezier(.2,.7,.3,1);}
+.cta{display:flex;align-items:center;justify-content:center;gap:9px;padding:15px;border-radius:14px;
+  background:var(--emerald);color:#fff;font-size:14px;font-weight:700;letter-spacing:.2px;
+  box-shadow:0 14px 34px rgba(5,150,105,0.42);transition:background .2s,transform .2s,box-shadow .2s;}
+.cta:hover{background:#047857;color:#fff;transform:translateY(-2px);box-shadow:0 18px 40px rgba(5,150,105,0.55);}
+.replay{align-self:flex-start;background:none;border:none;color:rgba(148,163,184,0.75);font-family:inherit;
+  font-size:11.5px;font-weight:600;letter-spacing:.4px;cursor:pointer;padding:2px 0;}
+.replay:hover{color:#E2E8F0;}
+
+/* ── dashboard reveal on scroll ── */
+#dash{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:6;
+  opacity:0;pointer-events:none;transition:opacity .35s ease;padding:24px;}
+#dash .frame{width:min(940px,92vw);border-radius:18px;overflow:hidden;border:1px solid rgba(148,163,184,0.18);
+  background:rgba(10,22,40,0.86);backdrop-filter:blur(22px);box-shadow:0 40px 110px rgba(0,0,0,0.6);
+  transform:translateY(26px) scale(.97);transition:transform .5s cubic-bezier(.2,.7,.3,1);}
+#dash.on{opacity:1;pointer-events:auto;}
+#dash.on .frame{transform:none;}
+.bar-top{display:flex;align-items:center;gap:7px;padding:11px 16px;background:rgba(255,255,255,0.04);
+  border-bottom:1px solid rgba(148,163,184,0.14);}
+.bar-top .d{width:9px;height:9px;border-radius:50%;}
+.bar-top .ttl{margin-left:10px;font-size:11.5px;color:rgba(226,232,240,0.6);font-weight:500;}
+.dash-body{padding:26px 28px 30px;}
+.dash-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:20px;}
+.tile{background:rgba(255,255,255,0.035);border:1px solid rgba(148,163,184,0.14);border-radius:13px;padding:15px 16px;}
+.tile .k{font-size:10px;font-weight:700;letter-spacing:1.1px;text-transform:uppercase;color:rgba(148,163,184,0.65);}
+.tile .v{font-size:20px;font-weight:800;letter-spacing:-.6px;margin-top:9px;color:#F8FAFC;font-variant-numeric:tabular-nums;}
+.tile .m{font-size:11px;margin-top:5px;color:#6EE7B7;font-weight:600;}
+.scroll-hint{position:absolute;left:50%;bottom:26px;transform:translateX(-50%);z-index:4;
+  font-size:10.5px;letter-spacing:1.5px;text-transform:uppercase;color:rgba(148,163,184,0.5);font-weight:700;
+  transition:opacity .4s;}
+
+footer{padding:80px clamp(20px,5vw,72px) 90px;border-top:1px solid rgba(148,163,184,0.12);background:#04080F;}
+footer h3{font-size:clamp(22px,2.4vw,32px);font-weight:800;letter-spacing:-.8px;}
+footer p{margin-top:12px;color:#94A3B8;font-size:14.5px;max-width:520px;line-height:1.7;}
+footer .cta{display:inline-flex;margin-top:26px;padding:15px 26px;}
+
+@media (max-width:900px){
+  #fh-wrap{height:220vh;}
+  .head{top:56px;right:20px;max-width:none;}
+  .head p{max-width:none;font-size:14px;}
+  .panel{right:16px;left:16px;width:auto;top:auto;bottom:74px;transform:none;gap:11px;}
+  .score-card{padding:20px;gap:16px;}
+  .score-ring{width:86px;height:86px;}
+  .score-meta .h{font-size:16px;}
+  .score-meta .s{display:none;}
+  .ind-card{padding:16px 18px 18px;gap:13px 14px;}
+  .flow{bottom:auto;top:auto;display:none;}
+  .chip .vl{display:none;}
+  .dash-grid{grid-template-columns:repeat(2,1fr);}
+  .scroll-hint{display:none;}
+}
+</style>
+</head>
+<body>
+
+<div id="fh-wrap">
+<section id="fh">
+  <canvas id="scene"></canvas>
+  <div id="grain"></div>
+
+  <div class="scene-layer" id="layer">
+    <div class="head">
+      <div class="eyebrow"><span style="width:6px;height:6px;border-radius:50%;background:#10B981;display:block;"></span>Financial Health</div>
+      <h1>Everything you earn, spend and own — read as <em>one number</em>.</h1>
+      <p>ReportEdge gathers your financial signals, analyses them together, and returns a single clear picture of where you stand.</p>
+    </div>
+
+    <div id="labels"></div>
+
+    <div class="flow">
+      <div class="flow-steps">
+        <span data-step="0">Financial data</span><i>→</i>
+        <span data-step="1">Analysis</span><i>→</i>
+        <span data-step="2">Financial health</span><i>→</i>
+        <span data-step="3">Action</span>
+      </div>
+      <div class="caption" id="caption">Collecting your financial signals…</div>
+    </div>
+
+    <div class="panel">
+      <div class="card score-card" id="scoreCard">
+        <div class="score-ring">
+          <svg width="104" height="104" viewBox="0 0 104 104">
+            <circle cx="52" cy="52" r="45" fill="none" stroke="rgba(148,163,184,0.18)" stroke-width="7"></circle>
+            <circle id="ringArc" cx="52" cy="52" r="45" fill="none" stroke="#10B981" stroke-width="7"
+              stroke-linecap="round" stroke-dasharray="282.7" stroke-dashoffset="282.7"></circle>
+          </svg>
+          <div class="val"><div class="num" id="scoreNum">0</div><div class="den">/ 100</div></div>
+        </div>
+        <div class="score-meta">
+          <div class="t">Financial health score</div>
+          <div class="h" id="scoreLabel">Analysing…</div>
+          <div class="s">Strong saving habits, controlled debt — a thin emergency buffer holds you back.</div>
+        </div>
+      </div>
+
+      <div class="card ind-card" id="indCard"></div>
+
+      <a class="cta card" id="ctaBtn" href="financial-health.html">Explore Your Financial Health →</a>
+      <button class="replay" id="replay">↻ Replay sequence</button>
+    </div>
+
+    <div class="scroll-hint" id="scrollHint">Scroll to open the dashboard</div>
+  </div>
+
+  <div id="dash">
+    <div class="frame">
+      <div class="bar-top">
+        <div class="d" style="background:#FF5F57;"></div><div class="d" style="background:#FEBC2E;"></div>
+        <div class="d" style="background:#28C840;"></div>
+        <div class="ttl">Financial Health Dashboard — ReportEdge</div>
+      </div>
+      <div class="dash-body">
+        <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:18px;flex-wrap:wrap;">
+          <div>
+            <div style="font-size:11px;font-weight:700;letter-spacing:1.3px;text-transform:uppercase;color:rgba(148,163,184,0.65);">Your financial health</div>
+            <div style="font-size:clamp(26px,3vw,38px);font-weight:800;letter-spacing:-1.2px;margin-top:8px;">74<span style="color:rgba(148,163,184,0.5);font-size:18px;font-weight:600;"> / 100</span> · Healthy</div>
+          </div>
+          <a class="cta" style="padding:12px 22px;font-size:13px;" href="financial-health.html">Open the dashboard →</a>
+        </div>
+        <div class="dash-grid">
+          <div class="tile"><div class="k">Monthly surplus</div><div class="v">₹48,200</div><div class="m">+12% vs last month</div></div>
+          <div class="tile"><div class="k">Net worth</div><div class="v">₹34.6L</div><div class="m">+₹1.2L this quarter</div></div>
+          <div class="tile"><div class="k">Savings rate</div><div class="v">28%</div><div class="m">Above target</div></div>
+          <div class="tile"><div class="k">Emergency fund</div><div class="v">1.9 mo</div><div class="m" style="color:#FBBF24;">Below 6 mo target</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+</div>
+
+<footer>
+  <h3>The Financial Health tool, in full.</h3>
+  <p>Monthly surplus, loan affordability, tax estimate and complete net worth — updated every month, not once a year.</p>
+  <a class="cta" href="financial-health.html">Explore Your Financial Health →</a>
+</footer>
+
+<script type="module">
+import * as THREE from 'three';
+
+const canvas = document.getElementById('scene');
+const renderer = new THREE.WebGLRenderer({canvas, antialias:true, alpha:true});
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.12;
+
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(38, 1, 0.1, 120);
+camera.position.set(0, 1.1, 10.4);
+
+const isMobile = matchMedia('(max-width:900px)').matches;
+
+/* ── lighting ── */
+scene.add(new THREE.AmbientLight(0x94a3b8, 0.55));
+const key = new THREE.DirectionalLight(0xffffff, 1.5); key.position.set(4, 6, 6); scene.add(key);
+const rim = new THREE.DirectionalLight(0x60a5fa, 0.8); rim.position.set(-6, 2, -5); scene.add(rim);
+const coreLight = new THREE.PointLight(0x10b981, 6, 22, 2); scene.add(coreLight);
+
+const COL = {em:0x10b981, gold:0xc9a84c, blue:0x3b82f6, amber:0xd97706, slate:0x94a3b8};
+
+/* ── central core ── */
+const core = new THREE.Group(); scene.add(core);
+
+const innerMat = new THREE.MeshStandardMaterial({name:'core-emerald', color:0x06241d, emissive:0x0e9f74,
+  emissiveIntensity:0.35, roughness:0.34, metalness:0.6});
+const inner = new THREE.Mesh(new THREE.IcosahedronGeometry(0.62, 3), innerMat);
+inner.name = 'core'; core.add(inner);
+
+const shellMat = new THREE.MeshStandardMaterial({name:'core-shell', color:0x8ef2cf, transparent:true,
+  opacity:0.13, roughness:0.1, metalness:0.6, side:THREE.DoubleSide});
+const shell = new THREE.Mesh(new THREE.IcosahedronGeometry(1.24, 1), shellMat);
+shell.name = 'shell'; core.add(shell);
+
+const wire = new THREE.LineSegments(
+  new THREE.EdgesGeometry(new THREE.IcosahedronGeometry(1.24, 1)),
+  new THREE.LineBasicMaterial({color:0x34d399, transparent:true, opacity:0.42}));
+wire.name = 'shell-wire'; core.add(wire);
+
+const ringMat = new THREE.MeshStandardMaterial({name:'brass-ring', color:0xc9a84c, roughness:0.32, metalness:0.9,
+  emissive:0x2a2109, emissiveIntensity:0.8});
+const ringA = new THREE.Mesh(new THREE.TorusGeometry(1.85, 0.012, 12, 128), ringMat);
+ringA.rotation.x = Math.PI/2.3; ringA.name = 'orbit-ring-a'; core.add(ringA);
+const ringB = new THREE.Mesh(new THREE.TorusGeometry(2.28, 0.009, 12, 128), ringMat);
+ringB.rotation.set(Math.PI/1.7, 0.5, 0.3); ringB.name = 'orbit-ring-b'; core.add(ringB);
+
+/* glow sprite */
+function glowTex(){
+  const c = document.createElement('canvas'); c.width = c.height = 256;
+  const g = c.getContext('2d').createRadialGradient(128,128,0,128,128,128);
+  g.addColorStop(0,'rgba(52,211,153,0.85)'); g.addColorStop(0.35,'rgba(16,185,129,0.28)');
+  g.addColorStop(1,'rgba(16,185,129,0)');
+  const ctx = c.getContext('2d'); ctx.fillStyle = g; ctx.fillRect(0,0,256,256);
+  return new THREE.CanvasTexture(c);
+}
+const glow = new THREE.Sprite(new THREE.SpriteMaterial({map:glowTex(), transparent:true,
+  blending:THREE.AdditiveBlending, depthWrite:false, opacity:0.5}));
+glow.scale.set(7,7,1); glow.name = 'core-glow'; core.add(glow);
+
+/* scan ring for the analysis beat */
+const scan = new THREE.Mesh(new THREE.TorusGeometry(1, 0.014, 8, 96),
+  new THREE.MeshBasicMaterial({color:0x6ee7b7, transparent:true, opacity:0}));
+scan.rotation.x = Math.PI/2; scan.name = 'scan-ring'; core.add(scan);
+
+/* ── orbiting elements ── */
+const nodeDefs = [
+  {id:'income',    label:'Income',         val:'₹1,72,000 / mo', col:COL.em,    hex:'#10B981', geo:'oct',  t:0.8,  a:0.15, tilt:0.18, r:4.6, y:0.9},
+  {id:'expenses',  label:'Expenses',       val:'₹1,23,800 / mo', col:COL.amber, hex:'#F59E0B', geo:'box',  t:1.2,  a:2.5,  tilt:-0.3, r:4.9, y:-0.7},
+  {id:'savings',   label:'Savings',        val:'28% rate',       col:COL.em,    hex:'#34D399', geo:'coin', t:2.1,  a:4.1,  tilt:0.34, r:4.3, y:1.5},
+  {id:'invest',    label:'Investments',    val:'₹18.4L',         col:COL.blue,  hex:'#60A5FA', geo:'oct',  t:2.5,  a:1.4,  tilt:-0.16, r:5.1, y:-1.5},
+  {id:'emergency', label:'Emergency Fund', val:'1.9 months',     col:COL.gold,  hex:'#C9A84C', geo:'coin', t:3.2,  a:5.3,  tilt:0.42, r:4.5, y:0.2},
+  {id:'goals',     label:'Financial Goals',val:'3 active',       col:COL.gold,  hex:'#E4C878', geo:'tetra',t:3.5,  a:3.2,  tilt:-0.42, r:5.0, y:1.9},
+  {id:'debt',      label:'Debt Control',   val:'EMI 21% of pay', col:COL.slate, hex:'#CBD5E1', geo:'box',  t:3.8,  a:6.0,  tilt:0.06, r:4.7, y:-1.9}
+];
+
+function geoFor(kind){
+  if(kind === 'box')  return new THREE.BoxGeometry(0.42,0.42,0.42);
+  if(kind === 'coin') return new THREE.CylinderGeometry(0.28,0.28,0.1,48);
+  if(kind === 'tetra')return new THREE.TetrahedronGeometry(0.34,0);
+  return new THREE.OctahedronGeometry(0.32,0);
+}
+
+const labelWrap = document.getElementById('labels');
+const nodes = nodeDefs.map(d => {
+  const g = new THREE.Group(); g.name = d.id; scene.add(g);
+  const mat = new THREE.MeshStandardMaterial({name:d.id+'-mat', color:d.col, roughness:0.24, metalness:0.72,
+    emissive:d.col, emissiveIntensity:0.28, transparent:true, opacity:0});
+  const m = new THREE.Mesh(geoFor(d.geo), mat); m.name = d.id + '-body'; g.add(m);
+  const halo = new THREE.Mesh(new THREE.TorusGeometry(0.56, 0.006, 8, 64),
+    new THREE.MeshBasicMaterial({color:d.col, transparent:true, opacity:0}));
+  halo.rotation.x = Math.PI/2 + d.tilt; halo.name = d.id + '-halo'; g.add(halo);
+
+  const chip = document.createElement('div');
+  chip.className = 'chip';
+  chip.innerHTML = `<span class="dot" style="color:${d.hex}"></span><span class="lb">${d.label}</span><span class="vl">${d.val}</span>`;
+  labelWrap.appendChild(chip);
+
+  return {def:d, group:g, mesh:m, mat, halo, chip, radius:d.r, scale:1, spin:Math.random()*0.6+0.3};
+});
+
+/* ── data motes ── */
+const N = isMobile ? 260 : 620;
+const pos = new Float32Array(N*3), seed = new Float32Array(N);
+for(let i=0;i<N;i++){
+  const r = 3 + Math.random()*7, th = Math.random()*Math.PI*2, ph = (Math.random()-0.5)*1.1;
+  pos[i*3] = Math.cos(th)*r; pos[i*3+1] = Math.sin(ph)*3.2; pos[i*3+2] = Math.sin(th)*r;
+  seed[i] = Math.random()*Math.PI*2;
+}
+const pGeo = new THREE.BufferGeometry();
+pGeo.setAttribute('position', new THREE.BufferAttribute(pos,3));
+const motes = new THREE.Points(pGeo, new THREE.PointsMaterial({color:0x9ae6c8, size:0.035, transparent:true,
+  opacity:0, depthWrite:false, blending:THREE.AdditiveBlending}));
+motes.name = 'data-motes'; scene.add(motes);
+
+/* ── timeline ── */
+const T = {income:0.8, converge:4.6, converged:6.0, analyse:6.0, score:7.1, inds:8.2, cta:9.4, end:10.4};
+const clamp = (v,a,b)=>Math.min(b,Math.max(a,v));
+const smooth = t => t*t*(3-2*t);
+const ease = (t,a,b)=>smooth(clamp((t-a)/(b-a),0,1));
+
+const indDefs = [
+  {n:'Savings Rate', v:88, c:'#10B981'},
+  {n:'Debt Control', v:79, c:'#34D399'},
+  {n:'Goal Funding', v:52, c:'#C9A84C'},
+  {n:'Emergency Fund', v:38, c:'#F59E0B'}
+];
+const indCard = document.getElementById('indCard');
+indCard.innerHTML = indDefs.map(d => `<div class="ind">
+  <div class="ind-top"><span class="ind-name">${d.n}</span><span class="ind-num">${d.v}<span style="color:rgba(148,163,184,0.55);font-weight:600;">/100</span></span></div>
+  <div class="bar"><i style="background:${d.c};box-shadow:0 0 12px ${d.c}66;"></i></div></div>`).join('');
+const indEls = [...indCard.querySelectorAll('.ind')];
+
+const captions = [
+  [0.4, 'Collecting your financial signals…'],
+  [1.3, 'Income and expenses identified.'],
+  [2.4, 'Savings and investments mapped.'],
+  [3.5, 'Emergency fund, goals and debt read.'],
+  [4.8, 'Bringing every signal together…'],
+  [6.1, 'ReportEdge is analysing your financial life.'],
+  [7.2, 'Your financial health score is ready.'],
+  [8.4, 'Four indicators explain the number.'],
+  [9.5, 'One clear picture — ready to explore.']
+];
+const capEl = document.getElementById('caption');
+const stepEls = [...document.querySelectorAll('.flow-steps span')];
+const scoreNum = document.getElementById('scoreNum');
+const ringArc = document.getElementById('ringArc');
+const scoreLabel = document.getElementById('scoreLabel');
+const els = {score:document.getElementById('scoreCard'), ind:indCard, cta:document.getElementById('ctaBtn')};
+
+let start = performance.now()/1000, lastCap = -1;
+function resetTimeline(){
+  start = performance.now()/1000; lastCap = -1;
+  [els.score, els.ind, els.cta].forEach(e => e.classList.remove('on'));
+  indEls.forEach(e => {e.classList.remove('on'); e.querySelector('.bar i').style.width = '0';});
+  scoreNum.textContent = '0'; ringArc.setAttribute('stroke-dashoffset', 282.7);
+  scoreLabel.textContent = 'Analysing…';
+  nodes.forEach(n => n.chip.classList.remove('on'));
+  stepEls.forEach(e => e.classList.remove('on'));
+}
+document.getElementById('replay').addEventListener('click', resetTimeline);
+
+let scored = false, indsShown = false;
+function timeline(t){
+  /* caption + flow steps */
+  let ci = -1; captions.forEach((c,i) => {if(t >= c[0]) ci = i;});
+  if(ci !== lastCap && ci >= 0){
+    lastCap = ci; capEl.classList.remove('on');
+    capEl.textContent = captions[ci][1];
+    requestAnimationFrame(()=>capEl.classList.add('on'));
+  }
+  const step = t < T.converge ? 0 : t < T.score ? 1 : t < T.cta ? 2 : 3;
+  stepEls.forEach((e,i) => e.classList.toggle('on', i === step));
+
+  /* score reveal */
+  if(t >= T.score){
+    els.score.classList.add('on');
+    const p = ease(t, T.score, T.score + 1.6);
+    const v = Math.round(74 * p);
+    scoreNum.textContent = v;
+    ringArc.setAttribute('stroke-dashoffset', 282.7 * (1 - 0.74 * p));
+    if(p >= 1 && !scored){scored = true; scoreLabel.textContent = 'Healthy — with one gap';}
+    if(p < 1) scoreLabel.textContent = 'Analysing…';
+  } else scored = false;
+
+  if(t >= T.inds){
+    els.ind.classList.add('on');
+    indEls.forEach((e,i) => {
+      if(t >= T.inds + i*0.18){
+        e.classList.add('on');
+        e.querySelector('.bar i').style.width = indDefs[i].v + '%';
+      }
+    });
+    indsShown = true;
+  } else if(indsShown){
+    indsShown = false;
+  }
+  if(t >= T.cta) els.cta.classList.add('on');
+}
+
+/* ── pointer parallax ── */
+const mouse = {x:0, y:0, tx:0, ty:0};
+addEventListener('pointermove', e => {
+  mouse.tx = (e.clientX / innerWidth - 0.5) * 2;
+  mouse.ty = (e.clientY / innerHeight - 0.5) * 2;
+});
+
+/* ── scroll → dashboard ── */
+const wrap = document.getElementById('fh-wrap');
+const layer = document.getElementById('layer');
+const dash = document.getElementById('dash');
+const hint = document.getElementById('scrollHint');
+let scroll = 0;
+function onScroll(){
+  const r = wrap.getBoundingClientRect();
+  const total = wrap.offsetHeight - innerHeight;
+  scroll = clamp(-r.top / Math.max(total,1), 0, 1);
+  const p = ease(scroll, 0.12, 0.5);
+  layer.style.opacity = 1 - p;
+  layer.style.pointerEvents = p > 0.6 ? 'none' : 'auto';
+  dash.classList.toggle('on', p > 0.45);
+  hint.style.opacity = 1 - clamp(scroll/0.1, 0, 1);
+}
+addEventListener('scroll', onScroll, {passive:true});
+
+function resize(){
+  const w = innerWidth, h = innerHeight;
+  renderer.setSize(w, h, false);
+  camera.aspect = w/h;
+  camera.fov = w < 900 ? 50 : 38;
+  camera.updateProjectionMatrix();
+}
+addEventListener('resize', () => {resize(); onScroll();});
+resize(); onScroll();
+
+const v3 = new THREE.Vector3();
+const panelShift = isMobile ? 0 : 1.9;
+
+renderer.setAnimationLoop(() => {
+  const now = performance.now()/1000;
+  const t = now - start;
+  timeline(t);
+
+  mouse.x += (mouse.tx - mouse.x) * 0.045;
+  mouse.y += (mouse.ty - mouse.y) * 0.045;
+
+  /* camera: slow dolly in, then shift so the core sits beside the panel */
+  const dolly = 10.4 - 0.9 * ease(t, 0, 6.4);
+  const shift = panelShift * ease(t, 6.4, 8.6);
+  const zoomOut = 1.4 * ease(scroll, 0.1, 0.55);
+  camera.position.set(shift + mouse.x*0.55, 1.1 - mouse.y*0.4, dolly + zoomOut);
+  camera.lookAt(shift*0.55, 0, 0);
+
+  /* core */
+  const conv = ease(t, T.converge, T.converged);
+  const analysed = ease(t, T.analyse, T.score);
+  core.rotation.y += 0.0022 + 0.012*conv*(1-analysed);
+  inner.rotation.x += 0.0016; inner.rotation.z += 0.0011;
+  ringA.rotation.z += 0.0015; ringB.rotation.y += 0.0011;
+  const pulse = 1 + 0.03*Math.sin(now*1.6);
+  const born = ease(t, 0.2, 1.4);
+  core.scale.setScalar(born * pulse * (1 + 0.06*conv));
+  innerMat.emissiveIntensity = 0.32 + 0.9*conv*(1-0.55*analysed) + 0.08*Math.sin(now*2.2);
+  coreLight.intensity = 3.5 + 5.5*conv*(1-0.5*analysed);
+  glow.material.opacity = 0.26*born + 0.2*conv - 0.14*analysed;
+  wire.material.opacity = 0.18 + 0.34*born;
+
+  /* analysis scan sweep */
+  const sc = clamp((t - T.analyse)/(T.score - T.analyse), 0, 1);
+  if(sc > 0 && sc < 1){
+    const k = (sc*2) % 1;
+    scan.scale.setScalar(0.6 + k*3.4);
+    scan.material.opacity = 0.5*(1-k)*(1-Math.abs(sc-0.5)*0.6);
+    scan.rotation.z += 0.01;
+  } else scan.material.opacity = 0;
+
+  /* nodes */
+  const w = innerWidth, h = innerHeight;
+  nodes.forEach((n, i) => {
+    const d = n.def;
+    const app = ease(t, d.t, d.t + 0.9);
+    const settle = ease(t, T.score, T.score + 1.4);
+    const targetR = d.r * (1 - 0.62*conv) + (d.r*0.72 - d.r*(1-0.62*conv)) * settle;
+    n.radius += (targetR - n.radius) * 0.06;
+    const speed = 0.16 + 0.5*conv*(1-analysed);
+    const ang = d.a + now*speed + t*0.02;
+    const y = d.y * (1 - 0.75*conv + 0.45*settle) + Math.sin(now*0.7 + i)*0.12;
+    n.group.position.set(Math.cos(ang)*n.radius, y, Math.sin(ang)*n.radius*0.82);
+    n.group.rotation.y += 0.004*n.spin; n.group.rotation.x += 0.002*n.spin;
+    const s = app * (1 - 0.45*conv + 0.25*settle);
+    n.group.scale.setScalar(Math.max(s, 0.0001));
+    n.mat.opacity = app * (1 - 0.25*conv);
+    n.mat.emissiveIntensity = 0.25 + 0.8*conv*(1-analysed);
+    n.halo.material.opacity = 0.28*app*(1-conv) + 0.22*settle;
+
+    /* projected label */
+    const showChip = app > 0.6 && t < T.converge + 0.4;
+    n.group.getWorldPosition(v3); v3.y += 0.62; v3.project(camera);
+    const onScreenX = (v3.x*0.5+0.5)*w, onScreenY = (-v3.y*0.5+0.5)*h;
+    const lo = isMobile ? 70 : w*0.36, hi = isMobile ? w-70 : w*0.94;
+    const visible = showChip && v3.z < 1 && onScreenX > lo && onScreenX < hi && onScreenY > h*0.17 && onScreenY < h*0.82;
+    n.chip.style.left = onScreenX + 'px';
+    n.chip.style.top = onScreenY + 'px';
+    n.chip.classList.toggle('on', visible && scroll < 0.15);
+  });
+
+  /* motes */
+  motes.material.opacity = 0.18 + 0.35*ease(t, 0.1, 1.6) - 0.2*analysed;
+  motes.rotation.y = now*0.012;
+  const arr = pGeo.attributes.position.array;
+  for(let i=0;i<N;i++){
+    arr[i*3+1] += Math.sin(now*0.5 + seed[i]) * 0.0012;
+  }
+  pGeo.attributes.position.needsUpdate = true;
+
+  renderer.render(scene, camera);
+});
+</script>
+</body>
+</html>

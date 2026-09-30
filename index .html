@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-8TTRNTLB48"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-8TTRNTLB48');
+</script>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>ReportEdge — Financial Intelligence Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --navy:#0A1628;--navy2:#0F2040;--navy3:#1E293B;
+  --emerald:#059669;--em2:#10B981;--em-bg:#ECFDF5;
+  --amber:#D97706;--amber-bg:#FFFBEB;
+  --blue:#1D4ED8;--blue-bg:#EFF6FF;
+  --white:#FFFFFF;--off:#F8FAFC;--border:#E2E8F0;
+  --text1:#0F172A;--text2:#475569;--text3:#94A3B8;
+  --gold:#C9A84C;
+}
+html{scroll-behavior:smooth;}
+body{font-family:'Inter',sans-serif;background:var(--white);color:var(--text1);-webkit-font-smoothing:antialiased;overflow-x:hidden;}
+
+/* ══ NAV ══ */
+nav{background:var(--navy);padding:0 5%;height:64px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
+.nav-logo{display:flex;align-items:center;gap:10px;}
+.nav-logo-mark{width:32px;height:32px;background:var(--emerald);border-radius:8px;display:flex;align-items:center;justify-content:center;}
+.nav-logo-mark svg{width:18px;height:18px;stroke:#fff;fill:none;stroke-width:2.5;}
+.nav-logo-text{font-size:20px;font-weight:800;color:#fff;letter-spacing:-0.5px;}
+.nav-logo-text span{color:var(--emerald);}
+.nav-right{display:flex;align-items:center;gap:8px;}
+.nav-btn{font-size:13px;font-weight:500;padding:8px 18px;border-radius:6px;cursor:pointer;transition:all 0.2s;text-decoration:none;}
+.nav-btn-ghost{background:transparent;color:rgba(255,255,255,0.7);border:1px solid rgba(255,255,255,0.15);}
+.nav-btn-ghost:hover{background:rgba(255,255,255,0.08);color:#fff;}
+.nav-btn-primary{background:var(--emerald);color:#fff;border:none;}
+.nav-btn-primary:hover{background:#047857;}
+
+/* ══ HERO ══ */
+.hero{background:var(--navy);min-height:88vh;display:flex;align-items:center;position:relative;overflow:hidden;padding:80px 5%;}
+/* Subtle grid pattern */
+.hero::before{
+  content:'';position:absolute;inset:0;
+  background-image:linear-gradient(rgba(255,255,255,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.03) 1px,transparent 1px);
+  background-size:48px 48px;pointer-events:none;
+}
+/* Glow orbs */
+.hero-orb1{position:absolute;top:-100px;right:-80px;width:500px;height:500px;border-radius:50%;background:radial-gradient(circle,rgba(5,150,105,0.15) 0%,transparent 70%);pointer-events:none;}
+.hero-orb2{position:absolute;bottom:-120px;left:-60px;width:400px;height:400px;border-radius:50%;background:radial-gradient(circle,rgba(29,78,216,0.12) 0%,transparent 70%);pointer-events:none;}
+
+.hero-inner{position:relative;z-index:1;max-width:1200px;margin:0 auto;width:100%;display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center;}
+
+.hero-left{}
+.hero-tag{display:inline-flex;align-items:center;gap:6px;background:rgba(5,150,105,0.12);border:1px solid rgba(5,150,105,0.3);color:#34D399;font-size:12px;font-weight:600;padding:5px 14px;border-radius:20px;margin-bottom:28px;letter-spacing:0.5px;text-transform:uppercase;}
+.hero-tag::before{content:'';width:6px;height:6px;background:#34D399;border-radius:50%;}
+.hero h1{font-size:clamp(40px,4.5vw,60px);font-weight:800;color:#fff;line-height:1.06;letter-spacing:-2px;margin-bottom:22px;}
+.hero h1 .hl{color:#34D399;}
+.hero h1 .hl2{color:#60A5FA;}
+.hero-sub{font-size:17px;color:rgba(255,255,255,0.55);line-height:1.7;margin-bottom:40px;max-width:460px;}
+
+/* SEGMENT SELECTOR */
+.segment-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:rgba(255,255,255,0.3);margin-bottom:14px;}
+.segment-cards{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.seg-card{background:rgba(255,255,255,0.04);border:1.5px solid rgba(255,255,255,0.1);border-radius:12px;padding:22px 20px;cursor:pointer;transition:all 0.25s;text-decoration:none;display:block;}
+.seg-quick{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;margin-top:14px;padding-top:12px;border-top:1px solid rgba(255,255,255,0.08);color:#34D399;text-decoration:none;transition:gap 0.2s;}
+.seg-quick:hover{gap:8px;}
+.seg-card:hover{background:rgba(255,255,255,0.08);border-color:rgba(255,255,255,0.25);transform:translateY(-2px);}
+.seg-card.individual:hover{border-color:rgba(5,150,105,0.6);background:rgba(5,150,105,0.08);}
+.seg-card.company:hover{border-color:rgba(96,165,250,0.6);background:rgba(96,165,250,0.06);}
+.seg-icon{width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;margin-bottom:14px;}
+.seg-icon svg{width:22px;height:22px;fill:none;stroke-width:2;}
+.seg-icon-g{background:rgba(5,150,105,0.2);} .seg-icon-g svg{stroke:#34D399;}
+.seg-icon-b{background:rgba(96,165,250,0.15);} .seg-icon-b svg{stroke:#60A5FA;}
+.seg-title{font-size:16px;font-weight:700;color:#fff;margin-bottom:5px;}
+.seg-desc{font-size:12px;color:rgba(255,255,255,0.4);line-height:1.5;}
+.seg-arrow{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:600;margin-top:12px;}
+.seg-arrow-g{color:#34D399;} .seg-arrow-b{color:#60A5FA;}
+
+/* HERO RIGHT — PRODUCT PREVIEW */
+.hero-right{position:relative;}
+.product-preview{background:var(--navy3);border:1px solid rgba(255,255,255,0.08);border-radius:16px;overflow:hidden;box-shadow:0 25px 60px rgba(0,0,0,0.4);}
+.pp-bar{background:rgba(255,255,255,0.04);padding:11px 16px;display:flex;align-items:center;gap:8px;border-bottom:1px solid rgba(255,255,255,0.06);}
+.pp-dot{width:10px;height:10px;border-radius:50%;}
+.pp-title{font-size:12px;color:rgba(255,255,255,0.3);margin-left:8px;font-weight:500;}
+.pp-body{padding:20px;}
+/* Mini dashboard inside preview */
+.pp-name{font-size:13px;font-weight:600;color:rgba(255,255,255,0.6);margin-bottom:16px;}
+.pp-metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px;}
+.pp-m{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.07);border-radius:8px;padding:10px 12px;}
+.pp-mv{font-size:18px;font-weight:700;letter-spacing:-0.5px;line-height:1;}
+.pp-ml{font-size:9px;color:rgba(255,255,255,0.3);margin-top:4px;text-transform:uppercase;letter-spacing:0.5px;}
+.pp-regime{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;}
+.pp-rc{border:1px solid rgba(255,255,255,0.07);border-radius:8px;padding:10px 12px;}
+.pp-rc.winner{border-color:rgba(52,211,153,0.4);background:rgba(52,211,153,0.06);}
+.pp-rl{font-size:9px;color:rgba(255,255,255,0.3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;}
+.pp-rt{font-size:20px;font-weight:700;color:#fff;letter-spacing:-0.5px;}
+.pp-rb{font-size:10px;color:#34D399;margin-top:4px;font-weight:600;}
+.pp-refund{display:flex;justify-content:space-between;align-items:center;background:rgba(52,211,153,0.08);border:1px solid rgba(52,211,153,0.2);border-radius:8px;padding:10px 14px;}
+.pp-rl2{font-size:11px;color:#34D399;font-weight:600;}
+.pp-ra{font-size:20px;font-weight:700;color:#34D399;letter-spacing:-0.5px;}
+/* Company preview */
+.cp-row{display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid rgba(255,255,255,0.05);font-size:12px;}
+.cp-row:last-child{border-bottom:none;}
+.cp-name{color:rgba(255,255,255,0.6);}
+.cp-bar-wrap{flex:1;margin:0 12px;height:6px;background:rgba(255,255,255,0.07);border-radius:3px;overflow:hidden;}
+.cp-bar-fill{height:100%;border-radius:3px;}
+.cp-val{font-weight:700;color:#fff;}
+.cp-change{font-size:10px;font-weight:600;padding:2px 6px;border-radius:4px;}
+.cp-up{color:#34D399;background:rgba(52,211,153,0.1);}
+.cp-dn{color:#F87171;background:rgba(248,113,113,0.1);}
+
+/* ══ STATS BAR ══ */
+.stats-bar{background:var(--off);border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:28px 5%;display:flex;align-items:center;justify-content:center;gap:60px;flex-wrap:wrap;}
+.stat-item{text-align:center;}
+.stat-num{font-size:28px;font-weight:800;color:var(--text1);letter-spacing:-1px;line-height:1;}
+.stat-label{font-size:12px;color:var(--text2);margin-top:4px;font-weight:500;}
+
+/* ══ PRODUCTS SECTION ══ */
+.section{padding:80px 5%;max-width:1300px;margin:0 auto;}
+.section-full{padding:80px 5%;background:var(--off);}
+.section-full .section-inner{max-width:1300px;margin:0 auto;}
+.eyebrow{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:12px;}
+.eyebrow-g{color:var(--emerald);}
+.eyebrow-b{color:var(--blue);}
+.eyebrow-gold{color:var(--gold);}
+.section-title{font-size:clamp(28px,3.5vw,40px);font-weight:800;color:var(--text1);letter-spacing:-1.2px;margin-bottom:12px;line-height:1.1;}
+.section-sub{font-size:16px;color:var(--text2);line-height:1.65;max-width:520px;margin-bottom:48px;}
+
+/* INDIVIDUAL PRODUCTS */
+.ind-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
+.ind-card{background:var(--white);border:1px solid var(--border);border-top:3px solid var(--border);border-radius:14px;padding:28px;transition:all 0.25s;cursor:pointer;text-decoration:none;display:block;position:relative;overflow:hidden;}
+.ind-card-icon{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;margin-bottom:18px;transition:all 0.25s;}
+.ind-card-icon svg{width:24px;height:24px;fill:none;stroke-width:2;}
+.ici-g{background:var(--em-bg);} .ici-g svg{stroke:var(--emerald);}
+.ici-b{background:var(--blue-bg);} .ici-b svg{stroke:var(--blue);}
+.ici-gold{background:rgba(201,168,76,0.14);} .ici-gold svg{stroke:var(--gold);}
+.ind-card-title{font-size:16px;font-weight:700;color:var(--text1);margin-bottom:8px;}
+.ind-card-desc{font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:16px;}
+.ind-card-tag{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;padding:4px 10px;border-radius:4px;}
+.tag-free{background:var(--em-bg);color:var(--emerald);}
+.tag-soon{background:var(--off);color:var(--text3);border:1px solid var(--border);}
+.ind-card-link{display:flex;align-items:center;gap:5px;font-size:13px;font-weight:600;color:var(--emerald);margin-top:14px;text-decoration:none;}
+.ind-card-link:hover{gap:8px;}
+
+/* Live tools: all three top cards work today - this section's brand color is emerald (see hero segment cards) */
+.ind-card.is-live{border-top-color:var(--emerald);}
+.ind-card.is-live:hover{box-shadow:0 12px 34px rgba(5,150,105,0.14);transform:translateY(-4px);border-color:var(--emerald);}
+.ind-card.is-live::after{content:'';position:absolute;top:-40px;right:-40px;width:120px;height:120px;
+  background:radial-gradient(circle,rgba(5,150,105,0.07) 0%,transparent 70%);pointer-events:none;}
+
+/* Coming soon: quieter and consistent, same visual language as the Company section */
+.ind-card.is-soon{cursor:default;}
+.ind-card.is-soon:hover{box-shadow:0 6px 18px rgba(0,0,0,0.05);transform:translateY(-2px);border-color:var(--border);}
+.ind-card.is-soon .ind-card-icon{background:var(--off);}
+.ind-card.is-soon .ind-card-icon svg{stroke:var(--text3);}
+.ind-card.is-soon .ind-card-title{color:var(--text2);}
+
+/* COMPANY PRODUCTS */
+.co-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
+.co-card{background:var(--white);border:1px solid var(--border);border-top:3px solid var(--border);border-radius:14px;padding:28px;transition:all 0.25s;position:relative;overflow:hidden;}
+.co-card-icon{width:48px;height:48px;border-radius:12px;background:var(--blue-bg);display:flex;align-items:center;justify-content:center;margin-bottom:18px;transition:all 0.25s;}
+.co-card-icon svg{width:24px;height:24px;fill:none;stroke:var(--blue);stroke-width:2;}
+.co-card-title{font-size:16px;font-weight:700;color:var(--text1);margin-bottom:8px;}
+.co-card-desc{font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:16px;}
+.co-card-offer{background:var(--blue-bg);border-left:3px solid var(--blue);padding:10px 14px;border-radius:0 6px 6px 0;font-size:12px;color:var(--blue);font-weight:500;line-height:1.5;font-style:italic;}
+
+/* Live tools: this section's brand color is blue (see hero segment cards + "For Companies" eyebrow) */
+.co-card.is-live{cursor:pointer;border-top-color:var(--blue);text-decoration:none;display:block;}
+.co-card.is-live:hover{box-shadow:0 12px 34px rgba(29,78,216,0.16);transform:translateY(-4px);border-color:var(--blue);}
+.co-card.is-live::after{content:'';position:absolute;top:-40px;right:-40px;width:120px;height:120px;
+  background:radial-gradient(circle,rgba(29,78,216,0.08) 0%,transparent 70%);pointer-events:none;}
+
+/* Coming soon: deliberately quieter so the live cards read as the obvious next step */
+.co-card.is-soon{cursor:default;}
+.co-card.is-soon:hover{box-shadow:0 6px 18px rgba(0,0,0,0.05);transform:translateY(-2px);}
+.co-card.is-soon .co-card-icon{background:var(--off);}
+.co-card.is-soon .co-card-icon svg{stroke:var(--text3);}
+.co-card.is-soon .co-card-title{color:var(--text2);}
+.co-card.is-soon .co-card-offer{background:var(--off);border-left-color:var(--border);color:var(--text3);}
+.co-soon-tag{position:absolute;top:16px;right:16px;font-size:10px;font-weight:700;color:var(--text3);
+  background:var(--off);border:1px solid var(--border);padding:3px 9px;border-radius:4px;letter-spacing:0.3px;}
+
+/* HOW IT WORKS */
+.how-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:0;}
+.how-card{padding:32px 28px;border:1px solid var(--border);border-right:none;position:relative;}
+.how-card:last-child{border-right:1px solid var(--border);}
+.how-card::after{content:'→';position:absolute;right:-14px;top:32px;font-size:18px;color:var(--text3);z-index:1;}
+.how-card:last-child::after{display:none;}
+.how-num{width:36px;height:36px;background:var(--navy);color:var(--emerald);font-size:14px;font-weight:700;border-radius:8px;display:flex;align-items:center;justify-content:center;margin-bottom:16px;}
+.how-title{font-size:15px;font-weight:700;color:var(--text1);margin-bottom:8px;}
+.how-desc{font-size:13px;color:var(--text2);line-height:1.55;}
+
+/* CTA SECTION */
+.cta-section{background:var(--navy);padding:80px 5%;}
+.cta-inner{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center;}
+.cta-title{font-size:clamp(28px,3.5vw,42px);font-weight:800;color:#fff;letter-spacing:-1.2px;line-height:1.1;margin-bottom:16px;}
+.cta-sub{font-size:16px;color:rgba(255,255,255,0.5);line-height:1.65;}
+.cta-cards{display:flex;flex-direction:column;gap:14px;}
+.cta-card{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:22px 24px;display:flex;align-items:center;gap:16px;cursor:pointer;text-decoration:none;transition:all 0.25s;}
+.cta-card:hover{background:rgba(255,255,255,0.09);transform:translateX(4px);}
+.cta-card-icon{width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.cta-card-icon svg{width:22px;height:22px;fill:none;stroke-width:2;}
+.cci-g{background:rgba(5,150,105,0.2);} .cci-g svg{stroke:#34D399;}
+.cci-b{background:rgba(96,165,250,0.15);} .cci-b svg{stroke:#60A5FA;}
+.cci-gold{background:rgba(201,168,76,0.18);} .cci-gold svg{stroke:var(--gold);}
+.cta-card-text h4{font-size:15px;font-weight:700;color:#fff;margin-bottom:3px;}
+.cta-card-text p{font-size:12px;color:rgba(255,255,255,0.4);}
+.cta-card-arrow{margin-left:auto;color:rgba(255,255,255,0.3);font-size:18px;}
+
+/* FOOTER */
+footer{background:var(--navy);border-top:1px solid rgba(255,255,255,0.06);padding:40px 5%;}
+.footer-inner{max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:20px;}
+.footer-logo{font-size:18px;font-weight:800;color:#fff;letter-spacing:-0.5px;}
+.footer-logo span{color:var(--emerald);}
+.footer-links{display:flex;gap:24px;flex-wrap:wrap;}
+.footer-links a{font-size:13px;color:rgba(255,255,255,0.35);text-decoration:none;}
+.footer-links a:hover{color:rgba(255,255,255,0.7);}
+.footer-copy{font-size:12px;color:rgba(255,255,255,0.2);}
+
+@media(max-width:900px){
+  .hero-inner{grid-template-columns:1fr;gap:48px;}
+  .hero-right{display:none;}
+  .segment-cards{grid-template-columns:1fr 1fr;}
+  .ind-grid,.co-grid{grid-template-columns:1fr 1fr;}
+  .how-grid{grid-template-columns:1fr 1fr;}
+  .how-card{border-right:1px solid var(--border);}
+  .how-card::after{display:none;}
+  .cta-inner{grid-template-columns:1fr;}
+  .stats-bar{gap:32px;}
+}
+@media(max-width:600px){
+  .ind-grid,.co-grid{grid-template-columns:1fr;}
+  .segment-cards{grid-template-columns:1fr;}
+  .how-grid{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+<!-- Hidden form so Netlify detects and registers the feedback form on deploy -->
+<form name="site-feedback" netlify netlify-honeypot="bot-field" hidden>
+  <input type="text" name="name">
+  <textarea name="message"></textarea>
+  <input type="text" name="rating">
+  <input type="text" name="page">
+  <input type="text" name="ts">
+</form>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">
+    <div class="nav-logo-mark">
+      <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="13" y2="17"/></svg>
+    </div>
+    <div class="nav-logo-text">Report<span>Edge</span></div>
+  </div>
+  <div class="nav-right">
+    <a href="#individual" class="nav-btn nav-btn-ghost">Individual</a>
+    <a href="financial-health.html" class="nav-btn nav-btn-ghost">Financial Health</a>
+    <a href="#company" class="nav-btn nav-btn-ghost">Company</a>
+    <a href="itr.html" class="nav-btn nav-btn-primary">Get Free ITR Preview</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-orb1"></div>
+  <div class="hero-orb2"></div>
+  <div class="hero-inner">
+    <div class="hero-left">
+      <div class="hero-tag">Financial Intelligence Platform</div>
+      <h1>Your finances.<br><span class="hl">Analysed.</span><br><span class="hl2">Instantly.</span></h1>
+      <p class="hero-sub">From personal income tax previews to company revenue intelligence — ReportEdge turns your financial documents into clear, actionable reports in minutes.</p>
+      <div class="segment-label">Who are you?</div>
+      <div class="segment-cards">
+        <div class="seg-card individual" onclick="document.getElementById('individual').scrollIntoView({behavior:'smooth'})">
+          <div class="seg-icon seg-icon-g">
+            <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          </div>
+          <div class="seg-title">Individual</div>
+          <div class="seg-desc">ITR preview, tax planning, refund estimates from Form-16</div>
+          <div class="seg-arrow seg-arrow-g">Explore Individual Reports →</div>
+          <a href="itr.html" class="seg-quick" onclick="event.stopPropagation()">⚡ Get Free ITR Preview →</a>
+        </div>
+        <a href="#company" class="seg-card company">
+          <div class="seg-icon seg-icon-b">
+            <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          </div>
+          <div class="seg-title">Company</div>
+          <div class="seg-desc">Revenue reports, sales performance, profit analysis</div>
+          <div class="seg-arrow seg-arrow-b">Explore Company Reports →</div>
+        </a>
+      </div>
+    </div>
+
+    <!-- PRODUCT PREVIEW — interactive 3D Financial Health scene, embedded in its own
+         iframe so it can't collide with any of this page's CSS/JS. Sized tall so it
+         fills the remaining hero space instead of sitting in a small mock-window card. -->
+    <div class="hero-right">
+      <div style="width:100%;height:min(760px,82vh);border-radius:16px;overflow:hidden;border:1px solid rgba(255,255,255,0.08);box-shadow:0 25px 60px rgba(0,0,0,0.4);background:#050B15;">
+        <iframe src="financial-health-3d.html" title="Financial Health — interactive preview" loading="lazy"
+          style="display:block;width:100%;height:100%;border:0;"></iframe>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- STATS BAR -->
+<div class="stats-bar">
+  <div class="stat-item"><div class="stat-num" style="color:var(--emerald);">2 min</div><div class="stat-label">Average preview time</div></div>
+  <div class="stat-item"><div class="stat-num">FY 2025-26</div><div class="stat-label">Budget 2025 slabs applied</div></div>
+  <div class="stat-item"><div class="stat-num" style="color:var(--blue);">100%</div><div class="stat-label">Documents never stored</div></div>
+  <div class="stat-item"><div class="stat-num" style="color:var(--amber);">Free</div><div class="stat-label">ITR preview, always</div></div>
+</div>
+
+<!-- INDIVIDUAL SECTION -->
+<div class="section" id="individual">
+  <div class="eyebrow eyebrow-g">For Individuals</div>
+  <div class="section-title">Know your taxes.<br>File smarter.</div>
+  <p class="section-sub">Upload your Form-16 and get an instant income tax summary — no manual entry, no guesswork. Compare old vs new regime and find your best option.</p>
+
+  <div class="ind-grid">
+    <a href="itr.html" class="ind-card is-live">
+      <div class="ind-card-icon ici-g">
+        <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      </div>
+      <div class="ind-card-title">ITR Preview from Form-16</div>
+      <div class="ind-card-desc">Upload your Form-16 PDF and instantly see your gross income, taxable income, old vs new regime comparison, and exact refund or tax due.</div>
+      <span class="ind-card-tag tag-free">✓ Free Forever</span>
+      <div class="ind-card-link">Start Free Preview →</div>
+    </a>
+    <a href="capital-gains.html" class="ind-card is-live">
+      <div class="ind-card-icon ici-b">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+      </div>
+      <div class="ind-card-title">Property Capital Gains Tax</div>
+      <div class="ind-card-desc">Selling a house, plot, land, or commercial property? Get an instant LTCG/STCG breakdown with indexation comparison, Section 54/54F/54B/54EC exemptions, and Section 50 for business assets.</div>
+      <span class="ind-card-tag tag-free">✓ Free Forever</span>
+      <div class="ind-card-link">Calculate My Tax →</div>
+    </a>
+    <a href="itr-computation.html" class="ind-card is-live">
+      <div class="ind-card-icon ici-gold">
+        <svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+      </div>
+      <div class="ind-card-title">ITR Computation Sheet</div>
+      <div class="ind-card-desc">Upload your filed ITR-2 or ITR-4 form and auto-generate a clean tax computation sheet — income breakup, deductions, and tax payable, ready to review or print.</div>
+      <span class="ind-card-tag tag-free">✓ Free Forever</span>
+      <div class="ind-card-link">Generate Computation →</div>
+    </a>
+    <a href="financial-health.html" class="ind-card is-live">
+      <div class="ind-card-icon ici-gold">
+        <svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+      </div>
+      <div class="ind-card-title">Financial Health Dashboard</div>
+      <div class="ind-card-desc">Track your monthly surplus, financial health score, loan affordability, tax estimate and full net worth — not just a once-a-year tax preview.</div>
+      <span class="ind-card-tag tag-free">✓ Try the free demo</span>
+      <div class="ind-card-link">Explore the Dashboard →</div>
+    </a>
+    <a href="advancetaxcalculator.html" class="ind-card is-live">
+      <div class="ind-card-icon ici-b">
+        <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      </div>
+      <div class="ind-card-title">Advance Tax Calculator</div>
+      <div class="ind-card-desc">Switched jobs, freelance on the side, or sold shares/property? Calculate your quarterly advance tax, due dates, and Section 234B/234C interest — before it catches you out.</div>
+      <span class="ind-card-tag tag-free">✓ Free Forever</span>
+      <div class="ind-card-link">Calculate Advance Tax →</div>
+    </a>
+    <div class="ind-card is-soon">
+      <div class="ind-card-icon">
+        <svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+      </div>
+      <div class="ind-card-title">Tax Saving Planner</div>
+      <div class="ind-card-desc">Based on your income and current investments, we recommend the best combination of 80C, 80D, NPS and home loan to minimise your tax.</div>
+      <span class="ind-card-tag tag-soon">Coming Soon</span>
+    </div>
+  </div>
+</div>
+
+<!-- HOW IT WORKS -->
+<div class="section-full">
+  <div class="section-inner">
+    <div class="eyebrow eyebrow-g">How it works</div>
+    <div class="section-title" style="margin-bottom:40px;">From upload to insight in 2 minutes</div>
+    <div class="how-grid">
+      <div class="how-card" style="border-radius:12px 0 0 12px;">
+        <div class="how-num">1</div>
+        <div class="how-title">Upload your document</div>
+        <div class="how-desc">Drag and drop your Form-16 PDF or image. No login required. Free to start.</div>
+      </div>
+      <div class="how-card">
+        <div class="how-num">2</div>
+        <div class="how-title">We read &amp; extract</div>
+        <div class="how-desc">We read your document and extract all salary, TDS, and deduction data automatically.</div>
+      </div>
+      <div class="how-card">
+        <div class="how-num">3</div>
+        <div class="how-title">Instant tax dashboard</div>
+        <div class="how-desc">A complete tax summary — income, both regimes, refund status — appears in seconds.</div>
+      </div>
+      <div class="how-card" style="border-radius:0 12px 12px 0;">
+        <div class="how-num">4</div>
+        <div class="how-title">Get expert help</div>
+        <div class="how-desc">Need to file? Contact us for full ITR preparation support from our team.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- COMPANY SECTION -->
+<div class="section" id="company">
+  <div class="eyebrow eyebrow-b">For Companies</div>
+  <div class="section-title">Revenue intelligence.<br>Sales performance.<br>Profit clarity.</div>
+  <p class="section-sub">Upload your sales data, export reports, or connect your system. ReportEdge turns raw numbers into powerful business intelligence reports your team actually understands.</p>
+
+  <div class="co-grid">
+    <a href="ifrs-financials.html" class="co-card is-live">
+      <span style="position:absolute;top:16px;right:16px;font-size:10px;font-weight:700;color:var(--emerald);background:var(--em-bg);border:1px solid rgba(5,150,105,0.3);padding:3px 9px;border-radius:4px;">✓ Free Forever</span>
+      <div class="co-card-icon">
+        <svg viewBox="0 0 24 24"><path d="M9 17V7m3 10V11m3 6v-3M5 21h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2z"/></svg>
+      </div>
+      <div class="co-card-title">IFRS Financials from Trial Balance</div>
+      <div class="co-card-desc">Paste or upload your classified Trial Balance and instantly generate a full IFRS Balance Sheet, P&amp;L, Cash Flow Statement, Statement of Changes in Equity, and Notes — right in your browser.</div>
+      <div class="co-card-offer">"Stop rebuilding pivot tables every time a client sends a new TB — just paste it in."</div>
+      <div style="display:flex;align-items:center;gap:5px;font-size:13px;font-weight:700;color:var(--emerald);margin-top:14px;">Generate Financials →</div>
+    </a>
+    <a href="gst-reconciliation.html" class="co-card is-live">
+      <span style="position:absolute;top:16px;right:16px;font-size:10px;font-weight:700;color:var(--emerald);background:var(--em-bg);border:1px solid rgba(5,150,105,0.3);padding:3px 9px;border-radius:4px;">✓ Free Forever</span>
+      <div class="co-card-icon">
+        <svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+      </div>
+      <div class="co-card-title">GSTR 2B vs Books Reconciliation</div>
+      <div class="co-card-desc">Paste or upload your Books and GSTR-2B data and instantly get every invoice matched, every mismatch categorised — GSTIN, invoice number, date, and value tiers — right in your browser.</div>
+      <div class="co-card-offer">"Stop manually cross-checking 200 invoices in a pivot table every month."</div>
+      <div style="display:flex;align-items:center;gap:5px;font-size:13px;font-weight:700;color:var(--emerald);margin-top:14px;">Reconcile Now →</div>
+    </a>
+    <div class="co-card is-soon">
+      <div class="co-soon-tag">Coming Soon</div>
+      <div class="co-card-icon">
+        <svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      </div>
+      <div class="co-card-title">Revenue Segment Report</div>
+      <div class="co-card-desc">Break down your total revenue by product line, geography, or customer segment. Identify your highest-revenue segments and where growth is happening.</div>
+      <div class="co-card-offer">"Which product made us the most money this quarter — and why?"</div>
+    </div>
+    <div class="co-card is-soon">
+      <div class="co-soon-tag">Coming Soon</div>
+      <div class="co-card-icon">
+        <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      </div>
+      <div class="co-card-title">Salesperson Performance Report</div>
+      <div class="co-card-desc">Upload your sales data and get individual performance cards — revenue generated, deals closed, targets hit, and commission earned per salesperson.</div>
+      <div class="co-card-offer">"Show me who's hitting targets and who needs support — with numbers."</div>
+    </div>
+    <div class="co-card is-soon">
+      <div class="co-soon-tag">Coming Soon</div>
+      <div class="co-card-icon">
+        <svg viewBox="0 0 24 24"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+      </div>
+      <div class="co-card-title">Top Products Analysis</div>
+      <div class="co-card-desc">See which products are driving revenue vs which are underperforming. Compare units sold, revenue contribution, margin, and month-on-month growth.</div>
+      <div class="co-card-offer">"Which 3 products drive 80% of our revenue — and what's their margin?"</div>
+    </div>
+    <div class="co-card is-soon">
+      <div class="co-soon-tag">Coming Soon</div>
+      <div class="co-card-icon">
+        <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5M2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+      </div>
+      <div class="co-card-title">Profit &amp; Expense Report</div>
+      <div class="co-card-desc">Upload your P&amp;L data and get a clean visual breakdown of revenue vs expenses vs net profit. Spot where money is leaking and what's eating your margins.</div>
+      <div class="co-card-offer">"We made ₹1Cr in revenue — so why is profit only ₹8L? Find where it went."</div>
+    </div>
+    <div class="co-card is-soon">
+      <div class="co-soon-tag">Coming Soon</div>
+      <div class="co-card-icon">
+        <svg viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+      </div>
+      <div class="co-card-title">Sales vs Target Report</div>
+      <div class="co-card-desc">Track actual sales against monthly or quarterly targets — by team, region, or product. Visualise the gap and forecast whether you'll hit the next target.</div>
+      <div class="co-card-offer">"Are we on track to hit our Q3 target — or falling behind?"</div>
+    </div>
+    <div class="co-card is-soon">
+      <div class="co-soon-tag">Coming Soon</div>
+      <div class="co-card-icon">
+        <svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+      </div>
+      <div class="co-card-title">Customer Revenue Analysis</div>
+      <div class="co-card-desc">Find your top 20% customers driving 80% of revenue. Identify churn risk, upsell opportunities, and lifetime value across your customer base.</div>
+      <div class="co-card-offer">"Which customers should we focus on to grow revenue 30% next quarter?"</div>
+    </div>
+  </div>
+
+  <div style="margin-top:32px;background:var(--navy);border-radius:14px;padding:32px 36px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:20px;">
+    <div>
+      <div style="font-size:18px;font-weight:700;color:#fff;margin-bottom:6px;">Company reports coming soon</div>
+      <div style="font-size:14px;color:rgba(255,255,255,0.4);max-width:400px;line-height:1.6;">Tell us your business and we'll build the exact report you need. We're onboarding our first company clients now.</div>
+    </div>
+    <a href="itr.html#contact" style="background:var(--blue);color:#fff;font-size:14px;font-weight:600;padding:13px 28px;border-radius:8px;text-decoration:none;transition:all 0.2s;display:inline-block;" onmouseover="this.style.background='#1e40af'" onmouseout="this.style.background='#1D4ED8'">
+      Register Interest →
+    </a>
+  </div>
+</div>
+
+<!-- CTA -->
+<div class="cta-section">
+  <div class="cta-inner">
+    <div>
+      <div class="eyebrow eyebrow-g" style="margin-bottom:16px;">Get Started Today</div>
+      <div class="cta-title">Your financial clarity starts here.</div>
+      <p class="cta-sub">Start with the free ITR preview — no login, no payment, no data stored. Upload your Form-16 and see your complete tax picture in 2 minutes.</p>
+    </div>
+    <div class="cta-cards">
+      <a href="itr.html" class="cta-card">
+        <div class="cta-card-icon cci-g">
+          <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        </div>
+        <div class="cta-card-text">
+          <h4>Individual — Free ITR Preview</h4>
+          <p>Upload Form-16 · Get complete tax dashboard in 2 mins · Free</p>
+        </div>
+        <div class="cta-card-arrow">→</div>
+      </a>
+      <a href="financial-health.html" class="cta-card">
+        <div class="cta-card-icon cci-gold">
+          <svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        </div>
+        <div class="cta-card-text">
+          <h4>Financial Health Dashboard</h4>
+          <p>Monthly surplus · Net worth · Tax estimate · Try the free demo</p>
+        </div>
+        <div class="cta-card-arrow">→</div>
+      </a>
+      <a href="#company" class="cta-card">
+        <div class="cta-card-icon cci-b">
+          <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        </div>
+        <div class="cta-card-text">
+          <h4>Company — Revenue Reports</h4>
+          <p>Sales performance · Top products · Profit analysis · Coming soon</p>
+        </div>
+        <div class="cta-card-arrow">→</div>
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-logo">Report<span>Edge</span></div>
+    <div class="footer-links">
+      <a href="#individual">Individual</a>
+      <a href="financial-health.html">Financial Health</a>
+      <a href="#company">Company</a>
+      <a href="itr.html">ITR Preview</a>
+    </div>
+    <div class="footer-copy">© 2025 ReportEdge · Financial Intelligence Platform</div>
+  </div>
+</footer>
+
+<!-- ═══════════════════════════════════════════════════
+     FEEDBACK SYSTEM — ReportEdge
+     Storage: Firebase Firestore (free tier)
+     SETUP (one-time, 5 min):
+       1. Go to console.firebase.google.com → Create project
+       2. Project settings → Add web app → copy config
+       3. Firestore Database → Create → Start in test mode
+       4. Replace FB_PROJECT_ID and FB_API_KEY below (same in every page)
+     ADMIN: click the "© ReportEdge" footer text 5 times → enter password
+═══════════════════════════════════════════════════ -->
+
+<style>
+/* ── Floating feedback button ── */
+#fb-fab{position:fixed;bottom:28px;right:28px;z-index:9000;display:flex;align-items:center;gap:8px;
+  background:#059669;color:#fff;border:none;border-radius:50px;padding:12px 20px;
+  font-family:'Inter',sans-serif;font-size:13px;font-weight:600;cursor:pointer;
+  box-shadow:0 4px 20px rgba(5,150,105,0.45);transition:all .22s;user-select:none;}
+#fb-fab:hover{background:#047857;transform:translateY(-2px);box-shadow:0 6px 24px rgba(5,150,105,0.55);}
+#fb-fab svg{width:16px;height:16px;fill:none;stroke:#fff;stroke-width:2.2;flex-shrink:0;}
+
+/* ── Overlay ── */
+#fb-overlay{display:none;position:fixed;inset:0;background:rgba(10,22,40,0.6);z-index:9100;
+  backdrop-filter:blur(3px);align-items:center;justify-content:center;}
+#fb-overlay.open{display:flex;}
+
+/* ── Modal ── */
+#fb-modal{background:#fff;border-radius:18px;padding:32px 28px;width:100%;max-width:440px;
+  margin:16px;box-shadow:0 24px 64px rgba(0,0,0,0.22);font-family:'Inter',sans-serif;position:relative;}
+.fb-close{position:absolute;top:16px;right:16px;background:none;border:none;cursor:pointer;
+  color:#94A3B8;font-size:20px;line-height:1;padding:4px;}
+.fb-close:hover{color:#0F172A;}
+.fb-title{font-size:18px;font-weight:800;color:#0F172A;margin-bottom:4px;letter-spacing:-0.4px;}
+.fb-sub{font-size:13px;color:#64748B;margin-bottom:22px;}
+/* Stars */
+.fb-stars{display:flex;gap:6px;margin-bottom:20px;}
+.fb-star{font-size:26px;cursor:pointer;color:#E2E8F0;transition:color .15s;line-height:1;}
+.fb-star.on{color:#F59E0B;}
+/* Fields */
+.fb-label{font-size:11px;font-weight:700;letter-spacing:.7px;text-transform:uppercase;color:#64748B;margin-bottom:6px;display:block;}
+.fb-input{width:100%;padding:10px 13px;border:1px solid #E2E8F0;border-radius:9px;font-family:'Inter',sans-serif;
+  font-size:14px;color:#0F172A;margin-bottom:14px;box-sizing:border-box;transition:border .2s;}
+.fb-input:focus{outline:none;border-color:#059669;}
+textarea.fb-input{resize:vertical;min-height:90px;}
+.fb-submit{width:100%;background:#059669;color:#fff;border:none;border-radius:9px;padding:13px;
+  font-family:'Inter',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:background .2s;}
+.fb-submit:hover{background:#047857;}
+.fb-submit:disabled{background:#94A3B8;cursor:not-allowed;}
+/* Thank-you */
+.fb-thanks{text-align:center;padding:20px 0;}
+.fb-thanks-icon{font-size:48px;margin-bottom:12px;}
+.fb-thanks h3{font-size:18px;font-weight:800;color:#0F172A;margin-bottom:6px;}
+.fb-thanks p{font-size:14px;color:#64748B;}
+
+/* ── Admin panel ── */
+#fb-admin-overlay{display:none;position:fixed;inset:0;background:rgba(10,22,40,0.75);z-index:9200;
+  align-items:flex-start;justify-content:center;overflow-y:auto;padding:40px 16px;}
+#fb-admin-overlay.open{display:flex;}
+#fb-admin-box{background:#fff;border-radius:18px;width:100%;max-width:700px;padding:32px 28px;
+  font-family:'Inter',sans-serif;margin:auto;}
+.fb-admin-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;}
+.fb-admin-title{font-size:20px;font-weight:800;color:#0F172A;letter-spacing:-0.5px;}
+.fb-admin-close{background:#F1F5F9;border:none;border-radius:8px;padding:8px 14px;cursor:pointer;
+  font-family:'Inter',sans-serif;font-size:13px;font-weight:600;color:#475569;}
+.fb-card{border:1px solid #E2E8F0;border-radius:12px;padding:18px 20px;margin-bottom:12px;}
+.fb-card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:8px;}
+.fb-card-name{font-weight:700;font-size:14px;color:#0F172A;}
+.fb-card-time{font-size:11px;color:#94A3B8;margin-top:2px;}
+.fb-card-page{font-size:11px;color:#60A5FA;background:#EFF6FF;border-radius:4px;padding:2px 7px;
+  display:inline-block;margin-top:4px;}
+.fb-card-stars{color:#F59E0B;font-size:14px;letter-spacing:1px;}
+.fb-card-msg{font-size:14px;color:#334155;line-height:1.6;}
+.fb-del-btn{background:#FEF2F2;color:#EF4444;border:1px solid #FECACA;border-radius:7px;
+  padding:6px 13px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0;}
+.fb-del-btn:hover{background:#FEE2E2;}
+.fb-empty{text-align:center;color:#94A3B8;font-size:14px;padding:40px 0;}
+.fb-loading{text-align:center;color:#94A3B8;font-size:14px;padding:30px 0;}
+/* Admin login */
+#fb-admin-login{background:#fff;border-radius:18px;width:100%;max-width:360px;padding:32px 28px;
+  font-family:'Inter',sans-serif;margin:auto;}
+.fb-login-title{font-size:18px;font-weight:800;color:#0F172A;margin-bottom:6px;}
+.fb-login-sub{font-size:13px;color:#64748B;margin-bottom:22px;}
+.fb-login-err{font-size:13px;color:#EF4444;margin-top:8px;display:none;}
+
+@media(max-width:500px){
+  #fb-modal,#fb-admin-box,#fb-admin-login{padding:24px 18px;}
+  #fb-fab span{display:none;}
+  #fb-fab{padding:14px;}
+}
+</style>
+
+<!-- Floating button -->
+<button id="fb-fab" onclick="fbOpenModal()">
+  <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+  <span>Share Feedback</span>
+</button>
+
+<!-- Feedback modal overlay -->
+<div id="fb-overlay" onclick="if(event.target===this)fbCloseModal()">
+  <div id="fb-modal">
+    <button class="fb-close" onclick="fbCloseModal()">✕</button>
+    <div id="fb-form-view">
+      <div class="fb-title">Share your feedback</div>
+      <div class="fb-sub">How was your experience? Your thoughts help us improve.</div>
+      <!-- Stars -->
+      <div class="fb-stars" id="fb-stars">
+        <span class="fb-star" data-v="1">★</span>
+        <span class="fb-star" data-v="2">★</span>
+        <span class="fb-star" data-v="3">★</span>
+        <span class="fb-star" data-v="4">★</span>
+        <span class="fb-star" data-v="5">★</span>
+      </div>
+      <label class="fb-label">Your name <span style="font-weight:400;text-transform:none;font-size:11px;color:#94A3B8;">(optional)</span></label>
+      <input id="fb-name" class="fb-input" type="text" placeholder="e.g. Rahul Sharma">
+      <label class="fb-label">Message *</label>
+      <textarea id="fb-message" class="fb-input" placeholder="Tell us what you think — what worked, what didn't, what you'd like to see…"></textarea>
+      <button class="fb-submit" id="fb-submit-btn" onclick="fbSubmit()">Send Feedback</button>
+    </div>
+    <div id="fb-thanks-view" class="fb-thanks" style="display:none;">
+      <div class="fb-thanks-icon">🎉</div>
+      <h3>Thank you!</h3>
+      <p>Your feedback has been received. We really appreciate it.</p>
+    </div>
+  </div>
+</div>
+
+<!-- Admin overlay -->
+<div id="fb-admin-overlay">
+  <!-- Login screen -->
+  <div id="fb-admin-login">
+    <div class="fb-login-title">🔐 Admin Access</div>
+    <div class="fb-login-sub">Enter the admin password to view feedback.</div>
+    <label class="fb-label">Password</label>
+    <input id="fb-admin-pw" class="fb-input" type="password" placeholder="••••••••" onkeydown="if(event.key==='Enter')fbAdminLogin()">
+    <button class="fb-submit" onclick="fbAdminLogin()">Sign In</button>
+    <div class="fb-login-err" id="fb-login-err">Incorrect password. Try again.</div>
+    <button onclick="fbAdminClose()" style="display:block;width:100%;text-align:center;margin-top:14px;background:none;border:none;color:#94A3B8;font-size:13px;cursor:pointer;">Cancel</button>
+  </div>
+  <!-- Dashboard -->
+  <div id="fb-admin-box" style="display:none;">
+    <div class="fb-admin-head">
+      <div class="fb-admin-title">💬 Feedback Dashboard</div>
+      <button class="fb-admin-close" onclick="fbAdminClose()">✕ Close</button>
+    </div>
+    <div id="fb-admin-list"><div class="fb-loading">Loading feedback…</div></div>
+  </div>
+</div>
+
+<script>
+(function(){
+  const ADMIN_PW = 'RE@admin25';
+
+  // ── Netlify Forms submit (works automatically on Netlify — zero config needed) ──
+  async function fbAdd(payload){
+    try {
+      const body = new URLSearchParams({
+        'form-name': 'site-feedback',
+        'name':    payload.name || 'Anonymous',
+        'message': payload.message,
+        'rating':  String(payload.rating || 0),
+        'page':    location.pathname,
+        'ts':      new Date().toISOString()
+      });
+      const r = await fetch('/', {method:'POST', headers:{'Content-Type':'application/x-www-form-urlencoded'}, body});
+      return r.ok;
+    } catch(e){ return false; }
+  }
+
+  // ── Admin: load from Netlify Forms API ──
+  // After a few submissions appear in your Netlify dashboard (Site → Forms → site-feedback),
+  // paste your Netlify personal token below to enable in-page admin view.
+  // Get it at: app.netlify.com → User settings → Applications → Personal access tokens
+  const NETLIFY_TOKEN = '';          // optional — leave blank to use Netlify dashboard instead
+  const NETLIFY_SITE_ID = '';        // your site ID from Site settings → General
+  async function fbGetAll(){
+    if(!NETLIFY_TOKEN || !NETLIFY_SITE_ID) return null; // signal: use dashboard
+    const r = await fetch(`https://api.netlify.com/api/v1/sites/${NETLIFY_SITE_ID}/forms`,
+      {headers:{Authorization:'Bearer '+NETLIFY_TOKEN}});
+    const forms = await r.json();
+    const form = forms.find(f=>f.name==='site-feedback');
+    if(!form) return [];
+    const r2 = await fetch(`https://api.netlify.com/api/v1/forms/${form.id}/submissions?per_page=200`,
+      {headers:{Authorization:'Bearer '+NETLIFY_TOKEN}});
+    const subs = await r2.json();
+    return subs.map(s=>({
+      id:      s.id,
+      name:    s.data?.name    || 'Anonymous',
+      message: s.data?.message || '',
+      rating:  parseInt(s.data?.rating||0),
+      page:    s.data?.page    || '/',
+      ts:      s.created_at    || ''
+    }));
+  }
+  async function fbDel(id){
+    if(!NETLIFY_TOKEN) return;
+    await fetch(`https://api.netlify.com/api/v1/submissions/${id}`,
+      {method:'DELETE', headers:{Authorization:'Bearer '+NETLIFY_TOKEN}});
+  }
+
+  // ── Modal ──
+  let rating=0;
+  window.fbOpenModal=function(){
+    document.getElementById('fb-overlay').classList.add('open');
+    document.getElementById('fb-form-view').style.display='';
+    document.getElementById('fb-thanks-view').style.display='none';
+    document.getElementById('fb-name').value='';
+    document.getElementById('fb-message').value='';
+    setRating(0);
+  };
+  window.fbCloseModal=function(){document.getElementById('fb-overlay').classList.remove('open');};
+  function setRating(v){
+    rating=v;
+    document.querySelectorAll('.fb-star').forEach(s=>{
+      s.classList.toggle('on',parseInt(s.dataset.v)<=v);
+    });
+  }
+  document.querySelectorAll('.fb-star').forEach(s=>{
+    s.addEventListener('click',()=>setRating(parseInt(s.dataset.v)));
+    s.addEventListener('mouseover',()=>document.querySelectorAll('.fb-star').forEach(x=>x.classList.toggle('on',parseInt(x.dataset.v)<=parseInt(s.dataset.v))));
+    s.addEventListener('mouseout',()=>setRating(rating));
+  });
+  window.fbSubmit=async function(){
+    const msg=document.getElementById('fb-message').value.trim();
+    if(!msg){document.getElementById('fb-message').focus();return;}
+    const btn=document.getElementById('fb-submit-btn');
+    btn.disabled=true;btn.textContent='Sending…';
+    const ok=await fbAdd({name:document.getElementById('fb-name').value.trim(),message:msg,rating});
+    if(ok){
+      document.getElementById('fb-form-view').style.display='none';
+      document.getElementById('fb-thanks-view').style.display='';
+      setTimeout(fbCloseModal,2800);
+    } else {
+      btn.disabled=false;btn.textContent='Send Feedback';
+      alert('Could not save feedback. Please check your Firebase config.');
+    }
+  };
+
+  // ── Admin — secret trigger: click footer copyright 5× ──
+  let clickCount=0,clickTimer=null;
+  function attachAdminTrigger(){
+    const el=document.querySelector('.footer-copy')||document.querySelector('[class*="footer-copy"]');
+    if(!el)return;
+    el.addEventListener('click',()=>{
+      clickCount++;
+      clearTimeout(clickTimer);
+      if(clickCount>=5){clickCount=0;fbAdminOpen();}
+      else clickTimer=setTimeout(()=>{clickCount=0;},1800);
+    });
+    el.style.cursor='default';
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',attachAdminTrigger);
+  else attachAdminTrigger();
+
+  window.fbAdminOpen=function(){
+    document.getElementById('fb-admin-overlay').classList.add('open');
+    document.getElementById('fb-admin-login').style.display='';
+    document.getElementById('fb-admin-box').style.display='none';
+    document.getElementById('fb-admin-pw').value='';
+    document.getElementById('fb-login-err').style.display='none';
+    setTimeout(()=>document.getElementById('fb-admin-pw').focus(),100);
+  };
+  window.fbAdminClose=function(){
+    document.getElementById('fb-admin-overlay').classList.remove('open');
+  };
+  window.fbAdminLogin=function(){
+    const pw=document.getElementById('fb-admin-pw').value;
+    if(pw===ADMIN_PW){
+      document.getElementById('fb-admin-login').style.display='none';
+      document.getElementById('fb-admin-box').style.display='';
+      loadAdminFeedback();
+    } else {
+      document.getElementById('fb-login-err').style.display='';
+    }
+  };
+  async function loadAdminFeedback(){
+    const list=document.getElementById('fb-admin-list');
+    list.innerHTML='<div class="fb-loading">Loading feedback…</div>';
+    let items;
+    try{items=await fbGetAll();}catch(e){items=null;}
+    if(items===null){
+      list.innerHTML=`<div class="fb-empty" style="text-align:left;padding:20px 0;">
+        <p style="font-size:14px;color:#334155;margin-bottom:16px;">To view feedback here, add your Netlify token and site ID to the HTML file.<br><br>
+        <b>Easiest way right now:</b><br>
+        Go to <a href="https://app.netlify.com" target="_blank" style="color:#059669;">app.netlify.com</a> → your site → <b>Forms</b> tab → <b>site-feedback</b> → view &amp; delete there.</p>
+        <a href="https://app.netlify.com" target="_blank" style="display:inline-block;background:#059669;color:#fff;padding:10px 20px;border-radius:8px;font-weight:700;font-size:14px;text-decoration:none;">Open Netlify Dashboard →</a>
+      </div>`;return;}
+    if(!items.length){list.innerHTML='<div class="fb-empty">No feedback yet.</div>';return;}
+    list.innerHTML=items.map(f=>`
+      <div class="fb-card" id="fbc-${f.id}">
+        <div class="fb-card-top">
+          <div>
+            <div class="fb-card-name">${esc(f.name)}</div>
+            <div class="fb-card-time">${f.ts ? new Date(f.ts).toLocaleString('en-IN',{dateStyle:'medium',timeStyle:'short'}) : ''}</div>
+            <div><span class="fb-card-page">${esc(f.page||'/')}</span></div>
+            ${f.rating>0?`<div class="fb-card-stars">${'★'.repeat(f.rating)}${'☆'.repeat(5-f.rating)}</div>`:''}
+          </div>
+          <button class="fb-del-btn" onclick="fbAdminDel('${f.id}')">🗑 Delete</button>
+        </div>
+        <div class="fb-card-msg">${esc(f.message)}</div>
+      </div>`).join('');
+    // total count
+    const header=document.createElement('div');
+    header.style.cssText='font-size:13px;color:#64748B;margin-bottom:16px;font-weight:600;';
+    header.textContent=`${items.length} feedback submission${items.length!==1?'s':''}`;
+    list.prepend(header);
+  }
+  window.fbAdminDel=async function(id){
+    if(!confirm('Delete this feedback?'))return;
+    await fbDel(id);
+    const card=document.getElementById('fbc-'+id);
+    if(card){card.style.opacity='0.4';card.style.pointerEvents='none';}
+    setTimeout(()=>{if(card)card.remove();},600);
+  };
+  function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+})();
+</script>
+
+</body>
+</html>

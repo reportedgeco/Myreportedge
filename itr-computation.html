@@ -1,0 +1,2093 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ITR Computation</title>
+<!-- Build stamp: bump this string on every deploy. It is printed in the page
+     footer, so you can confirm at a glance whether the live site is serving
+     the new file or a cached copy. -->
+<meta name="build-version" content="2026-08-12-name-v1">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  /* ------------------------------------------------------------------
+     Design system, matched to myreportedge.com (ReportEdge):
+     emerald accent on a slate neutral scale, Inter throughout, dark
+     navigation band over light canvas, elevated white cards.
+     Numbers use tabular figures so every column aligns on the decimal
+     the way a real financial statement does.
+     ------------------------------------------------------------------ */
+  :root{
+    --ink:#0f172a; --ink-mid:#334155; --ink-soft:#64748b; --ink-faint:#94a3b8;
+    --line:#e2e8f0; --line-soft:#f1f5f9;
+    --bg:#f1f5f9; --panel:#ffffff;
+    --accent:#059669; --accent-deep:#047857; --accent-soft:#ecfdf5; --accent-line:#a7f3d0;
+    --good:#059669; --good-soft:#ecfdf5;
+    --warn:#b45309; --warn-soft:#fffbeb; --warn-line:#fde68a;
+    --bad:#dc2626; --bad-soft:#fef2f2; --bad-line:#fecaca;
+    --shadow-sm:0 1px 2px rgba(15,23,42,.04);
+    --shadow-md:0 1px 2px rgba(15,23,42,.04), 0 12px 28px -14px rgba(15,23,42,.18);
+    --mono:'SFMono-Regular',Consolas,'Liberation Mono',Menlo,monospace;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;}
+  body{margin:0;font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+       background:var(--bg);color:var(--ink);line-height:1.5;font-size:14px;}
+
+  /* ---------- Top navigation band ---------- */
+  .topbar{background:var(--ink);color:#fff;}
+  .topbar-inner{max-width:1000px;margin:0 auto;padding:13px 24px;display:flex;align-items:center;gap:10px;}
+  .topbar .brand{color:#fff;text-decoration:none;font-weight:700;font-size:13px;letter-spacing:.06em;
+                 display:inline-flex;align-items:center;gap:8px;}
+  .topbar .brand:hover{color:var(--accent-line);}
+  .topbar .spark{width:20px;height:20px;border-radius:6px;background:var(--accent);
+                 display:inline-flex;align-items:center;justify-content:center;font-size:12px;line-height:1;}
+  .topbar .tag{color:rgba(255,255,255,.55);font-size:12.5px;font-weight:500;}
+
+  .wrap{max-width:1000px;margin:0 auto;padding:34px 24px 90px;}
+
+  /* ---------- Page heading ---------- */
+  header.top{margin-bottom:26px;}
+  header.top h1{font-size:29px;font-weight:800;letter-spacing:-.022em;margin:0 0 8px;line-height:1.15;}
+  header.top p{margin:0;color:var(--ink-soft);font-size:14.5px;max-width:70ch;}
+  .badge{display:inline-block;font-size:11px;font-weight:600;letter-spacing:.04em;padding:4px 11px;border-radius:999px;
+         background:var(--accent-soft);color:var(--accent-deep);border:1px solid var(--accent-line);
+         margin-left:10px;vertical-align:middle;white-space:nowrap;}
+
+  .brand-row{font-size:12.5px;font-weight:600;letter-spacing:.02em;margin-bottom:10px;color:var(--ink-soft);}
+  .brand-row a{color:var(--accent);text-decoration:none;font-weight:700;letter-spacing:.04em;}
+  .brand-row a:hover{text-decoration:underline;}
+
+  /* ---------- Cards ---------- */
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;
+         padding:26px 28px;margin-bottom:20px;box-shadow:var(--shadow-md);}
+  .panel h2{font-size:16.5px;font-weight:700;letter-spacing:-.01em;margin:0 0 5px;}
+  .panel .sub{color:var(--ink-soft);font-size:13.5px;margin:0 0 20px;max-width:72ch;}
+  .step-label{display:flex;align-items:center;gap:9px;margin-bottom:2px;}
+  .step-num{display:none;}          /* step numbering retired with the manual-entry panel */
+
+  /* ---------- Upload ---------- */
+  .drop{border:1.5px dashed #cbd5e1;border-radius:14px;padding:38px 26px;text-align:center;
+        background:linear-gradient(180deg,#fbfdfe 0%,#f8fafc 100%);cursor:pointer;
+        transition:border-color .16s, background .16s, transform .16s;}
+  .drop:hover, .drop.drag{border-color:var(--accent);background:var(--accent-soft);transform:translateY(-1px);}
+  .drop input{display:none;}
+  .drop .ico{width:42px;height:42px;margin:0 auto 12px;border-radius:12px;background:var(--accent-soft);
+             color:var(--accent);display:flex;align-items:center;justify-content:center;
+             border:1px solid var(--accent-line);}
+  .drop .ico svg{width:20px;height:20px;}
+  .drop strong{font-weight:700;}
+  .drop .hint{font-size:12.5px;color:var(--ink-faint);margin-top:7px;}
+
+  .or-row{display:flex;align-items:center;gap:10px;margin:14px 0;color:var(--ink-soft);font-size:12px;}
+  .or-row hr{flex:1;border:none;border-top:1px solid var(--line);}
+
+  /* ---------- Buttons ---------- */
+  .btn{appearance:none;border:1px solid var(--line);background:#fff;color:var(--ink);font-family:inherit;
+       font-size:13.5px;font-weight:600;padding:10px 18px;border-radius:10px;cursor:pointer;
+       transition:.16s;box-shadow:var(--shadow-sm);}
+  .btn:hover{border-color:#cbd5e1;background:#f8fafc;}
+  .btn.primary{background:var(--accent);color:#fff;border-color:var(--accent);}
+  .btn.primary:hover{background:var(--accent-deep);border-color:var(--accent-deep);}
+  .btn.accent{background:var(--accent);color:#fff;border-color:var(--accent);}
+  .btn.accent:hover{background:var(--accent-deep);}
+  .btn.ghost{background:transparent;box-shadow:none;}
+  .btn:disabled{opacity:.5;cursor:not-allowed;}
+  .btn-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:22px;}
+
+  /* ---------- Status ---------- */
+  .status{display:none;border-radius:10px;padding:12px 15px;font-size:13px;font-weight:500;margin-top:16px;border:1px solid transparent;}
+  .status.show{display:block;}
+  .status.good{background:var(--good-soft);color:var(--accent-deep);border-color:var(--accent-line);}
+  .status.warn{background:var(--warn-soft);color:var(--warn);border-color:var(--warn-line);}
+  .status.bad{background:var(--bad-soft);color:var(--bad);border-color:var(--bad-line);}
+
+  /* ---------- Forms ---------- */
+  fieldset{border:none;padding:0;margin:0 0 22px;}
+  fieldset legend{font-size:11px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;
+                  color:var(--ink-faint);margin-bottom:11px;padding:0;}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;}
+  .field{display:flex;flex-direction:column;gap:5px;}
+  .field label{font-size:12.5px;color:var(--ink-soft);}
+  .field .flag{font-size:10.5px;color:var(--accent);font-weight:700;}
+  input[type=text], input[type=number], select{
+    font-size:14px;padding:9px 11px;border:1px solid var(--line);border-radius:9px;background:#fff;
+    color:var(--ink);width:100%;font-family:inherit;transition:.15s;
+  }
+  input[type=number]{font-variant-numeric:tabular-nums;}
+  input:focus, select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(5,150,105,.13);}
+  .extracted{border-color:var(--accent-line) !important;background:#f0fdf9;}
+
+  /* ---------- ITR segmented picker ---------- */
+  .itr-pick{display:flex;align-items:center;justify-content:center;gap:6px;font-size:13.5px;font-weight:600;
+            border:1px solid var(--line);border-radius:11px;padding:11px 8px;cursor:pointer;background:#fff;
+            transition:.16s;box-shadow:var(--shadow-sm);white-space:nowrap;}
+  .itr-pick:hover{border-color:#cbd5e1;background:#f8fafc;}
+  .itr-pick:has(input:checked){border-color:var(--accent);background:var(--accent-soft);color:var(--accent-deep);
+                               box-shadow:0 0 0 3px rgba(5,150,105,.10);}
+  .itr-pick input{margin:0;accent-color:var(--accent);}
+  .itr-pick span{font-weight:400;color:var(--ink-faint);}
+  .itr-pick:has(input:checked) span{color:var(--accent);}
+  /* forms not yet supported -- shown so the roadmap is visible, but not selectable */
+  .itr-pick.soon{opacity:.55;cursor:not-allowed;background:var(--line-soft);box-shadow:none;}
+  .itr-pick.soon:hover{border-color:var(--line);background:var(--line-soft);}
+  .itr-pick.soon span{font-size:11px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;}
+
+  .regime-toggle{display:inline-flex;border:1px solid var(--line);border-radius:10px;overflow:hidden;}
+  .regime-toggle button{border:none;background:#fff;padding:9px 17px;font-family:inherit;font-size:13px;
+                        font-weight:600;cursor:pointer;color:var(--ink-soft);}
+  .regime-toggle button.active{background:var(--accent);color:#fff;}
+
+  /* ---------- Computation statement ---------- */
+  table.calc{width:100%;border-collapse:collapse;font-size:13.5px;margin-top:4px;
+             font-variant-numeric:tabular-nums;}
+  table.calc th, table.calc td{padding:9px 12px;text-align:right;border-bottom:1px solid var(--line-soft);}
+  table.calc th:first-child, table.calc td:first-child{text-align:left;}
+  table.calc thead th{color:var(--ink-faint);font-size:10.5px;font-weight:700;text-transform:uppercase;
+                      letter-spacing:.08em;border-bottom:1px solid var(--line);padding-bottom:7px;}
+  table.calc td.num, table.calc th.num{font-variant-numeric:tabular-nums;white-space:nowrap;}
+
+  /* head rows: the five income heads and other top-level lines */
+  table.calc tr.head-total td{font-weight:700;font-size:14px;border-top:1px solid var(--line);
+                              border-bottom:1px solid var(--line-soft);padding-top:12px;padding-bottom:12px;}
+  table.calc tr.subtotal td{font-weight:700;border-top:1.5px solid var(--ink-mid);}
+
+  /* nested detail rows, hung off a hairline guide */
+  table.calc tr.subhead td{font-weight:700;font-size:10.5px;letter-spacing:.07em;text-transform:uppercase;
+                           color:var(--accent);padding-top:13px;padding-bottom:3px;border-bottom:none;}
+  table.calc tr.sub td{color:var(--ink-mid);font-size:12.5px;border-bottom:1px solid var(--line-soft);
+                       padding-top:6px;padding-bottom:6px;}
+  table.calc tr.sub td:first-child{padding-left:30px;position:relative;}
+  table.calc tr.sub td:first-child::before{content:"";position:absolute;left:14px;top:0;bottom:0;
+                                           border-left:1px solid var(--line);}
+  table.calc tr.sub td.num{color:var(--ink-soft);}
+
+  /* totals */
+  table.calc tr.grand td{font-weight:800;font-size:15.5px;background:var(--accent-soft);
+                         color:var(--ink);border-top:1px solid var(--accent-line);
+                         border-bottom:1px solid var(--accent-line);padding-top:13px;padding-bottom:13px;}
+  table.calc tr.grand td.num{color:var(--accent-deep);}
+
+  /* final position — the answer the whole sheet builds to */
+  table.calc tr.refund td, table.calc tr.payable td{font-weight:800;font-size:17px;padding:16px 12px;border:none;}
+  table.calc tr.refund td{background:var(--good-soft);color:var(--accent-deep);}
+  table.calc tr.payable td{background:var(--bad-soft);color:var(--bad);}
+  table.calc tr.refund td:first-child, table.calc tr.payable td:first-child{border-radius:11px 0 0 11px;}
+  table.calc tr.refund td:last-child, table.calc tr.payable td:last-child{border-radius:0 11px 11px 0;}
+
+  /* statement masthead */
+  .doc-head{text-align:center;padding-bottom:20px;margin-bottom:14px;border-bottom:2px solid var(--ink);}
+  .doc-title{font-weight:800;font-size:17px;letter-spacing:.03em;color:var(--ink);}
+  .doc-name{font-weight:700;font-size:15px;letter-spacing:.02em;color:var(--ink);margin-top:5px;}
+  .doc-name:empty{display:none;}
+  .name-edit{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:16px;}
+  .name-edit label{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-faint);}
+  .name-edit input{flex:1;min-width:220px;padding:9px 12px;font:inherit;font-size:14px;font-weight:600;
+    border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--ink);}
+  .name-edit input:focus{outline:none;border-color:var(--accent,#2c5fd8);}
+  .doc-meta{display:flex;justify-content:center;flex-wrap:wrap;gap:10px;margin-top:14px;}
+  .doc-meta span{display:inline-flex;align-items:baseline;gap:7px;font-size:12.5px;font-weight:600;color:var(--ink);
+                 background:var(--line-soft);border:1px solid var(--line);border-radius:999px;padding:5px 13px;}
+  .doc-meta em{font-style:normal;font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-faint);}
+
+  .section-head td{font-weight:700;font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;
+                   color:var(--ink-faint);padding-top:6px;padding-bottom:8px;border-bottom:1px solid var(--line);}
+  #outputArea h3{font-size:11px !important;font-weight:700;letter-spacing:.09em;text-transform:uppercase;
+                 color:var(--ink-faint);margin:30px 0 8px !important;}
+  .note{font-size:11.5px;color:var(--ink-faint);margin-top:10px;line-height:1.55;}
+
+  .disclaimer{font-size:12px;color:var(--ink-soft);background:var(--panel);border:1px solid var(--line);
+              border-left:3px solid var(--warn-line);border-radius:12px;padding:14px 16px;margin-top:24px;line-height:1.6;}
+
+  @media (max-width:640px){
+    .wrap{padding:24px 16px 70px;}
+    .panel{padding:20px 18px;border-radius:14px;}
+    header.top h1{font-size:24px;}
+    .badge{display:block;margin:8px 0 0;width:fit-content;}
+    table.calc th, table.calc td{padding:8px 6px;}
+  }
+
+  /* ---------- Print ---------- */
+  @media print{
+    .no-print{display:none !important;}
+    body{background:#fff;font-size:12px;}
+    .topbar{background:#fff;border-bottom:1.5px solid var(--accent);}
+    .topbar-inner{padding:0 0 8px;}
+    .topbar .brand{color:var(--accent-deep);}
+    .topbar .spark{display:none;}
+    .topbar .tag{color:var(--ink-soft);}
+    .wrap{padding:20px 0 0;max-width:none;}
+    .panel{border:none;box-shadow:none;padding:0;margin:0;border-radius:0;}
+    /* The printed statement carries its own masthead (title + AY + form +
+       regime), so the on-screen app heading and its AY badge would just
+       repeat it one line above -- hidden here so the PDF reads as a clean
+       standalone computation statement. */
+    header.top{display:none;}
+    .doc-head{padding-bottom:16px;}
+    table.calc tr.grand td, table.calc tr.refund td, table.calc tr.payable td{
+      -webkit-print-color-adjust:exact;print-color-adjust:exact;
+    }
+    #outputArea h3{margin-top:20px !important;}
+  }
+</style>
+</head>
+<body>
+<!-- Hidden form so Netlify detects and registers the feedback form on deploy -->
+<form name="site-feedback" netlify netlify-honeypot="bot-field" hidden>
+  <input type="text" name="name">
+  <textarea name="message"></textarea>
+  <input type="text" name="rating">
+  <input type="text" name="page">
+  <input type="text" name="ts">
+</form>
+
+<div class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="https://myreportedge.com" target="_blank" rel="noopener"><span class="spark">⚡</span>MYREPORTEDGE.COM</a>
+    <span class="tag">— more tools</span>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <header class="top">
+    <h1>ITR Computation <span class="badge" id="ay-badge">AY 2026-27 · New Regime default</span></h1>
+    <p class="no-print">Upload your filed ITR Form (ITR-2 or ITR-4 Sugam), auto-detect the form, and generate a clean tax computation sheet. Always verify every figure against the original return before relying on it.</p>
+  </header>
+
+  <!-- STEP 1: UPLOAD -->
+  <section class="panel no-print" id="panel-upload">
+    <div class="step-label"><span class="step-num">1</span><h2 style="margin:0;">Select the form, then upload</h2></div>
+    <p class="sub">Tell the tool which ITR you're uploading, then attach the ITR Form.</p>
+
+    <fieldset style="margin-bottom:16px;">
+      <legend>Which ITR is this?</legend>
+      <div class="grid" style="grid-template-columns:repeat(3,1fr);max-width:420px;">
+        <label class="itr-pick soon"><input type="radio" name="itrPick" value="ITR-1" disabled> ITR-1 <span>In progress</span></label>
+        <label class="itr-pick"><input type="radio" name="itrPick" value="ITR-2" checked> ITR-2</label>
+        <label class="itr-pick"><input type="radio" name="itrPick" value="ITR-4"> ITR-4 <span>Sugam</span></label>
+      </div>
+    </fieldset>
+
+    <div class="drop" id="dropzone">
+      <div class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></div>
+      <div><strong>Click to upload</strong> or drag your ITR Form here</div>
+      <div class="hint">Parsed entirely in your browser — nothing is uploaded anywhere</div>
+      <input type="file" id="fileInput" accept=".pdf,.json,application/pdf,application/json">
+    </div>
+
+    <div class="status" id="uploadStatus"></div>
+  </section>
+
+  <!-- STEP 2 (retired): this panel is never shown to the user any more --
+       the tool only ever displays figures read directly from the uploaded
+       return (see panel-output below). It's kept in the DOM, permanently
+       hidden, purely because a handful of underlying <input> elements in it
+       (f_ay, f_stdDed, f_itrType, f_name, f_pan, etc.) are still used as
+       plain data holders by setRegime()/renderAsFiled() -- removing the
+       elements outright would require reworking those functions to store
+       state some other way, which is unnecessary churn for what is purely a
+       UI simplification. -->
+  <section class="panel no-print" id="panel-fields" style="display:none;">
+    <div class="step-label"><span class="step-num">2</span><h2 style="margin:0;">Review &amp; complete the figures</h2></div>
+    <p class="sub">Fields with a blue border were auto-extracted — double-check them. Fill in anything blank.</p>
+
+    <fieldset>
+      <legend>Return details</legend>
+      <input type="hidden" id="f_name">
+      <input type="hidden" id="f_pan">
+      <select id="f_itrType" style="display:none;">
+        <option value="ITR-1">ITR-1 (Sahaj)</option>
+        <option value="ITR-2">ITR-2</option>
+        <option value="ITR-3">ITR-3</option>
+        <option value="ITR-4">ITR-4 (Sugam)</option>
+      </select>
+      <div class="grid">
+        <div class="field"><label>Assessment Year</label><select id="f_ay">
+          <option value="2024-25">AY 2024-25 (FY 2023-24)</option>
+          <option value="2025-26">AY 2025-26 (FY 2024-25)</option>
+          <option value="2026-27" selected>AY 2026-27 (FY 2025-26)</option>
+        </select></div>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Tax regime</legend>
+      <div class="regime-toggle">
+        <button type="button" id="regNew" class="active">New Regime (115BAC — default)</button>
+        <button type="button" id="regOld">Old Regime</button>
+      </div>
+      <p class="note">New regime is the default under section 115BAC unless the old regime is explicitly opted into (Form 10-IEA for those with business/profession income — ITR-3/ITR-4).</p>
+    </fieldset>
+
+    <fieldset>
+      <legend>Income from Salary</legend>
+      <div class="grid">
+        <div class="field"><label>Gross Salary (₹)</label><input type="number" id="f_salaryGross" value="0"></div>
+        <div class="field" id="wrap_stdDed"><label>Standard Deduction (₹)</label><input type="number" id="f_stdDed" value="75000"></div>
+      </div>
+      <p class="note" id="salaryExtractNote" style="display:none;">Extracted directly from "Salaries" in Part B-TI of the return, which is already net of the standard deduction — so Standard Deduction is set to ₹0 here to avoid double-counting. Split it back into gross/deduction manually if you want that detail shown.</p>
+    </fieldset>
+
+    <fieldset>
+      <legend>Income from House Property</legend>
+      <div class="grid">
+        <div class="field"><label>Net income / (loss) from house property (₹)</label><input type="number" id="f_hp" value="0"></div>
+      </div>
+    </fieldset>
+
+    <fieldset id="grp_biz">
+      <legend>Income from Business / Profession <span style="font-weight:400;text-transform:none;">(ITR-3 / ITR-4)</span></legend>
+      <div class="grid">
+        <div class="field"><label>Presumptive income (44AD/44ADA/44AE) or net profit (₹)</label><input type="number" id="f_biz" value="0"></div>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Capital Gains <span style="font-weight:400;text-transform:none;">(ITR-2 / ITR-3)</span></legend>
+      <div class="grid">
+        <div class="field"><label>Short-term capital gains — 111A / STT paid (₹)</label><input type="number" id="f_stcg111a" value="0"></div>
+        <div class="field"><label>Short-term capital gains — other (slab rate) (₹)</label><input type="number" id="f_stcgOther" value="0"></div>
+        <div class="field"><label>Long-term capital gains — 112A, above ₹1.25L exemption (₹)</label><input type="number" id="f_ltcg112a" value="0"></div>
+        <div class="field"><label>Long-term capital gains — other 20%/12.5% (₹)</label><input type="number" id="f_ltcgOther" value="0"></div>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Income from Other Sources</legend>
+      <div class="grid">
+        <div class="field"><label>Interest, dividends, other income (₹)</label><input type="number" id="f_other" value="0"></div>
+      </div>
+    </fieldset>
+
+    <fieldset id="grp_oldDeductions" style="display:none;">
+      <legend>Chapter VI-A Deductions <span style="font-weight:400;text-transform:none;">(Old Regime only)</span></legend>
+      <div class="grid">
+        <div class="field"><label>80C, 80CCC, 80CCD(1) — max ₹1,50,000 (₹)</label><input type="number" id="f_80c" value="0"></div>
+        <div class="field"><label>80D — health insurance (₹)</label><input type="number" id="f_80d" value="0"></div>
+        <div class="field"><label>80TTA / 80TTB — savings/FD interest (₹)</label><input type="number" id="f_80tta" value="0"></div>
+        <div class="field"><label>HRA exemption (already excluded above? if not, enter here) (₹)</label><input type="number" id="f_hra" value="0"></div>
+        <div class="field"><label>Other Chapter VI-A (80E, 80G, 80CCD(1B) etc.) (₹)</label><input type="number" id="f_80other" value="0"></div>
+      </div>
+    </fieldset>
+
+    <fieldset id="grp_newDeductions">
+      <legend>Deductions allowed under New Regime</legend>
+      <div class="grid">
+        <div class="field"><label>80CCD(2) — employer NPS contribution (₹)</label><input type="number" id="f_80ccd2" value="0"></div>
+        <div class="field"><label>80JJAA — new employment (₹)</label><input type="number" id="f_80jjaa" value="0"></div>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Taxes already paid</legend>
+      <div class="grid">
+        <div class="field"><label>TDS (₹)</label><input type="number" id="f_tds" value="0"></div>
+        <div class="field"><label>TCS (₹)</label><input type="number" id="f_tcs" value="0"></div>
+        <div class="field"><label>Advance Tax (₹)</label><input type="number" id="f_advTax" value="0"></div>
+        <div class="field"><label>Self-Assessment Tax (₹)</label><input type="number" id="f_satAx" value="0"></div>
+      </div>
+    </fieldset>
+
+    <div class="btn-row">
+      <button class="btn accent" id="computeBtn">Compute tax →</button>
+      <button class="btn ghost" id="resetBtn">Reset all fields</button>
+    </div>
+  </section>
+
+  <!-- STEP 3: COMPUTATION OUTPUT -->
+  <section class="panel" id="panel-output" style="display:none;">
+    <!-- Name of assessee: auto-filled from the return when it can be read,
+         always editable here so it can be corrected/typed before printing.
+         Hidden in print output -- only the name inside the sheet prints. -->
+    <div class="name-edit no-print">
+      <label for="f_nameEdit">Name of assessee</label>
+      <input type="text" id="f_nameEdit" placeholder="Type the assessee's name (prints on the computation)" autocomplete="off">
+    </div>
+    <div id="outputArea"></div>
+    <div class="btn-row no-print">
+      <button class="btn primary" id="printBtn">Print / Save as PDF</button>
+    </div>
+  </section>
+
+  
+
+  <div class="brand-row no-print" style="text-align:center;margin-top:18px;"><span style="opacity:.6;font-size:11px;">build 2026-08-12-name-v1</span><br>For more tools, visit <a href="https://myreportedge.com" target="_blank" rel="noopener">MYREPORTEDGE.COM</a></div>
+
+</div>
+
+<script>
+pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+const $ = id => document.getElementById(id);
+const fmt = n => (n<0?'-':'') + '₹' + Math.abs(Math.round(n)).toLocaleString('en-IN');
+const num = id => { const v = parseFloat($(id).value); return isNaN(v) ? 0 : v; };
+
+// ---------- Upload handling ----------
+const dropzone = $('dropzone'), fileInput = $('fileInput'), uploadStatus = $('uploadStatus');
+
+dropzone.addEventListener('click', () => fileInput.click());
+dropzone.addEventListener('dragover', e => { e.preventDefault(); dropzone.classList.add('drag'); });
+dropzone.addEventListener('dragleave', () => dropzone.classList.remove('drag'));
+dropzone.addEventListener('drop', e => {
+  e.preventDefault(); dropzone.classList.remove('drag');
+  if (e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
+});
+fileInput.addEventListener('change', e => { if (e.target.files.length) handleFile(e.target.files[0]); });
+
+function pickedItrType(){
+  const checked = document.querySelector('input[name="itrPick"]:checked');
+  return checked ? checked.value : 'ITR-2';
+}
+
+function showStatus(msg, kind){
+  uploadStatus.textContent = msg;
+  uploadStatus.className = 'status show ' + kind;
+}
+
+async function handleFile(file){
+  const picked = pickedItrType();
+  showStatus('Reading ' + file.name + ' as ' + picked + ' …', 'warn');
+  try{
+    if (file.type === 'application/json' || file.name.toLowerCase().endsWith('.json')){
+      const text = await file.text();
+      const data = JSON.parse(text);
+      const extracted = extractFromJSON(data);
+      applyExtraction(extracted, 'JSON', picked);
+    } else if (file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf')){
+      const buf = await file.arrayBuffer();
+      const pdf = await pdfjsLib.getDocument({data: buf}).promise;
+      let fullText = '';
+      for (let p = 1; p <= pdf.numPages; p++){
+        const page = await pdf.getPage(p);
+        const content = await page.getTextContent();
+        fullText += content.items.map(it => it.str).join(' \n ') + '\n';
+      }
+      // ITR-4 (Sugam)'s filed acknowledgement PDF uses a completely different
+      // section layout from ITR-1/2/3 (e.g. "PART B GROSS TOTAL INCOME" /
+      // "PART D - TAX COMPUTATIONS" with D1..D19 item codes, instead of
+      // "PART B-TI"/"PART B-TTI" with digit-led codes) -- so it gets its own,
+      // fully separate extractor rather than being forced through
+      // extractFromText(), which stays untouched for ITR-1/2/3.
+      const isITR4 = picked === 'ITR-4' || /FORM\s*ITR-\s*4|SUGAM/i.test(fullText.slice(0, 6000));
+      const extracted = isITR4 ? extractFromTextITR4(fullText) : extractFromText(fullText);
+      applyExtraction(extracted, 'PDF', picked);
+    } else {
+      showStatus('Unsupported file type. Please upload a .pdf or .json file.', 'bad');
+      return;
+    }
+  } catch(err){
+    console.error(err);
+    showStatus('Could not read this file (' + err.message + '). Please check it\'s a valid ITR PDF/JSON from the e-filing portal and try again.', 'bad');
+  }
+}
+
+// ---------- JSON extraction (schema-agnostic key search) ----------
+function extractFromJSON(data){
+  const found = {};
+  // Field names below match the pi*/tti* naming applyExtraction() and
+  // renderAsFiled() expect (same convention the PDF extractor uses), so both
+  // upload paths feed the same downstream code.
+  const keyMap = [
+    ['name', /^(assesseename|name|firstname)$/i],
+    ['pan', /^pan$/i],
+    ['itrType', /^(itrtype|formname|itrform)$/i],
+    ['piSalary', /(grosssalary|salaryhead|totalgrosssalary|incomechargeableundersalaries)/i],
+    ['stdDedFiled', /(standarddeduction|deduction.*16)/i],
+    ['piHP', /(incomefromhouseprop|houseprop.*income|totalhp)/i],
+    ['piBusiness', /(presumptiveincome|incomefrombus|grossturnover.*44ad|netprofit)/i],
+    ['piCapGains', /(capitalgains|totalcapgain)/i],
+    ['piOtherSources', /(incomeothersources|incomefromothersources|totalothersources)/i],
+    ['piGrossTotal', /(grosstotalincome|grosstotincome)/i],
+    ['piDeductionsVIA', /(deductionundchapvia|totaldeductionschaptervia|chaptervia)/i],
+    ['piTotalIncome', /(totalincome|taxableincome)/i],
+    ['ttiTaxNormal', /(taxatnormalrate|taxatnormalrates)/i],
+    ['ttiCess', /(healthandeducationcess|totalcess)/i],
+    ['ttiGrossTaxLiab', /(grosstaxliability|grosstaxpayable)/i],
+    ['ttiTDS', /(tds1|tds2|totaltds|tdsonsalary)/i],
+    ['ttiAdvanceTax', /(advancetax)/i],
+    ['ttiSelfAssessment', /(selfassessmenttax|sat\b)/i],
+    ['ttiAmountPayable', /(taxpayable|netpayable|balancetaxpayable|amountpayable)/i],
+    ['ttiRefund', /(refund)/i],
+  ];
+  function walk(obj){
+    if (obj === null || typeof obj !== 'object') return;
+    for (const k in obj){
+      const v = obj[k];
+      for (const [field, re] of keyMap){
+        if (re.test(k) && found[field] === undefined){
+          if (typeof v === 'number') found[field] = v;
+          else if (typeof v === 'string' && /^-?\d+(\.\d+)?$/.test(v.trim())) found[field] = parseFloat(v);
+          else if (typeof v === 'string' && field==='name') found[field] = v;
+          else if (typeof v === 'string' && field==='pan') found[field] = v;
+          else if (typeof v === 'string' && field==='itrType') found[field] = v;
+        }
+      }
+      if (typeof v === 'object') walk(v);
+    }
+  }
+  walk(data);
+  return found;
+}
+
+
+// ---------- Assessee name (shared by every extractor) ----------
+// Preferred source is "PART A GENERAL INFORMATION", which prints the name in
+// three separately-labelled cells -- (A1) First Name / (A2) Middle Name /
+// (A3) Last Name -- in both ITR-2 and ITR-4 (Sugam). Middle name is very often
+// blank, in which case the next thing after the label is the FOLLOWING label
+// (and in ITR-4 the cells are even printed out of order: A1, A2, A3 with the
+// values interleaved), so each captured value is rejected if it looks like a
+// field label or code rather than a name.
+function extractAssesseeName(clean){
+  const nameCell = (re) => {
+    const m = clean.match(re);
+    if (!m) return '';
+    // Layouts vary: some PDFs put the value on its own line, others keep the
+    // whole row on one line ("First Name SUMIT (A2) Middle Name ..."), so cut
+    // the capture at the next field label / code before validating it.
+    let v = (m[1] || '')
+      .split('(')[0]
+      .split(/\b(?:First|Middle|Last)\s+Name\b/i)[0]
+      .split(/\b(?:PAN|Permanent Account|Date of Birth|Status|Aadhaar)\b/i)[0]
+      .trim().replace(/[|:]+$/,'').trim();
+    if (!v) return '';
+    if (/^\(?[A-Z]?\d/i.test(v)) return '';                      // "(A2)", "A3", "2b" ...
+    if (/^(first|middle|last|surname)?\s*name\b/i.test(v)) return '';
+    if (/^(PAN|Permanent|Date|Status|Flat|Aadhaar|Sex|Gender|Road|Area|Town|State|Country|PIN)\b/i.test(v)) return '';
+    if (!/^[A-Za-z][A-Za-z .'-]*$/.test(v)) return '';
+    return v;
+  };
+  const firstName  = nameCell(/\(?A1\)?\s*First\s*Name\s*\n?\s*([^\n]*)/i)
+                  || nameCell(/\bFirst\s*Name\s*\n?\s*([^\n]*)/i);
+  const middleName = nameCell(/\(?A2\)?\s*Middle\s*Name\s*\n?\s*([^\n]*)/i)
+                  || nameCell(/\bMiddle\s*Name\s*\n?\s*([^\n]*)/i);
+  const lastName   = nameCell(/\(?A3\)?\s*Last\s*Name\s*\n?\s*([^\n]*)/i)
+                  || nameCell(/\bLast\s*Name\s*\n?\s*([^\n]*)/i)
+                  || nameCell(/\bSurname\s*\n?\s*([^\n]*)/i);
+  let nm = [firstName, middleName, lastName].filter(Boolean).join(' ').trim();
+
+  // Fallback 1: a single "Name" cell (HUF / firm / non-individual returns).
+  if (!nm){
+    nm = nameCell(/\(?A\d?\)?\s*Name\s*(?:of\s*(?:the\s*)?(?:assessee|taxpayer))?\s*\n?\s*([^\n]*)/i);
+  }
+  // Fallback 2: layouts that print all three labels first and the values after.
+  if (!nm){
+    const blockMatch = clean.match(/First\s*Name([\s\S]{0,400}?)(?:Permanent Account|PAN\b|Date\s*of\s*Birth|Aadhaar|Status\b|Flat\s*\/)/i);
+    if (blockMatch){
+      const words = blockMatch[1].split('\n').map(x => x.trim()).filter(Boolean)
+        .filter(x => !/^\(?[A-Z]?\d/i.test(x))
+        .filter(x => !/\bname\b/i.test(x))
+        .filter(x => /^[A-Za-z][A-Za-z .'-]*$/.test(x) && x.length > 1);
+      if (words.length && words.length <= 4) nm = words.join(' ');
+    }
+  }
+  // Fallback 3: the verification declaration at the foot of the return.
+  if (!nm){
+    const verifyMatch = clean.match(/\bI[,.]?\s*([A-Za-z][A-Za-z .]{2,60}?)[,\s]+(?:son|daughter|s\/o|d\/o)\b/i)
+                     || clean.match(/\bI[,.]?\s*([A-Za-z][A-Za-z .]{2,60}?)\s+solemnly\s+declare/i);
+    if (verifyMatch) nm = verifyMatch[1].trim();
+  }
+  return nm ? nm.replace(/\s+/g,' ').trim() : '';
+}
+
+// ---------- PDF text extraction ----------
+// Targets the standardised "PART B-TI" (computation of total income) and
+// "PART B-TTI" (computation of tax liability) sections that appear, with
+// near-identical wording and line-item codes, in every government-generated
+// ITR-1/2/3/4 acknowledgement / computation PDF -- this is far more reliable
+// than guessing from free-floating labels scattered across the return.
+// Each row in those sections is rendered as: [label words] -> [item code,
+// e.g. "1", "2b", "3e"] -> [amount] -- and since pdf.js emits one fragment
+// per word, labels can wrap mid-phrase, so label matching tolerates any
+// run of whitespace, and the amount is read as the number immediately
+// following that row's own item code (not just "the next number seen",
+// which would drift onto a neighbouring row in this densely fragmented text).
+function extractFromText(rawText){
+  const found = {};
+  const lines = rawText.split('\n')
+    .map(l => l.trim())
+    .filter(Boolean)
+    .filter(l => !/^Acknowledgement Number/i.test(l))
+    .filter(l => !/^Date of Filing/i.test(l))
+    .filter(l => !/if the return is verified/i.test(l))
+    .filter(l => !/notification no\.?\s*05 of 2022/i.test(l));
+  const clean = lines.join('\n');
+
+  const formMatch = clean.match(/FORM\s*\n?\s*ITR-?\s*([1234])\b/i) || clean.match(/\bITR-?\s*([1234])\b/i);
+  if (formMatch) found.itrType = 'ITR-' + formMatch[1];
+  else if (/SAHAJ/i.test(clean)) found.itrType = 'ITR-1';
+  else if (/SUGAM/i.test(clean)) found.itrType = 'ITR-4';
+
+  const ayMatch = clean.match(/Assessment Year\s*\n?\s*(\d{4}-\d{2})/i);
+  if (ayMatch) found.ay = ayMatch[1];
+
+  const panLabelMatch = clean.match(/PAN\s*\n?\s*([A-Z]{5}\d{4}[A-Z])/);
+  const panMatch = panLabelMatch || clean.match(/\b([A-Z]{5}\d{4}[A-Z])\b/);
+  if (panMatch) found.pan = panMatch[1];
+
+  const assesseeName = extractAssesseeName(clean);
+  if (assesseeName) found.name = assesseeName;
+
+  const optOutMatch = clean.match(/Opting out of new tax regime[\s\S]{0,120}?\n\s*(Yes|No)\b/i);
+  if (optOutMatch) found.regimeOptOut = /yes/i.test(optOutMatch[1]);
+
+  // ---- label -> value extractor (code-agnostic) ----
+  // L() builds a regex from a plain label string: escapes regex-special chars,
+  // and lets any run of whitespace in the source (incl. line wraps, which are
+  // common since pdf.js emits one text fragment per word) match the label.
+  //
+  // Every row in Part B-TI / B-TTI renders as [label words] -> [item code,
+  // e.g. "1", "2b", "3e", "15cc"] -> [amount]. Since pdf.js emits roughly one
+  // text fragment per word (each landing on its own "\n"-joined line here),
+  // everything after the label -- including any of the label's own leftover
+  // trailing description ("Enter nil if loss", "of Schedule S", ...) -- is
+  // just a stream of one-token lines. Item codes are reliably distinguishable
+  // from surrounding description words: a code always STARTS WITH A DIGIT
+  // (optionally followed by a couple of lowercase letters), while description
+  // words and stray formula fragments never do. So: tokenize what follows the
+  // label, skip forward past any non-code-shaped tokens, and once a code-shaped
+  // token is found, the very next token is the value. This tolerates a label
+  // match that stops short of the label's full trailing text (exact wording
+  // drifts across ITR forms and AY versions), which a fixed-length character
+  // window does not.
+  function esc(s){ return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
+  function L(label){ return new RegExp(label.trim().split(/\s+/).map(esc).join('\\s+'), 'i'); }
+  const codeTok = /^\d+[a-zA-Z]{0,3}$/;
+  const valTok = /^-?[\d,]+(?:\.\d+)?$/;
+
+  function valueNear(sectionText, labelStr){
+    const labelRe = L(labelStr);
+    const labelMatch = sectionText.match(labelRe);
+    if (!labelMatch) return undefined;
+    const labelEnd = labelMatch.index + labelMatch[0].length;
+    const after = sectionText.slice(labelEnd, labelEnd + 400);
+    const tokens = after.split('\n').map(t => t.trim()).filter(Boolean);
+    let i = 0;
+    while (i < tokens.length && !codeTok.test(tokens[i])) i++;
+    if (i >= tokens.length) return undefined;
+    const candidate = tokens[i + 1];
+    if (!candidate || !valTok.test(candidate)) return undefined;
+    const n = parseFloat(candidate.replace(/,/g, ''));
+    return isNaN(n) ? undefined : n;
+  }
+
+  // Simpler sibling of valueNear() for schedule tables that don't follow the
+  // Part B-TI/TTI "digit-led code" convention -- e.g. a table row that goes
+  // straight from label to value with no code column at all (the exempt-
+  // allowance table), or one whose code is a bare letter combo like "bi"
+  // rather than digit-led (Schedule OS's interest sub-rows). Verified against
+  // both patterns in a real filed return. `skipCode: true` skips exactly one
+  // short token (whatever it is) between the label and the value.
+  function simpleValueAfter(sectionText, labelStr, opts){
+    const labelSrc = labelStr.trim().split(/\s+/).map(esc).join('\\s+');
+    return looseValueAfter(sectionText, labelSrc, opts);
+  }
+
+  // Sibling of simpleValueAfter that takes a raw (already regex-ready)
+  // pattern instead of a plain-text label -- for rows whose description
+  // wording varies too much even for a literal word-by-word label match
+  // (e.g. "Interest from Savings Bank" vs "Interest from Saving Bank
+  // Account"), where only a short, flexible fragment (e.g. "Saving[s]?
+  // \s*Bank") is reliably stable across ITR forms/AY versions.
+  function looseValueAfter(sectionText, patternSrc, opts){
+    const skip = (opts && opts.skipCode) ? '[a-zA-Z0-9]{1,6}\\s*\\n\\s*' : '';
+    const re = new RegExp(patternSrc + '[\\s\\S]{0,250}?\\n\\s*' + skip + '(-?[\\d,]+)\\s*\\n', 'i');
+    const m = sectionText.match(re);
+    if (!m) return undefined;
+    const n = parseFloat(m[1].replace(/,/g, ''));
+    return isNaN(n) ? undefined : n;
+  }
+
+  const tiIdx = clean.search(L('PART B – TI COMPUTATION OF TOTAL INCOME')) >= 0
+    ? clean.search(L('PART B – TI COMPUTATION OF TOTAL INCOME'))
+    : clean.search(L('PART B-TI COMPUTATION OF TOTAL INCOME'));
+  const ttiIdx = clean.search(L('COMPUTATION OF TAX LIABILITY ON TOTAL INCOME'));
+  const tiSection = tiIdx !== -1 ? clean.slice(tiIdx, ttiIdx !== -1 ? ttiIdx : tiIdx + 8000) : '';
+  const ttiSection = ttiIdx !== -1 ? clean.slice(ttiIdx, ttiIdx + 8000) : '';
+
+  // Each label below is matched IN FULL, including its trailing parenthetical
+  // formula reference (e.g. "(6 of Schedule S)") -- that's deliberate: the
+  // parenthetical itself contains stray digits ("6", "7-8", "9-11"...), so
+  // matching only up to the closing ")" guarantees whatever comes right after
+  // is the row's own item code, not a number borrowed from inside the label.
+  // Truncating these labels was tried and caused exactly that misread.
+  if (tiSection){
+    found.piSalary        = valueNear(tiSection, 'Salaries (6 of Schedule S)');
+    found.piHP             = valueNear(tiSection, 'Income from house property (3 of Schedule-HP)') ??
+                              valueNear(tiSection, 'Income from house property (3 of Schedule- HP)');
+    found.piBusiness       = valueNear(tiSection, 'Total (3i + 3ii + 3iii + 3iv)');
+    found.piCapGains       = valueNear(tiSection, 'Total Capital Gains (3c+3d)');
+    found.piOtherSources   = valueNear(tiSection, 'Total (4a + 4b + 4c)(enter nil if loss)') ??
+                              valueNear(tiSection, 'Total (4a + 4b + 4c) (enter nil if loss)');
+    found.piGrossTotal     = valueNear(tiSection, 'Gross Total income (7-8)');
+    found.piDeductionsVIA  = valueNear(tiSection, 'Deductions under Chapter VI-A [v of Schedule VIA') ??
+                              valueNear(tiSection, 'Deductions under Chapter VI-A');
+    found.piTotalIncome    = valueNear(tiSection, 'Total income (9 - 11)') ??
+                              valueNear(tiSection, 'Total income(9-11)');
+    // Portion of Total Income taxed at special (non-slab) rates -- used to
+    // split Total Income into its slab-taxed and special-rate-taxed parts
+    // for the slab-wise breakdown below.
+    found.piSpecialRateIncluded = valueNear(tiSection, 'Income which is included in 12 and chargeable to tax at special rates') ??
+                                   valueNear(tiSection, 'chargeable to tax at special rates (total of column (i) of schedule SI)');
+  }
+
+  if (ttiSection){
+    found.ttiTaxNormal      = valueNear(ttiSection, 'Tax at normal rates on 15 of Part B-TI');
+    found.ttiTaxSpecial     = valueNear(ttiSection, 'Tax at special rates (total of col.(ii) of Schedule-SI)') ??
+                               valueNear(ttiSection, 'Tax at special rates (total of col (ii) of Schedule-SI)');
+    found.ttiTaxPayable     = valueNear(ttiSection, 'Tax Payable on Total Income (2a + 2b -2c)') ??
+                               valueNear(ttiSection, 'Tax Payable on Total Income (2a + 2b-2c)');
+    found.ttiRebate87A      = valueNear(ttiSection, 'Rebate under section 87A');
+    found.ttiTaxAfterRebate = valueNear(ttiSection, 'Tax Payable after rebate (2d-3)') ??
+                               valueNear(ttiSection, 'Tax payable after rebate (2d');
+    found.ttiSurcharge      = valueNear(ttiSection, 'Total (ia + iia)');
+    found.ttiCess           = valueNear(ttiSection, 'Health and Education cess @ 4% on (4 + 5iv)') ??
+                               valueNear(ttiSection, 'Health and Education Cess @ 4% on (4 + 5iv)');
+    found.ttiGrossTaxLiab   = valueNear(ttiSection, 'Gross tax liability (4 + 5iv + 6)');
+    found.ttiInterestFee    = valueNear(ttiSection, 'Total Interest and Fee Payable (13a+13b+13c+13d)') ??
+                               valueNear(ttiSection, 'Total Interest and Fee Payable');
+    found.ttiAggregateLiab  = valueNear(ttiSection, 'Aggregate liability (12+13e)');
+    found.ttiAdvanceTax     = valueNear(ttiSection, 'Advance Tax (from column 5 of 20A)');
+    found.ttiTDS            = valueNear(ttiSection, 'TDS (total of column 5 of 20B and column 9 of 20C)');
+    found.ttiTCS            = valueNear(ttiSection, 'TCS (total of column 7(i) of 20D)');
+    found.ttiSelfAssessment = valueNear(ttiSection, 'Self Assessment Tax (from column 5 of 20A)');
+    found.ttiTotalTaxesPaid = valueNear(ttiSection, 'Total Taxes Paid (15a+15b+15c+15d)');
+    found.ttiAmountPayable  = valueNear(ttiSection, 'Amount payable (Enter if 14 is greater than 15e, else enter 0)') ??
+                               valueNear(ttiSection, 'Amount payable (Enter if 14 is greater than 15e');
+    found.ttiRefund         = valueNear(ttiSection, 'Refund (If 15e is greater than 14)');
+  }
+
+  found.stdDedFiled = valueNear(clean, 'Standard deduction u/s 16(ia)');
+
+  // Schedule HP's own total (item 3) carries the true signed figure, including
+  // losses -- Part B-TI zeroes losses out per its "(Enter nil if loss)" note,
+  // so this is preferred over piHP above whenever it's present. Matched loosely
+  // (not via the L() word-splitter) because the source PDF renders this label
+  // with curly quotes and a Unicode summation glyph that vary by generator.
+  const hpActualMatch = clean.match(/Income under the head[\s\S]{0,60}house property[\s\S]{0,80}?\n\s*3\s*\n\s*(-?[\d,]+)/i);
+  if (hpActualMatch) found.hpActual = parseFloat(hpActualMatch[1].replace(/,/g, ''));
+
+  // ---- Per-head line-item detail (Schedule S / HP / SI / OS / 80C / 80D) ----
+  // Each of these mirrors a specific, verified schedule in the government
+  // acknowledgement PDF (checked against a real filed ITR-2). All are
+  // best-effort on top of the Part B-TI/TTI totals above -- if a schedule
+  // isn't present, or its wording doesn't match, these just come back
+  // undefined/empty and the totals above remain authoritative.
+
+  // Schedule S: one block per employer, each starting "Name of Employer".
+  found.salaryEmployers = [];
+  {
+    const employerRe = /Name of Employer\s*\n\s*([^\n]+)/gi;
+    const idxs = [];
+    let m;
+    while ((m = employerRe.exec(clean)) !== null) idxs.push({ idx: m.index, name: m[1].trim() });
+    for (let k = 0; k < idxs.length; k++){
+      const blockEnd = k + 1 < idxs.length ? idxs[k+1].idx : idxs[k].idx + 3000;
+      const block = clean.slice(idxs[k].idx, blockEnd);
+      const s171 = valueNear(block, 'Salary as per section 17(1)');
+      const gross = valueNear(block, 'Gross Salary (1a + 1b + 1c + 1d + 1e + 1f)');
+      if (s171 !== undefined || gross !== undefined){
+        found.salaryEmployers.push({ name: idxs[k].name, salary17_1: s171, gross });
+      }
+    }
+  }
+  // Exempt allowances u/s 10 -- fixed 7-row table in Schedule S. The
+  // dropdown option TEXT after "Sec 10(nn)-" varies across AY/utility
+  // versions (e.g. one year prints "Sec 10(13A)-House Rent Allowance",
+  // another prints "Sec 10(13A)-Allowance to meet expenditure incurred on
+  // house rent" for the exact same HRA row) -- matching that trailing
+  // description was fragile. Anchoring on just the stable "Sec 10(code)-"
+  // prefix (the parenthesized section code never changes) and reading
+  // whatever number follows, regardless of the description text, is robust
+  // to that drift. Each regex requires the closing paren immediately after
+  // the code so e.g. "10(10)" can't accidentally match inside "10(10AA)".
+  {
+    const exIdx = clean.search(L('Nature of Exempt Allowance'));
+    const exSection = exIdx !== -1 ? clean.slice(exIdx, exIdx + 2500) : '';
+    function sec10Value(sectionText, code){
+      const re = new RegExp('Sec\\s*10\\(' + esc(code) + '\\)[\\s\\S]{0,300}?\\n\\s*(-?[\\d,]+)\\s*\\n', 'i');
+      const m = sectionText.match(re);
+      if (!m) return undefined;
+      const n = parseFloat(m[1].replace(/,/g, ''));
+      return isNaN(n) ? undefined : n;
+    }
+    const exemptLabels = [
+      ['Travel concession/assistance (s.10(5))', () => sec10Value(exSection, '5')],
+      ['Death-cum-retirement gratuity (s.10(10))', () => sec10Value(exSection, '10')],
+      ['Commuted pension (s.10(10A))', () => sec10Value(exSection, '10A')],
+      ['Earned leave encashment (s.10(10AA))', () => sec10Value(exSection, '10AA')],
+      ['House Rent Allowance (s.10(13A))', () => sec10Value(exSection, '13A')],
+      ['Other exempt allowance', () => simpleValueAfter(exSection, 'Any Other') ?? simpleValueAfter(exSection, 'Others')],
+      ['Allowances u/s 10(14)', () => sec10Value(exSection, '14')],
+    ];
+    found.exemptAllowances = exSection ? exemptLabels
+      .map(([label, get]) => ({ label, amount: get() }))
+      .filter(r => r.amount) : [];
+  }
+  found.salaryProfTax = valueNear(clean, 'Professional tax u/s 16(iii)');
+
+  // Schedule HP: interest on borrowed capital + the 30% standard deduction.
+  // The 30% row's label text itself differs by form -- ITR-2 prints "30% of
+  // 1f" (referencing its own item code), ITR-4 prints "30% of Annual Value"
+  // -- so both variants are tried.
+  found.hpInterest24b = valueNear(clean, 'Interest payable on borrowed capital');
+  found.hp30pct = valueNear(clean, '30% of 1f') ?? valueNear(clean, '30% of Annual Value');
+
+  // Schedule SI: rate-wise table of special-rate income is walked generically
+  // (Sl.No -> description -> rate% -> income -> tax, ~78 fixed rows) rather
+  // than hardcoded, since the row count/order can shift between AY versions --
+  // only rows with non-zero income are kept.
+  {
+    const siIdx = clean.search(/SCHEDULE SI[\s\S]{0,60}INCOME CHARGEABLE TO TAX AT SPECIAL RATES/i);
+    if (siIdx !== -1){
+      const siEndIdx = clean.indexOf('SCHEDULE EI', siIdx);
+      const siSection = clean.slice(siIdx, siEndIdx !== -1 ? siEndIdx : siIdx + 20000);
+      const tokens = siSection.split('\n').map(t => t.trim()).filter(Boolean);
+      const rateIdxs = [];
+      tokens.forEach((t, i) => { if (/^\d{1,2}\.\d$/.test(t)) rateIdxs.push(i); });
+      const rows = [];
+      let prevEnd = 0;
+      for (const ri of rateIdxs){
+        const income = tokens[ri+1], tax = tokens[ri+2];
+        if (!/^[\d,]+$/.test(income || '')) continue;
+        let descTokens = tokens.slice(prevEnd, ri);
+        if (descTokens.length && /^\d{1,3}$/.test(descTokens[0])) descTokens = descTokens.slice(1);
+        const incomeNum = parseFloat(income.replace(/,/g, ''));
+        if (incomeNum > 0){
+          rows.push({
+            description: descTokens.join(' ').replace(/\s+/g, ' ').trim().slice(-140),
+            rate: parseFloat(tokens[ri]),
+            income: incomeNum,
+            tax: parseFloat((tax || '0').replace(/,/g, ''))
+          });
+        }
+        prevEnd = ri + 3;
+      }
+      found.capitalGainsSI = rows;
+    }
+  }
+
+  // Schedule OS: dividend + interest sub-heads (these rows repeat their own
+  // short code, often letter-only like "bi", right before the value -- that
+  // doesn't match valueNear's digit-led code assumption, hence simpleValueAfter).
+  // The dropdown wording for these rows also drifts by form (ITR-2/3 use
+  // "From Savings Bank" / "From Deposits (...)" / "From Income-tax Refund",
+  // while ITR-4's dropdown reads "Interest from Saving Bank Account" /
+  // "Interest from Deposit (Bank/Post Office/Cooperative Society)" /
+  // "Interest from Income Tax Refund") -- so each falls back to a short,
+  // loosely-matched fragment that's common to both wordings.
+  found.osDividend          = simpleValueAfter(clean, 'Dividends, Gross (ai+aii+aiii)', {skipCode:true});
+  found.osInterestSavings   = simpleValueAfter(clean, 'From Savings Bank', {skipCode:true}) ??
+                               looseValueAfter(clean, 'Saving[s]?\\s*Bank', {skipCode:true});
+  found.osInterestDeposits  = simpleValueAfter(clean, 'From Deposits (Bank/ Post Office/ Co-operative', {skipCode:true}) ??
+                               simpleValueAfter(clean, 'From Deposits (Bank/Post Office/Co-operative', {skipCode:true}) ??
+                               looseValueAfter(clean, 'Deposit[s]?\\s*\\(Bank', {skipCode:true});
+  found.osInterestTaxRefund = simpleValueAfter(clean, 'From Income-tax Refund', {skipCode:true}) ??
+                               looseValueAfter(clean, 'Income[\\s-]*[Tt]ax\\s+Refund', {skipCode:true});
+
+  // Chapter VI-A: 80C and 80D each have their own dedicated schedule
+  // elsewhere in the return with a clean, stable "label -> value" line, so
+  // they're pulled from there. Both "Total Deduction u/s 80C" and "Total
+  // OF Deduction u/s 80C" wordings are tried (seen across form versions) --
+  // deliberately NOT relaxed further to just "Deduction u/s 80C", since
+  // that phrase also appears earlier, incidentally, in the plain-language
+  // schedule header ("Amount eligible for deduction u/s 80C") and would
+  // grab that unrelated row's serial number instead of the real total.
+  // Every other Chapter VI-A section appears once in the "SCHEDULE VI-A"
+  // summary table as <code-letter> -> <official label> -> <value>, with NO
+  // code token between label and value. The DESCRIPTION half of each
+  // label's official text was found to vary noticeably across ITR
+  // forms/AY versions (e.g. "80CCD(2)...by the Employer" in one vs "...by
+  // employer" in another; "80GGC-Donation to Political party" vs
+  // "80GGC-Contribution to Political party"; "80TTA-Interest on saving
+  // bank Accounts in case of other than Resident senior citizens" vs the
+  // much shorter ITR-4 wording "80TTA - Interest on savings bank
+  // account") -- so, exactly like the Sec 10 exempt-allowance fix above,
+  // every row here is anchored on just its stable bracketed/plain SECTION
+  // CODE (e.g. "80CCC", "80CCD(1)", "80TTA") with a word-boundary check so
+  // a shorter code can't accidentally match as a prefix inside a longer
+  // one (e.g. "80DD" can't match inside "80DDB", "80G" can't match inside
+  // "80GG"/"80GGA"/"80GGC") -- regardless of what description text follows.
+  found.ch80C = simpleValueAfter(clean, 'Total Deduction u/s 80C') ?? simpleValueAfter(clean, 'Total of Deduction u/s 80C');
+  found.ch80D = simpleValueAfter(clean, 'Eligible Amount of Deduction');
+  function chViaValue(code){
+    const boundary = /[A-Za-z0-9]$/.test(code) ? '\\b' : '';
+    const re = new RegExp('\\b' + esc(code) + boundary + '[\\s\\S]{0,300}?\\n\\s*(-?[\\d,]+)\\s*\\n', 'i');
+    const m = clean.match(re);
+    if (!m) return undefined;
+    const n = parseFloat(m[1].replace(/,/g, ''));
+    return isNaN(n) ? undefined : n;
+  }
+  found.ch80CCC   = chViaValue('80CCC');
+  found.ch80CCD1  = chViaValue('80CCD(1)');
+  found.ch80CCD1B = chViaValue('80CCD(1B)');
+  found.ch80CCD2  = chViaValue('80CCD(2)');
+  found.ch80DD    = chViaValue('80DD');
+  found.ch80DDB   = chViaValue('80DDB');
+  found.ch80E     = chViaValue('80E');
+  found.ch80EE    = chViaValue('80EE');
+  found.ch80EEA   = chViaValue('80EEA');
+  found.ch80EEB   = chViaValue('80EEB');
+  found.ch80G     = chViaValue('80G');
+  found.ch80GG    = chViaValue('80GG');
+  found.ch80GGA   = chViaValue('80GGA');
+  found.ch80GGC   = chViaValue('80GGC');
+  found.ch80QQB   = chViaValue('80QQB');
+  found.ch80RRB   = chViaValue('80RRB');
+  found.ch80TTA   = chViaValue('80TTA');
+  found.ch80TTB   = chViaValue('80TTB');
+  found.ch80U     = chViaValue('80U');
+
+  return found;
+}
+
+// ---------- ITR-4 (Sugam) extraction -- deliberately separate from
+// extractFromText() above (which stays untouched and is only used for
+// ITR-1/2/3). ITR-4's filed acknowledgement/computation PDF uses a
+// completely different section layout: "PART B GROSS TOTAL INCOME" / "PART
+// C - DEDUCTIONS AND TAXABLE TOTAL INCOME" / "PART D - TAX COMPUTATIONS AND
+// TAX STATUS" with item codes like B1..B5, C1..C21, D1..D19 (letter-led,
+// e.g. "D1", not digit-led like ITR-2/3's "1", "3e", "15cc"), instead of
+// "PART B-TI"/"PART B-TTI". Verified line-by-line against two real filed
+// ITR-4 PDFs. Every label anchor below matches on a short, stable fragment
+// (never the full official description) for the same reason documented at
+// length above: description wording drifts across AY/utility versions.
+function extractFromTextITR4(rawText){
+  const found = {};
+  const lines = rawText.split('\n')
+    .map(l => l.trim())
+    .filter(Boolean)
+    .filter(l => !/^Acknowledgement Number/i.test(l))
+    .filter(l => !/^Date of Filing/i.test(l))
+    .filter(l => !/if the return is verified/i.test(l))
+    .filter(l => !/notification no\.?\s*05 of 2022/i.test(l));
+  const clean = lines.join('\n');
+
+  found.itrType = 'ITR-4';
+  const ayMatch = clean.match(/Assessment\s+Year\s*\n?\s*(\d{4}-\d{2})/i);
+  if (ayMatch) found.ay = ayMatch[1];
+  const panLabelMatch = clean.match(/Permanent Account Number\s*\n?\s*([A-Z]{5}\d{4}[A-Z])/i);
+  const panMatch = panLabelMatch || clean.match(/\b([A-Z]{5}\d{4}[A-Z])\b/);
+  if (panMatch) found.pan = panMatch[1];
+  const nameITR4 = extractAssesseeName(clean);
+  if (nameITR4) found.name = nameITR4;
+  const optOutMatch = clean.match(/opt out of New Tax Regime[\s\S]{0,120}?\n\s*(Yes|No)\b/i);
+  if (optOutMatch) found.regimeOptOut = /yes/i.test(optOutMatch[1]);
+
+  function esc(s){ return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
+  function L(label){ return new RegExp(label.trim().split(/\s+/).map(esc).join('\\s+'), 'i'); }
+  // Every row in ITR-4's PDF, in both Part B/C (code before label) and Part D
+  // (label, then code REPEATED, then value) ultimately reduces to "label
+  // text ... first line that's purely a number" -- so a single lazy-scan
+  // matcher (skip anything, incl. code tokens like "B2"/"iva"/"D12", until
+  // hitting a standalone numeric line) covers both shapes without needing to
+  // know which shape a given row uses.
+  function valueAfter(labelStr, opts){
+    const labelSrc = labelStr.trim().split(/\s+/).map(esc).join('\\s+');
+    const skip = (opts && opts.skipCode) ? '[a-zA-Z0-9()]{1,8}\\s*\\n\\s*' : '';
+    const re = new RegExp(labelSrc + '[\\s\\S]{0,300}?\\n\\s*' + skip + '(-?[\\d,]+)\\s*\\n', 'i');
+    const m = clean.match(re);
+    if (!m) return undefined;
+    const n = parseFloat(m[1].replace(/,/g, ''));
+    return isNaN(n) ? undefined : n;
+  }
+  // Same idea as valueAfter() but for a raw section-code fragment (e.g.
+  // "80CCD(2)", "Sec 10(13A)") rather than a full label -- for Chapter VI-A
+  // and exempt-allowance rows, whose trailing description text is the part
+  // most likely to have changed between AY/utility versions.
+  function valueAfterCode(codeStr){
+    const boundary = /[A-Za-z0-9]$/.test(codeStr) ? '\\b' : '';
+    const re = new RegExp('\\b' + codeStr.split('').map(esc).join('') + boundary + '[\\s\\S]{0,300}?\\n\\s*(-?[\\d,]+)\\s*\\n', 'i');
+    const m = clean.match(re);
+    if (!m) return undefined;
+    const n = parseFloat(m[1].replace(/,/g, ''));
+    return isNaN(n) ? undefined : n;
+  }
+  const valTok = /^-?[\d,]+(?:\.\d+)?$/;
+  // A handful of ITR-4 total rows (e.g. "Taxable Total Income") print
+  // several placeholder "0" lines (unused split-by-category columns) before
+  // the real total -- valueAfter()/valueAfterCode() above grab the FIRST
+  // number after a label, which would be one of those placeholders. This
+  // instead walks every number immediately following the label (skipping
+  // any short non-numeric code tokens in between, stopping once content
+  // moves on to something else) and keeps the LAST one seen -- correct
+  // whether there's one number or several.
+  function lastNumberAfter(labelStr){
+    const labelRe = L(labelStr);
+    const m = clean.match(labelRe);
+    if (!m) return undefined;
+    const after = clean.slice(m.index + m[0].length, m.index + m[0].length + 500);
+    const tokens = after.split('\n').map(t => t.trim()).filter(Boolean);
+    // Skip forward past however much leftover-formula/note text sits between
+    // the label and the first real number (that gap length varies a lot --
+    // e.g. one form adds a whole explanatory "Note:" sentence, another
+    // doesn't), then consume a consecutive run of numbers and keep the last
+    // one, stopping as soon as non-numeric content resumes after that run.
+    let i = 0;
+    while (i < tokens.length && !valTok.test(tokens[i])) i++;
+    let last;
+    while (i < tokens.length && valTok.test(tokens[i])){ last = tokens[i]; i++; }
+    if (last === undefined) return undefined;
+    const n = parseFloat(last.replace(/,/g, ''));
+    return isNaN(n) ? undefined : n;
+  }
+
+  // ---- Part B: Gross Total Income ----
+  found.piBusiness     = valueAfter('Income from Business & Profession', {skipCode:true}) ??
+                          valueAfter('Income from Business and Profession', {skipCode:true});
+
+  // ---- Schedule BP detail: which presumptive-taxation section (44AD /
+  // 44ADA / 44AE) the business income actually comes from, plus the
+  // gross turnover/receipts behind it. Scoped to the "SCHEDULE BP" section
+  // of the document so codes like "E1"/"E3" can't collide with anything
+  // outside it. ----
+  {
+    const bpIdx = clean.search(L('SCHEDULE BP'));
+    const bpEndIdx = bpIdx !== -1 ? clean.indexOf('SCHEDULE', bpIdx + 20) : -1;
+    const bpSection = bpIdx !== -1 ? clean.slice(bpIdx, bpEndIdx !== -1 ? bpEndIdx : bpIdx + 12000) : '';
+    if (bpSection){
+      const bpValue = (labelStr) => {
+        const labelRe = L(labelStr);
+        const m = bpSection.match(labelRe);
+        if (!m) return undefined;
+        const after = bpSection.slice(m.index + m[0].length, m.index + m[0].length + 500);
+        const tokens = after.split('\n').map(t => t.trim()).filter(Boolean);
+        let i = 0;
+        while (i < tokens.length && !valTok.test(tokens[i])) i++;
+        if (i >= tokens.length) return undefined;
+        const n = parseFloat(tokens[i].replace(/,/g, ''));
+        return isNaN(n) ? undefined : n;
+      };
+      found.biz44ADTurnover  = bpValue('Gross Turnover or Gross Receipts');
+      found.biz44ADIncome    = bpValue('Total (a + b)');
+      found.biz44ADAReceipts = bpValue('Gross Receipts (E3');
+      found.biz44ADAIncome   = bpValue('Presumptive Income under section 44ADA');
+      found.biz44AEIncome    = bpValue('Presumptive Income u/s 44AE (E5-E6)') ?? bpValue('Presumptive Income u/s 44AE');
+    }
+  }
+  found.piSalary        = valueAfter("Income chargeable under the head 'Salaries'", {skipCode:true}) ??
+                           valueAfter('Income chargeable under the head Salaries', {skipCode:true});
+  found.piHP             = valueAfter("Income chargeable under the head 'House Property'", {skipCode:true}) ??
+                            valueAfter('Income chargeable under the head House Property', {skipCode:true});
+  found.piOtherSources   = valueAfter('Income from Other Sources', {skipCode:true});
+  found.piGrossTotal     = valueAfter('Gross Total Income (B1', {skipCode:true}) ??
+                            lastNumberAfter('Gross Total Income (B1');
+  found.piCapGains       = 0; // ITR-4/Sugam has no general capital-gains schedule (only LTCG 112A up to the exempt threshold is eligible)
+  found.piSpecialRateIncluded = 0;
+
+  // ---- Salary detail ----
+  found.salaryEmployers = [];
+  {
+    const g = valueAfter('Salary as per section 17(1)', {skipCode:true});
+    if (g !== undefined) found.salaryEmployers.push({ name: undefined, salary17_1: g, gross: g });
+  }
+  found.stdDedFiled   = valueAfter('Standard deduction u/s 16(ia)', {skipCode:true});
+  found.salaryProfTax = valueAfter('Professional tax u/s 16(iii)', {skipCode:true});
+  {
+    const exIdx = clean.search(L('Nature of Exempt Allowance'));
+    const exSection = exIdx !== -1 ? clean.slice(exIdx, exIdx + 2500) : '';
+    function sec10Value(code){
+      const re = new RegExp('Sec\\s*10\\(' + esc(code) + '\\)[\\s\\S]{0,300}?\\n\\s*(-?[\\d,]+)\\s*\\n', 'i');
+      const m = exSection.match(re);
+      if (!m) return undefined;
+      const n = parseFloat(m[1].replace(/,/g, ''));
+      return isNaN(n) ? undefined : n;
+    }
+    function anyOther(){
+      // The table's own COLUMN HEADER text ("Description ( If Any Other
+      // selected)") also contains the substring "Any Other" and sits before
+      // the real data row -- the negative lookahead skips that false match.
+      const re = /Any\s*Other(?!\s*selected)[\s\S]{0,300}?\n\s*(-?[\d,]+)\s*\n/i;
+      const m = exSection.match(re);
+      if (!m) return undefined;
+      const n = parseFloat(m[1].replace(/,/g, ''));
+      return isNaN(n) ? undefined : n;
+    }
+    const exemptLabels = [
+      ['Travel concession/assistance (s.10(5))', () => sec10Value('5')],
+      ['Death-cum-retirement gratuity (s.10(10))', () => sec10Value('10')],
+      ['Commuted pension (s.10(10A))', () => sec10Value('10A')],
+      ['Earned leave encashment (s.10(10AA))', () => sec10Value('10AA')],
+      ['House Rent Allowance (s.10(13A))', () => sec10Value('13A')],
+      ['Other exempt allowance', anyOther],
+      ['Allowances u/s 10(14)', () => sec10Value('14')],
+    ];
+    found.exemptAllowances = exSection ? exemptLabels
+      .map(([label, get]) => ({ label, amount: get() }))
+      .filter(r => r.amount) : [];
+  }
+
+  // ---- House Property detail ----
+  found.hpInterest24b = valueAfter('Interest payable on borrowed capital', {skipCode:true});
+  found.hp30pct        = valueAfter('30% of Annual Value', {skipCode:true});
+  found.hpActual        = found.piHP; // ITR-4 prints the true signed HP figure directly (max loss already capped at -2L by the form itself), unlike ITR-2/3's Part B-TI convention of zeroing a loss
+
+  // ---- Other Sources detail (dropdown wording seen so far: "Interest from
+  // Saving Account", "Interest from Income Tax Refund" -- anchored on the
+  // shared "Interest from Saving..."/"...Tax Refund" fragment for the same
+  // drift reasons as the ITR-2/3 fallbacks added above). ----
+  found.osInterestSavings   = valueAfter('Interest from Saving', {skipCode:false});
+  found.osInterestDeposits  = valueAfter('Interest from Deposit', {skipCode:false});
+  found.osInterestTaxRefund = valueAfter('Income Tax Refund', {skipCode:false}) ??
+                               valueAfter('Income-tax Refund', {skipCode:false});
+  found.osDividend = undefined; // no distinct dividend row observed in ITR-4's Other-Sources dropdown
+
+  // ---- Part C: Chapter VI-A ----
+  found.piDeductionsVIA = valueAfter('Total deductions (Add items', {skipCode:true}) ??
+                           valueAfter('Total Deductions (Add items', {skipCode:true});
+  found.ch80C     = valueAfterCode('80C');
+  found.ch80CCC   = valueAfterCode('80CCC');
+  found.ch80CCD1  = valueAfterCode('80CCD(1)');
+  found.ch80CCD1B = valueAfterCode('80CCD(1B)');
+  found.ch80CCD2  = valueAfterCode('80CCD(2)');
+  found.ch80D     = valueAfterCode('80D');
+  found.ch80DD    = valueAfterCode('80DD');
+  found.ch80DDB   = valueAfterCode('80DDB');
+  found.ch80E     = valueAfterCode('80E');
+  found.ch80EE    = valueAfterCode('80EE');
+  found.ch80EEA   = valueAfterCode('80EEA');
+  found.ch80EEB   = valueAfterCode('80EEB');
+  found.ch80G     = valueAfterCode('80G');
+  found.ch80GG    = valueAfterCode('80GG');
+  found.ch80GGA   = valueAfterCode('80GGA');
+  found.ch80GGC   = valueAfterCode('80GGC');
+  found.ch80QQB   = valueAfterCode('80QQB');
+  found.ch80RRB   = valueAfterCode('80RRB');
+  found.ch80TTA   = valueAfterCode('80TTA');
+  found.ch80TTB   = valueAfterCode('80TTB');
+  found.ch80U     = valueAfterCode('80U');
+
+  // ---- Taxable Total Income ----
+  found.piTotalIncome = lastNumberAfter('Taxable Total Income (B5');
+
+  // ---- Part D: Tax computation (D1..D19) ----
+  found.ttiTaxNormal      = valueAfter('Tax payable on total income', {skipCode:true});
+  found.ttiTaxSpecial     = 0;
+  found.ttiTaxPayable     = found.ttiTaxNormal;
+  found.ttiRebate87A      = valueAfter('Rebate u/s 87A', {skipCode:true});
+  found.ttiTaxAfterRebate = valueAfter('Tax payable after Rebate', {skipCode:true});
+  found.ttiCess           = valueAfter('Health and Education Cess', {skipCode:true});
+  const totalTaxCess      = valueAfter('Total Tax, and Cess', {skipCode:true}) ?? valueAfter('Total Tax and Cess', {skipCode:true}) ?? valueAfter('Total Tax & Cess', {skipCode:true});
+  const relief89          = valueAfter('Relief u/s 89', {skipCode:true}) || 0;
+  found.ttiSurcharge      = 0; // ITR-4 is capped at Rs 50L total income, so surcharge never applies
+  found.ttiGrossTaxLiab   = totalTaxCess !== undefined ? totalTaxCess - relief89 : undefined; // = "Balance Tax after Relief" (D7), i.e. tax + cess net of s.89 relief
+  const interest234A = valueAfter('Total Interest u/s 234A', {skipCode:true}) || 0;
+  const interest234B = valueAfter('Total Interest u/s 234B', {skipCode:true}) || 0;
+  const interest234C = valueAfter('Total Interest u/s 234C', {skipCode:true}) || 0;
+  const fee234F       = valueAfter('Fee u/s 234F', {skipCode:true}) || 0;
+  found.ttiInterestFee  = interest234A + interest234B + interest234C + fee234F;
+  found.ttiAggregateLiab = valueAfter('Total Tax, Fee and Interest', {skipCode:true});
+  found.ttiAdvanceTax     = valueAfter('Total Advance Tax Paid', {skipCode:true});
+  found.ttiSelfAssessment = valueAfter('Total Self-Assessment Tax Paid', {skipCode:true});
+  found.ttiTDS             = valueAfter('Total TDS Claimed', {skipCode:true});
+  found.ttiTCS             = valueAfter('Total TCS Collected', {skipCode:true});
+  found.ttiTotalTaxesPaid = valueAfter('Total Taxes Paid', {skipCode:true});
+  found.ttiAmountPayable   = valueAfter('Amount payable (D12', {skipCode:true}) ?? valueAfter('Amount payable', {skipCode:true});
+  found.ttiRefund           = valueAfter('Refund (D17', {skipCode:true}) ?? valueAfter('Refund (', {skipCode:true});
+
+  return found;
+}
+
+// ---------- Assessment-year slab / rebate tables ----------
+const AY_TABLE = {
+  '2024-25': {
+    new: { std: 50000, rebateLimit: 700000, rebateMax: 25000,
+      slabs: [[300000,0],[600000,0.05],[900000,0.10],[1200000,0.15],[1500000,0.20],[Infinity,0.30]] },
+    old: { std: 50000, rebateLimit: 500000, rebateMax: 12500,
+      slabs: [[250000,0],[500000,0.05],[1000000,0.20],[Infinity,0.30]] }
+  },
+  '2025-26': {
+    new: { std: 75000, rebateLimit: 700000, rebateMax: 25000,
+      slabs: [[300000,0],[700000,0.05],[1000000,0.10],[1200000,0.15],[1500000,0.20],[Infinity,0.30]] },
+    old: { std: 50000, rebateLimit: 500000, rebateMax: 12500,
+      slabs: [[250000,0],[500000,0.05],[1000000,0.20],[Infinity,0.30]] }
+  },
+  '2026-27': {
+    new: { std: 75000, rebateLimit: 1200000, rebateMax: 60000,
+      slabs: [[400000,0],[800000,0.05],[1200000,0.10],[1600000,0.15],[2000000,0.20],[2400000,0.25],[Infinity,0.30]] },
+    old: { std: 50000, rebateLimit: 500000, rebateMax: 12500,
+      slabs: [[250000,0],[500000,0.05],[1000000,0.20],[Infinity,0.30]] }
+  }
+};
+function ayConfig(){ return AY_TABLE[$('f_ay').value] || AY_TABLE['2026-27']; }
+
+// Holds the figures pulled straight from the uploaded return (Part B-TI / B-TTI),
+// kept separate from the editable fields so the output screen can show an
+// "as filed vs. recomputed" comparison.
+let asFiled = null;
+
+// ---------- Apply extraction to form ----------
+function applyExtraction(ext, sourceKind, pickedType){
+  asFiled = ext;
+  let count = 0;
+  const set = (id, val, mark) => { const el = $(id); el.value = val; if (mark !== false) el.classList.add('extracted'); count++; };
+
+  if (ext.name) set('f_name', ext.name);
+  if (ext.pan) set('f_pan', ext.pan);
+
+  // ITR type: the document's own detected type is the source of truth (it's
+  // read straight off the form header); what the user picked before uploading
+  // is the fallback if detection failed, and is cross-checked either way.
+  const resolvedType = ext.itrType || pickedType;
+  if (resolvedType){
+    $('f_itrType').value = resolvedType;
+    toggleBizFields(resolvedType);
+    if (ext.itrType) count++;
+  }
+  let itrMismatchMsg = '';
+  if (pickedType && ext.itrType && pickedType !== ext.itrType){
+    itrMismatchMsg = ' Note: you selected ' + pickedType + ', but this file looks like ' + ext.itrType + ' — using ' + ext.itrType + ' (from the document itself). Re-upload against the right selection if that\'s wrong.';
+  }
+
+  if (ext.ay && AY_TABLE[ext.ay]){
+    $('f_ay').value = ext.ay;
+    count++;
+  }
+
+  // Regime detection first — setRegime() resets the Standard Deduction field to
+  // the AY/regime default, so it must run BEFORE the salary block below
+  // overrides that field to 0 (otherwise it clobbers the override).
+  // Explicit opt-out checkbox wins; otherwise infer from the standard-deduction
+  // amount actually claimed (Rs 50,000 => old, Rs 75,000 => new, for FY24-25/25-26).
+  if (ext.regimeOptOut === true) setRegime('old');
+  else if (ext.regimeOptOut === false) setRegime('new');
+  else if (ext.stdDedFiled === 50000) setRegime('old');
+  else if (ext.stdDedFiled === 75000) setRegime('new');
+
+  // Part B-TI's "Salaries" figure is already net of the standard deduction --
+  // push it straight into the head total and zero out Standard Deduction so
+  // compute() doesn't subtract it a second time.
+  if (ext.piSalary !== undefined){ set('f_salaryGross', ext.piSalary); set('f_stdDed', 0); $('salaryExtractNote').style.display = 'block'; }
+  // House property: use the true signed figure from Schedule HP (item 3) when
+  // available -- Part B-TI's own "Income from house property" line is forced
+  // to 0 for a loss year (the loss instead flows through Schedule CYLA), so
+  // using that would silently drop a genuine loss from the recomputation.
+  if (ext.hpActual !== undefined) set('f_hp', ext.hpActual);
+  else if (ext.piHP !== undefined) set('f_hp', ext.piHP);
+  if (ext.piOtherSources !== undefined) set('f_other', ext.piOtherSources);
+  if (ext.piCapGains){
+    // Total capital gains figure found, but the split between STCG/LTCG sub-rates
+    // isn't auto-mapped (Schedule CG layout varies too much to parse reliably) --
+    // left for manual entry, flagged via the status banner below.
+  }
+
+  if (ext.ttiTDS !== undefined) set('f_tds', ext.ttiTDS);
+  if (ext.ttiTCS !== undefined) set('f_tcs', ext.ttiTCS);
+  if (ext.ttiAdvanceTax !== undefined) set('f_advTax', ext.ttiAdvanceTax);
+  if (ext.ttiSelfAssessment !== undefined) set('f_satAx', ext.ttiSelfAssessment);
+
+  // The tool only ever shows figures read directly from the uploaded return
+  // -- there's no manual-entry fallback. If the return's own total income
+  // and tax liability figures were found, generate the computation sheet
+  // straight from those (the return's own arithmetic, not a re-derivation).
+  // If not, say so plainly instead of asking the user to type numbers in.
+  if (ext.piTotalIncome !== undefined && ext.ttiGrossTaxLiab !== undefined){
+    showStatus('Extracted ' + count + ' field(s) from the ' + sourceKind + '.' + itrMismatchMsg, itrMismatchMsg ? 'warn' : 'good');
+    renderAsFiled(ext, resolvedType || 'ITR-2');
+    syncNameEditor(ext.name);
+    $('panel-output').style.display = 'block';
+    $('panel-output').scrollIntoView({behavior:'smooth'});
+  } else {
+    showStatus('Could not confidently read this return\'s total income and tax figures from the ' + sourceKind + '. This usually means the file isn\'t a standard government e-filing acknowledgement/computation PDF (or JSON) in a layout this tool recognizes yet.' + itrMismatchMsg, 'bad');
+  }
+}
+
+function toggleBizFields(type){
+  $('grp_biz').style.display = (type === 'ITR-3' || type === 'ITR-4') ? 'block' : 'none';
+}
+$('f_itrType').addEventListener('change', e => toggleBizFields(e.target.value));
+toggleBizFields('ITR-1');
+
+// ---------- Regime toggle ----------
+let regime = 'new';
+$('regNew').addEventListener('click', () => setRegime('new'));
+$('regOld').addEventListener('click', () => setRegime('old'));
+$('f_ay').addEventListener('change', () => setRegime(regime));
+function setRegime(r){
+  regime = r;
+  $('regNew').classList.toggle('active', r==='new');
+  $('regOld').classList.toggle('active', r==='old');
+  $('grp_oldDeductions').style.display = r==='old' ? 'block' : 'none';
+  $('grp_newDeductions').style.display = r==='new' ? 'block' : 'none';
+  $('wrap_stdDed').querySelector('input').value = ayConfig()[r].std;
+  $('ay-badge').textContent = 'AY ' + $('f_ay').value + ' · ' + (r==='old' ? 'Old Regime' : 'New Regime');
+}
+
+// ---------- Reset ----------
+$('resetBtn').addEventListener('click', () => {
+  document.querySelectorAll('#panel-fields input[type=number]').forEach(el => { el.value = 0; el.classList.remove('extracted'); });
+  $('f_stdDed').value = ayConfig()[regime].std;
+  $('f_name').value=''; $('f_pan').value='';
+  $('salaryExtractNote').style.display = 'none';
+  asFiled = null;
+  document.querySelectorAll('.extracted').forEach(el => el.classList.remove('extracted'));
+});
+
+// ---------- Tax slab computation (AY + regime aware) ----------
+function slabTax(ti, cfg){
+  let tax = 0, prev = 0, rows = [];
+  for (const [upto, rate] of cfg.slabs){
+    const top = Math.min(ti, upto);
+    const slice = Math.max(0, top - prev);
+    const taxOnSlice = slice * rate;
+    if (ti > prev){ rows.push({from:prev, to: upto===Infinity? null: upto, rate, slice, tax: taxOnSlice}); }
+    tax += taxOnSlice;
+    prev = upto;
+    if (ti <= upto) break;
+  }
+  return {tax, rows};
+}
+
+$('computeBtn').addEventListener('click', compute);
+$('printBtn').addEventListener('click', () => window.print());
+
+// ---------- Name of assessee (editable, prints on the sheet) ----------
+// Both renderers emit a .doc-name element in the sheet header; this keeps it
+// in sync with the editable field so a name the extractor missed can simply
+// be typed in before printing.
+function paintName(v){
+  const el = document.querySelector('#outputArea .doc-name');
+  if (el) el.textContent = (v || '').trim().toUpperCase();
+}
+function syncNameEditor(extractedName){
+  const box = $('f_nameEdit');
+  if (!box) return;
+  const clean = (extractedName && extractedName !== '—') ? String(extractedName).trim() : '';
+  if (clean) box.value = clean;
+  $('f_name').value = box.value;
+  paintName(box.value);
+}
+if ($('f_nameEdit')){
+  $('f_nameEdit').addEventListener('input', e => {
+    $('f_name').value = e.target.value;
+    paintName(e.target.value);
+  });
+}
+
+function compute(){
+  const name = $('f_name').value || '—';
+  const pan = ($('f_pan').value || '—').toUpperCase();
+  const itrType = $('f_itrType').value;
+  const ay = $('f_ay').value || '2026-27';
+  const cfg = ayConfig()[regime];
+
+  const salaryGross = num('f_salaryGross');
+  const stdDed = num('f_stdDed');
+  const salaryNet = Math.max(0, salaryGross - stdDed);
+
+  const hp = num('f_hp');
+  const biz = num('f_biz');
+  const stcg111a = num('f_stcg111a');
+  const stcgOther = num('f_stcgOther');
+  const ltcg112a = num('f_ltcg112a');
+  const ltcgOther = num('f_ltcgOther');
+  const other = num('f_other');
+
+  const specialIncome = stcg111a + stcgOther + ltcg112a + ltcgOther;
+  const normalIncomeBeforeVIA = salaryNet + hp + biz + stcgOther + other; // slab-rate income (special-rate excluded from slab tax)
+
+  const grossTotal = salaryNet + hp + biz + specialIncome + other;
+
+  let deductionsVIA = 0;
+  if (regime === 'old'){
+    const c80c = Math.min(150000, num('f_80c'));
+    const c80d = num('f_80d');
+    const c80tta = num('f_80tta');
+    const hra = num('f_hra');
+    const c80other = num('f_80other');
+    deductionsVIA = c80c + c80d + c80tta + hra + c80other;
+  } else {
+    deductionsVIA = num('f_80ccd2') + num('f_80jjaa');
+  }
+
+  const normalIncomeAfterVIA = Math.max(0, normalIncomeBeforeVIA - deductionsVIA);
+  const totalIncome = Math.round(normalIncomeAfterVIA + specialIncome);
+
+  // Slab tax on normal-rate income only
+  const { tax: taxOnNormal, rows } = slabTax(normalIncomeAfterVIA, cfg);
+
+  // Special rate tax: STCG 111A @20%, LTCG 112A @12.5% (post-23 Jul 2024 rates;
+  // pre-23-Jul-2024 transactions taxed at 15%/10% aren't separately modelled here)
+  const taxSTCG111A = stcg111a * 0.20;
+  const taxLTCG112A = ltcg112a * 0.125;
+  const taxLTCGOther = ltcgOther * 0.125;
+  const taxSpecial = taxSTCG111A + taxLTCG112A + taxLTCGOther;
+
+  const taxBeforeRebate = taxOnNormal + taxSpecial;
+
+  // Rebate 87A (AY-specific limit/cap from cfg)
+  let rebate = 0;
+  if (totalIncome <= cfg.rebateLimit){
+    rebate = Math.min(taxOnNormal, cfg.rebateMax);
+  }
+  const taxAfterRebate = Math.max(0, taxBeforeRebate - rebate);
+  const cess = taxAfterRebate * 0.04;
+  const totalLiability = Math.round(taxAfterRebate + cess);
+
+  const tds = num('f_tds'), tcs = num('f_tcs'), advTax = num('f_advTax'), satAx = num('f_satAx');
+  const totalPrepaid = tds + tcs + advTax + satAx;
+  const net = Math.round(totalLiability - totalPrepaid);
+
+  renderOutput({
+    name, pan, itrType, ay, regime,
+    salaryGross, stdDed, salaryNet, hp, biz,
+    stcg111a, stcgOther, ltcg112a, ltcgOther, specialIncome,
+    other, grossTotal, deductionsVIA, totalIncome,
+    rows, taxOnNormal, taxSpecial, taxBeforeRebate, rebate, taxAfterRebate, cess, totalLiability,
+    tds, tcs, advTax, satAx, totalPrepaid, net
+  });
+
+  $('panel-fields').style.display = 'none';
+  syncNameEditor($('f_nameEdit') ? $('f_nameEdit').value : name);
+  $('panel-output').style.display = 'block';
+  $('panel-output').scrollIntoView({behavior:'smooth'});
+}
+
+// Builds the computation sheet directly from the return's own Part B-TI /
+// B-TTI figures (asFiled) -- every headline number here is read off the
+// document, not re-derived. The one derived piece is the slab-wise
+// breakdown table, since the acknowledgement PDF only prints the final
+// "tax at normal rates" total, not a line-by-line slab table -- that
+// breakdown is reconstructed from the extracted Total Income using the
+// matching AY/regime slab rates, and should foot to the same normal-rate
+// tax figure the return itself reports (shown alongside for comparison).
+function renderAsFiled(ext, itrType){
+  const row = (label, val, cls) => val === undefined ? '' :
+    `<tr class="${cls||''}"><td>${label}</td><td class="num">${fmt(val)}</td></tr>`;
+  const subRow = (label, val) => (val === undefined || val === null) ? '' :
+    `<tr class="sub"><td>${label}</td><td class="num">${fmt(val)}</td></tr>`;
+  const subhead = (label) => `<tr class="subhead"><td colspan="2">${label}</td></tr>`;
+
+  // ---- 1. Salary: per-employer + exempt-allowance detail ----
+  const salaryDetailHtml = (() => {
+    const employers = ext.salaryEmployers || [];
+    const allowances = (ext.exemptAllowances || []).filter(a => a.amount);
+    if (!employers.length && !allowances.length && ext.piSalary === undefined) return '';
+    let h = subhead('Salary — detail');
+    if (employers.length){
+      employers.forEach((e, i) => {
+        h += subRow(`Salary from ${e.name || 'Employer ' + (i+1)} (u/s 17(1))`, e.salary17_1 ?? e.gross);
+      });
+      const grossSalaryTotal = employers.reduce((s,e) => s + (e.gross ?? e.salary17_1 ?? 0), 0);
+      if (grossSalaryTotal) h += subRow('Total Gross Salary', grossSalaryTotal);
+    }
+    if (allowances.length){
+      allowances.forEach(a => { h += subRow(`Less: ${a.label}`, -a.amount); });
+    }
+    if (ext.stdDedFiled) h += subRow('Less: Standard Deduction u/s 16(ia)', -ext.stdDedFiled);
+    if (ext.salaryProfTax) h += subRow('Less: Professional Tax u/s 16(iii)', -ext.salaryProfTax);
+    return h;
+  })();
+
+  // ---- 2. House Property: interest / 30% deduction detail ----
+  const hpDetailHtml = (() => {
+    if (!ext.hpInterest24b && !ext.hp30pct) return '';
+    let h = subhead('House Property — detail');
+    if (ext.hpInterest24b) h += subRow('Less: Interest on Borrowed Capital u/s 24(b)', -ext.hpInterest24b);
+    if (ext.hp30pct) h += subRow('Less: 30% of Net Annual Value', -ext.hp30pct);
+    return h;
+  })();
+
+  // ---- 3. Business / Profession: which presumptive section (44AD /
+  // 44ADA / 44AE) the income actually comes from, per Schedule BP ----
+  const bizDetailHtml = (() => {
+    const has44AD = !!ext.biz44ADIncome;
+    const has44ADA = !!ext.biz44ADAIncome;
+    const has44AE = !!ext.biz44AEIncome;
+    if (!has44AD && !has44ADA && !has44AE) return '';
+    let h = subhead('Business / Profession — detail');
+    if (has44AD){
+      if (ext.biz44ADTurnover) h += subRow('Gross Turnover/Receipts (Sec 44AD)', ext.biz44ADTurnover);
+      h += subRow('Presumptive Income u/s 44AD', ext.biz44ADIncome);
+    }
+    if (has44ADA){
+      if (ext.biz44ADAReceipts) h += subRow('Gross Receipts (Sec 44ADA)', ext.biz44ADAReceipts);
+      h += subRow('Presumptive Income u/s 44ADA', ext.biz44ADAIncome);
+    }
+    if (has44AE) h += subRow('Presumptive Income u/s 44AE', ext.biz44AEIncome);
+    return h;
+  })();
+
+  // ---- 4. Capital Gains: Schedule SI rate-wise detail ----
+  const cgDetailHtml = (() => {
+    const rows = (ext.capitalGainsSI || []).filter(r => r.income);
+    if (!rows.length) return '';
+    let h = subhead('Capital Gains — detail (Schedule SI)');
+    rows.forEach(r => { h += subRow(`${r.description} @ ${r.rate}%`, r.income); });
+    return h;
+  })();
+
+  // ---- 5. Other Sources detail ----
+  const osDetailHtml = (() => {
+    const items = [
+      ['Dividend Income', ext.osDividend],
+      ['Interest — Savings Bank', ext.osInterestSavings],
+      ['Interest — Deposits', ext.osInterestDeposits],
+      ['Interest on Income-tax Refund', ext.osInterestTaxRefund],
+    ].filter(([,v]) => v);
+    if (!items.length) return '';
+    let h = subhead('Other Sources — detail');
+    items.forEach(([label, val]) => { h += subRow(label, val); });
+    return h;
+  })();
+
+  // ---- Chapter VI-A detail: every itemized deduction we could find gets
+  // its own line; anything left over after all of them is shown as a single
+  // reconciling "Other" line so the sub-lines always foot to piDeductionsVIA. ----
+  const viaDetailHtml = (() => {
+    const via = ext.piDeductionsVIA || 0;
+    const items = [
+      ['Deduction u/s 80C', ext.ch80C],
+      ['Deduction u/s 80CCC — Pension Fund', ext.ch80CCC],
+      ['Deduction u/s 80CCD(1) — NPS (self)', ext.ch80CCD1],
+      ['Deduction u/s 80CCD(1B) — NPS (additional)', ext.ch80CCD1B],
+      ['Deduction u/s 80CCD(2) — NPS (employer)', ext.ch80CCD2],
+      ['Deduction u/s 80D — Health Insurance', ext.ch80D],
+      ['Deduction u/s 80DD — Maintenance of disabled dependent', ext.ch80DD],
+      ['Deduction u/s 80DDB — Medical treatment of specified disease', ext.ch80DDB],
+      ['Deduction u/s 80E — Interest on education loan', ext.ch80E],
+      ['Deduction u/s 80EE — Interest on housing loan', ext.ch80EE],
+      ['Deduction u/s 80EEA — Interest on housing loan (affordable housing)', ext.ch80EEA],
+      ['Deduction u/s 80EEB — Interest on electric vehicle loan', ext.ch80EEB],
+      ['Deduction u/s 80G — Donations', ext.ch80G],
+      ['Deduction u/s 80GG — Rent paid', ext.ch80GG],
+      ['Deduction u/s 80GGA — Donations for scientific research/rural development', ext.ch80GGA],
+      ['Deduction u/s 80GGC — Donation to political party', ext.ch80GGC],
+      ['Deduction u/s 80QQB — Royalty (books)', ext.ch80QQB],
+      ['Deduction u/s 80RRB — Royalty (patents)', ext.ch80RRB],
+      ['Deduction u/s 80TTA — Savings account interest', ext.ch80TTA],
+      ['Deduction u/s 80TTB — Interest (senior citizens)', ext.ch80TTB],
+      ['Deduction u/s 80U — Person with disability', ext.ch80U],
+    ].filter(([,v]) => v);
+    if (!via || !items.length) return '';
+    let h = subhead('Chapter VI-A — detail (as entered in Schedule VI-A, before statutory caps)');
+    let sum = 0;
+    items.forEach(([label, val]) => { h += subRow(label, -val); sum += val; });
+    const other = via - sum;
+    // Items above are the raw amounts claimed in Schedule VI-A, which can
+    // exceed what's actually allowed once section-wise caps (e.g. the
+    // combined ₹1,50,000 80C/80CCC/80CCD(1) limit) are applied -- the
+    // return's own capped total (piDeductionsVIA) is the true "Less:" row
+    // above. This line reconciles the two: a statutory-cap reduction shows
+    // as a positive add-back, an un-itemized extra deduction shows negative.
+    const adj = -other; // positive = raw items overstate allowed total (cap applied); negative = extra unitemized deduction exists
+    if (Math.round(adj) !== 0){
+      const label = adj > 0 ? 'Less: Statutory cap / limit adjustment' : 'Other Chapter VI-A deductions (not itemized above)';
+      h += subRow(label, adj);
+    }
+    return h;
+  })();
+
+  const name = ext.name || $('f_name').value || '—';
+  const pan = (ext.pan || $('f_pan').value || '—').toUpperCase();
+  const ay = ext.ay || $('f_ay').value || '2026-27';
+  const isOld = ext.regimeOptOut === true || ext.stdDedFiled === 50000;
+  const cfg = (AY_TABLE[ay] || AY_TABLE['2026-27'])[isOld ? 'old' : 'new'];
+
+  // Slab-wise breakdown: run this AY/regime's slabs over the portion of
+  // Total Income NOT already taxed at special rates (STCG 111A, LTCG 112A, etc).
+  const specialInSlab = ext.piSpecialRateIncluded || 0;
+  const normalRateIncome = Math.max(0, (ext.piTotalIncome || 0) - specialInSlab);
+  const { rows: slabRowsData } = slabTax(normalRateIncome, cfg);
+  const slabRows = slabRowsData.map(r => {
+    const fromLbl = fmt(r.from).replace('₹','');
+    const toLbl = r.to === null ? 'and above' : fmt(r.to).replace('₹','');
+    return `<tr><td>₹${fromLbl} – ₹${toLbl}</td><td class="num">${(r.rate*100).toFixed(0)}%</td><td class="num">${fmt(r.tax)}</td></tr>`;
+  }).join('');
+  const derivedSlabTax = slabRowsData.reduce((s,r) => s + r.tax, 0);
+  const slabCheckMatches = ext.ttiTaxNormal !== undefined && Math.abs(derivedSlabTax - ext.ttiTaxNormal) <= 5;
+
+  const netFigure = ext.ttiAmountPayable !== undefined && ext.ttiRefund !== undefined
+    ? (ext.ttiAmountPayable > 0 ? {label:'Net Tax Payable', val: ext.ttiAmountPayable, cls:'payable'}
+       : {label:'Net Refundable', val: ext.ttiRefund, cls:'refund'})
+    : null;
+
+  const html = `
+    <div class="doc-head">
+      <div class="doc-title">INCOME TAX COMPUTATION</div>
+      <div class="doc-name">${name && name !== '—' ? name.toUpperCase() : ''}</div>
+      <div class="doc-meta">
+        <span><em>Assessment Year</em>${ay}</span>
+        <span><em>Form Type</em>${itrType}</span>
+        <span><em>Regime</em>${isOld ? 'Old' : 'New (s.115BAC)'}</span>
+      </div>
+    </div>
+
+    <table class="calc">
+      <tr class="section-head"><td colspan="2">Income Heads</td></tr>
+      ${row('1. Salary', ext.piSalary, 'head-total')}
+      ${salaryDetailHtml}
+      ${row('2. House Property', ext.hpActual ?? ext.piHP, 'head-total')}
+      ${hpDetailHtml}
+      ${row('3. Business / Profession', ext.piBusiness, 'head-total')}
+      ${bizDetailHtml}
+      ${row('4. Capital Gains', ext.piCapGains, 'head-total')}
+      ${cgDetailHtml}
+      ${row('5. Other Sources', ext.piOtherSources, 'head-total')}
+      ${osDetailHtml}
+      ${row('Gross Total Income', ext.piGrossTotal, 'grand')}
+      ${row('Less: Deductions under Chapter VI-A', ext.piDeductionsVIA !== undefined ? -ext.piDeductionsVIA : undefined)}
+      ${viaDetailHtml}
+      ${row('Taxable / Total Income', ext.piTotalIncome, 'grand')}
+    </table>
+
+    <h3 style="font-size:13.5px;margin:22px 0 2px;">Slab-wise Tax Calculation ${isOld ? '(Old Regime)' : '(New Regime, s.115BAC)'}</h3>
+    <p class="note" style="margin-top:0;margin-bottom:6px;">Reconstructed from Total Income at the AY ${ay} ${isOld?'old':'new'}-regime slab rates — ${slabCheckMatches ? 'foots to the return’s own "tax at normal rates" figure ✓' : 'does not exactly foot to the return’s "tax at normal rates" figure below — likely because of a special-rate income split this tool can’t fully reconstruct from the summary alone.'}</p>
+    <table class="calc">
+      <thead><tr><th>Slab</th><th class="num">Rate</th><th class="num">Tax</th></tr></thead>
+      ${slabRows}
+    </table>
+
+    <h3 style="font-size:13.5px;margin:22px 0 6px;">Surcharge, Cess &amp; Gross Tax Liability</h3>
+    <table class="calc">
+      ${row('Tax at Normal (slab) Rates', ext.ttiTaxNormal)}
+      ${row('Tax at Special Rates (Schedule SI)', ext.ttiTaxSpecial)}
+      ${row('Tax Payable on Total Income', ext.ttiTaxPayable, 'subtotal')}
+      ${row('Less: Rebate u/s 87A', ext.ttiRebate87A !== undefined ? -ext.ttiRebate87A : undefined)}
+      ${row('Tax Payable after Rebate', ext.ttiTaxAfterRebate)}
+      ${row('Add: Surcharge', ext.ttiSurcharge)}
+      ${row('Add: Health &amp; Education Cess @ 4%', ext.ttiCess)}
+      ${row('Gross Tax Liability', ext.ttiGrossTaxLiab, 'grand')}
+      ${row('Add: Interest &amp; Fee (234A/B/C/F)', ext.ttiInterestFee)}
+      ${row('Aggregate Liability', ext.ttiAggregateLiab, 'grand')}
+    </table>
+
+    <h3 style="font-size:13.5px;margin:22px 0 6px;">Taxes Already Paid</h3>
+    <table class="calc">
+      ${row('Advance Tax', ext.ttiAdvanceTax)}
+      ${row('TDS', ext.ttiTDS)}
+      ${row('TCS', ext.ttiTCS)}
+      ${row('Self-Assessment Tax', ext.ttiSelfAssessment)}
+      ${row('Total Taxes Paid', ext.ttiTotalTaxesPaid, 'subtotal')}
+    </table>
+
+    <h3 style="font-size:13.5px;margin:22px 0 6px;">Final Tax Position</h3>
+    <table class="calc">
+      ${netFigure ? row(netFigure.label, netFigure.val, netFigure.cls) : ''}
+      ${!netFigure ? row('Amount Payable', ext.ttiAmountPayable) : ''}
+      ${!netFigure ? row('Refund', ext.ttiRefund) : ''}
+    </table>
+  `;
+  $('outputArea').innerHTML = html;
+}
+
+function renderOutput(d){
+  const row = (label, val, cls) => `<tr class="${cls||''}"><td>${label}</td><td class="num">${fmt(val)}</td></tr>`;
+  let slabRows = d.rows.map(r => {
+    const fromLbl = fmt(r.from).replace('₹','');
+    const toLbl = r.to === null ? 'and above' : fmt(r.to).replace('₹','');
+    return `<tr><td>₹${fromLbl} – ₹${toLbl}</td><td class="num">${(r.rate*100).toFixed(0)}%</td><td class="num">${fmt(r.tax)}</td></tr>`;
+  }).join('');
+
+  let compareHtml = '';
+  if (asFiled && (asFiled.piTotalIncome !== undefined || asFiled.ttiTotalTaxesPaid !== undefined)){
+    const close = (a, b) => a !== undefined && Math.abs(a - b) <= 5;
+    const cmpRow = (label, filedVal, ourVal) => {
+      if (filedVal === undefined) return '';
+      const match = close(filedVal, ourVal);
+      return `<tr><td>${label}</td><td class="num">${fmt(filedVal)}</td><td class="num">${fmt(ourVal)}</td><td class="num" style="color:${match?'var(--good)':'var(--bad)'};font-weight:700;">${match?'✓ match':'≠ differs'}</td></tr>`;
+    };
+    const filedNet = asFiled.ttiAmountPayable !== undefined && asFiled.ttiRefund !== undefined
+      ? (asFiled.ttiAmountPayable > 0 ? asFiled.ttiAmountPayable : -asFiled.ttiRefund)
+      : undefined;
+    compareHtml = `
+      <h3 style="font-size:13.5px;margin:26px 0 6px;">As Filed (from upload) vs. Recomputed by this tool</h3>
+      <table class="calc">
+        <thead><tr><th>Line item</th><th class="num">As filed</th><th class="num">Recomputed</th><th class="num">Check</th></tr></thead>
+        ${cmpRow('Gross Total Income', asFiled.piGrossTotal, d.grossTotal)}
+        ${cmpRow('Total Income', asFiled.piTotalIncome, d.totalIncome)}
+        ${cmpRow('Total Tax Liability (incl. cess)', asFiled.ttiGrossTaxLiab, d.totalLiability)}
+        ${filedNet !== undefined ? cmpRow('Net Payable / (Refund)', filedNet, d.net) : ''}
+      </table>
+      <p class="note">"As filed" comes straight from Part B-TI / Part B-TTI of the uploaded return. "Recomputed" is this tool re-deriving the same result from the income figures below — differences usually mean a field above needs manual correction (e.g. capital gains split, interest/fee u/s 234A-234C not modelled here, or surcharge on income above ₹50L not yet included).</p>
+    `;
+  }
+
+  const html = `
+    <div style="text-align:center;margin-bottom:18px;">
+      <div style="font-weight:700;font-size:16px;">INCOME TAX COMPUTATION</div>
+      ${d.name && d.name !== '—' ? `<div style="font-weight:700;font-size:14.5px;margin-top:4px;">${String(d.name).toUpperCase()}</div>` : ''}
+      <div style="font-size:13px;color:var(--ink-soft);">Assessment Year ${d.ay} &nbsp;·&nbsp; Form Type: ${d.itrType} &nbsp;·&nbsp; Regime: ${d.regime==='new'?'New (s.115BAC)':'Old'}</div>
+    </div>
+
+    <table class="calc">
+      <tr class="section-head"><td colspan="2">1. Income from Salary</td></tr>
+      ${row('Gross Salary', d.salaryGross)}
+      ${row('Less: Standard Deduction', -d.stdDed)}
+      ${row('Income under head Salary', d.salaryNet, 'subtotal')}
+
+      <tr class="section-head"><td colspan="2">2. Income from House Property</td></tr>
+      ${row('Income / (Loss) from House Property', d.hp, 'subtotal')}
+
+      ${d.biz ? `<tr class="section-head"><td colspan="2">3. Income from Business / Profession</td></tr>${row('Business / Professional Income', d.biz, 'subtotal')}` : ''}
+
+      <tr class="section-head"><td colspan="2">4. Capital Gains</td></tr>
+      ${d.stcg111a ? row('Short-term Capital Gains — s.111A', d.stcg111a) : ''}
+      ${d.stcgOther ? row('Short-term Capital Gains — other (slab rate)', d.stcgOther) : ''}
+      ${d.ltcg112a ? row('Long-term Capital Gains — s.112A', d.ltcg112a) : ''}
+      ${d.ltcgOther ? row('Long-term Capital Gains — other', d.ltcgOther) : ''}
+      ${row('Total Capital Gains', d.specialIncome, 'subtotal')}
+
+      <tr class="section-head"><td colspan="2">5. Income from Other Sources</td></tr>
+      ${row('Interest / Dividends / Other Income', d.other, 'subtotal')}
+
+      ${row('Gross Total Income', d.grossTotal, 'grand')}
+      ${row('Less: Deductions ' + (d.regime==='old' ? '(Chapter VI-A)' : '(80CCD(2)/80JJAA)'), -d.deductionsVIA)}
+      ${row('Total Income (rounded)', d.totalIncome, 'grand')}
+    </table>
+
+    <h3 style="font-size:13.5px;margin:22px 0 6px;">Tax on Slab-Rate Income</h3>
+    <table class="calc">
+      <thead><tr><th>Slab</th><th class="num">Rate</th><th class="num">Tax</th></tr></thead>
+      ${slabRows}
+    </table>
+
+    <table class="calc" style="margin-top:10px;">
+      ${row('Tax on Special-Rate Income (STCG 111A @20% / LTCG @12.5%)', d.taxSpecial)}
+      ${row('Tax before Rebate', d.taxBeforeRebate, 'subtotal')}
+      ${row('Less: Rebate u/s 87A', -d.rebate)}
+      ${row('Tax after Rebate', d.taxAfterRebate)}
+      ${row('Add: Health & Education Cess @4%', d.cess)}
+      ${row('Total Tax Liability', d.totalLiability, 'grand')}
+    </table>
+
+    <h3 style="font-size:13.5px;margin:22px 0 6px;">Taxes Paid</h3>
+    <table class="calc">
+      ${row('TDS', d.tds)}
+      ${row('TCS', d.tcs)}
+      ${row('Advance Tax', d.advTax)}
+      ${row('Self-Assessment Tax', d.satAx)}
+      ${row('Total Prepaid Taxes', d.totalPrepaid, 'subtotal')}
+      ${row(d.net >= 0 ? 'Net Tax Payable' : 'Net Refundable', Math.abs(d.net), d.net >= 0 ? 'payable' : 'refund')}
+    </table>
+
+    ${compareHtml}
+  `;
+  $('outputArea').innerHTML = html;
+}
+</script>
+<!-- ═══════════════════════════════════════════════════
+     FEEDBACK SYSTEM — ReportEdge
+     Storage: Firebase Firestore (free tier)
+     SETUP (one-time, 5 min):
+       1. Go to console.firebase.google.com → Create project
+       2. Project settings → Add web app → copy config
+       3. Firestore Database → Create → Start in test mode
+       4. Replace FB_PROJECT_ID and FB_API_KEY below (same in every page)
+     ADMIN: click the "© ReportEdge" footer text 5 times → enter password
+═══════════════════════════════════════════════════ -->
+
+<style>
+/* ── Floating feedback button ── */
+#fb-fab{position:fixed;bottom:28px;right:28px;z-index:9000;display:flex;align-items:center;gap:8px;
+  background:#059669;color:#fff;border:none;border-radius:50px;padding:12px 20px;
+  font-family:'Inter',sans-serif;font-size:13px;font-weight:600;cursor:pointer;
+  box-shadow:0 4px 20px rgba(5,150,105,0.45);transition:all .22s;user-select:none;}
+#fb-fab:hover{background:#047857;transform:translateY(-2px);box-shadow:0 6px 24px rgba(5,150,105,0.55);}
+#fb-fab svg{width:16px;height:16px;fill:none;stroke:#fff;stroke-width:2.2;flex-shrink:0;}
+
+/* ── Overlay ── */
+#fb-overlay{display:none;position:fixed;inset:0;background:rgba(10,22,40,0.6);z-index:9100;
+  backdrop-filter:blur(3px);align-items:center;justify-content:center;}
+#fb-overlay.open{display:flex;}
+
+/* ── Modal ── */
+#fb-modal{background:#fff;border-radius:18px;padding:32px 28px;width:100%;max-width:440px;
+  margin:16px;box-shadow:0 24px 64px rgba(0,0,0,0.22);font-family:'Inter',sans-serif;position:relative;}
+.fb-close{position:absolute;top:16px;right:16px;background:none;border:none;cursor:pointer;
+  color:#94A3B8;font-size:20px;line-height:1;padding:4px;}
+.fb-close:hover{color:#0F172A;}
+.fb-title{font-size:18px;font-weight:800;color:#0F172A;margin-bottom:4px;letter-spacing:-0.4px;}
+.fb-sub{font-size:13px;color:#64748B;margin-bottom:22px;}
+/* Stars */
+.fb-stars{display:flex;gap:6px;margin-bottom:20px;}
+.fb-star{font-size:26px;cursor:pointer;color:#E2E8F0;transition:color .15s;line-height:1;}
+.fb-star.on{color:#F59E0B;}
+/* Fields */
+.fb-label{font-size:11px;font-weight:700;letter-spacing:.7px;text-transform:uppercase;color:#64748B;margin-bottom:6px;display:block;}
+.fb-input{width:100%;padding:10px 13px;border:1px solid #E2E8F0;border-radius:9px;font-family:'Inter',sans-serif;
+  font-size:14px;color:#0F172A;margin-bottom:14px;box-sizing:border-box;transition:border .2s;}
+.fb-input:focus{outline:none;border-color:#059669;}
+textarea.fb-input{resize:vertical;min-height:90px;}
+.fb-submit{width:100%;background:#059669;color:#fff;border:none;border-radius:9px;padding:13px;
+  font-family:'Inter',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:background .2s;}
+.fb-submit:hover{background:#047857;}
+.fb-submit:disabled{background:#94A3B8;cursor:not-allowed;}
+/* Thank-you */
+.fb-thanks{text-align:center;padding:20px 0;}
+.fb-thanks-icon{font-size:48px;margin-bottom:12px;}
+.fb-thanks h3{font-size:18px;font-weight:800;color:#0F172A;margin-bottom:6px;}
+.fb-thanks p{font-size:14px;color:#64748B;}
+
+/* ── Admin panel ── */
+#fb-admin-overlay{display:none;position:fixed;inset:0;background:rgba(10,22,40,0.75);z-index:9200;
+  align-items:flex-start;justify-content:center;overflow-y:auto;padding:40px 16px;}
+#fb-admin-overlay.open{display:flex;}
+#fb-admin-box{background:#fff;border-radius:18px;width:100%;max-width:700px;padding:32px 28px;
+  font-family:'Inter',sans-serif;margin:auto;}
+.fb-admin-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;}
+.fb-admin-title{font-size:20px;font-weight:800;color:#0F172A;letter-spacing:-0.5px;}
+.fb-admin-close{background:#F1F5F9;border:none;border-radius:8px;padding:8px 14px;cursor:pointer;
+  font-family:'Inter',sans-serif;font-size:13px;font-weight:600;color:#475569;}
+.fb-card{border:1px solid #E2E8F0;border-radius:12px;padding:18px 20px;margin-bottom:12px;}
+.fb-card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:8px;}
+.fb-card-name{font-weight:700;font-size:14px;color:#0F172A;}
+.fb-card-time{font-size:11px;color:#94A3B8;margin-top:2px;}
+.fb-card-page{font-size:11px;color:#60A5FA;background:#EFF6FF;border-radius:4px;padding:2px 7px;
+  display:inline-block;margin-top:4px;}
+.fb-card-stars{color:#F59E0B;font-size:14px;letter-spacing:1px;}
+.fb-card-msg{font-size:14px;color:#334155;line-height:1.6;}
+.fb-del-btn{background:#FEF2F2;color:#EF4444;border:1px solid #FECACA;border-radius:7px;
+  padding:6px 13px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0;}
+.fb-del-btn:hover{background:#FEE2E2;}
+.fb-empty{text-align:center;color:#94A3B8;font-size:14px;padding:40px 0;}
+.fb-loading{text-align:center;color:#94A3B8;font-size:14px;padding:30px 0;}
+/* Admin login */
+#fb-admin-login{background:#fff;border-radius:18px;width:100%;max-width:360px;padding:32px 28px;
+  font-family:'Inter',sans-serif;margin:auto;}
+.fb-login-title{font-size:18px;font-weight:800;color:#0F172A;margin-bottom:6px;}
+.fb-login-sub{font-size:13px;color:#64748B;margin-bottom:22px;}
+.fb-login-err{font-size:13px;color:#EF4444;margin-top:8px;display:none;}
+
+@media(max-width:500px){
+  #fb-modal,#fb-admin-box,#fb-admin-login{padding:24px 18px;}
+  #fb-fab span{display:none;}
+  #fb-fab{padding:14px;}
+}
+</style>
+
+<!-- Floating button -->
+<button id="fb-fab" onclick="fbOpenModal()">
+  <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+  <span>Share Feedback</span>
+</button>
+
+<!-- Feedback modal overlay -->
+<div id="fb-overlay" onclick="if(event.target===this)fbCloseModal()">
+  <div id="fb-modal">
+    <button class="fb-close" onclick="fbCloseModal()">✕</button>
+    <div id="fb-form-view">
+      <div class="fb-title">Share your feedback</div>
+      <div class="fb-sub">How was your experience? Your thoughts help us improve.</div>
+      <!-- Stars -->
+      <div class="fb-stars" id="fb-stars">
+        <span class="fb-star" data-v="1">★</span>
+        <span class="fb-star" data-v="2">★</span>
+        <span class="fb-star" data-v="3">★</span>
+        <span class="fb-star" data-v="4">★</span>
+        <span class="fb-star" data-v="5">★</span>
+      </div>
+      <label class="fb-label">Your name <span style="font-weight:400;text-transform:none;font-size:11px;color:#94A3B8;">(optional)</span></label>
+      <input id="fb-name" class="fb-input" type="text" placeholder="e.g. Rahul Sharma">
+      <label class="fb-label">Message *</label>
+      <textarea id="fb-message" class="fb-input" placeholder="Tell us what you think — what worked, what didn't, what you'd like to see…"></textarea>
+      <button class="fb-submit" id="fb-submit-btn" onclick="fbSubmit()">Send Feedback</button>
+    </div>
+    <div id="fb-thanks-view" class="fb-thanks" style="display:none;">
+      <div class="fb-thanks-icon">🎉</div>
+      <h3>Thank you!</h3>
+      <p>Your feedback has been received. We really appreciate it.</p>
+    </div>
+  </div>
+</div>
+
+<!-- Admin overlay -->
+<div id="fb-admin-overlay">
+  <!-- Login screen -->
+  <div id="fb-admin-login">
+    <div class="fb-login-title">🔐 Admin Access</div>
+    <div class="fb-login-sub">Enter the admin password to view feedback.</div>
+    <label class="fb-label">Password</label>
+    <input id="fb-admin-pw" class="fb-input" type="password" placeholder="••••••••" onkeydown="if(event.key==='Enter')fbAdminLogin()">
+    <button class="fb-submit" onclick="fbAdminLogin()">Sign In</button>
+    <div class="fb-login-err" id="fb-login-err">Incorrect password. Try again.</div>
+    <button onclick="fbAdminClose()" style="display:block;width:100%;text-align:center;margin-top:14px;background:none;border:none;color:#94A3B8;font-size:13px;cursor:pointer;">Cancel</button>
+  </div>
+  <!-- Dashboard -->
+  <div id="fb-admin-box" style="display:none;">
+    <div class="fb-admin-head">
+      <div class="fb-admin-title">💬 Feedback Dashboard</div>
+      <button class="fb-admin-close" onclick="fbAdminClose()">✕ Close</button>
+    </div>
+    <div id="fb-admin-list"><div class="fb-loading">Loading feedback…</div></div>
+  </div>
+</div>
+
+<script>
+(function(){
+  const ADMIN_PW = 'RE@admin25';
+
+  // ── Netlify Forms submit (works automatically on Netlify — zero config needed) ──
+  async function fbAdd(payload){
+    try {
+      const body = new URLSearchParams({
+        'form-name': 'site-feedback',
+        'name':    payload.name || 'Anonymous',
+        'message': payload.message,
+        'rating':  String(payload.rating || 0),
+        'page':    location.pathname,
+        'ts':      new Date().toISOString()
+      });
+      const r = await fetch('/', {method:'POST', headers:{'Content-Type':'application/x-www-form-urlencoded'}, body});
+      return r.ok;
+    } catch(e){ return false; }
+  }
+
+  // ── Admin: load from Netlify Forms API ──
+  // After a few submissions appear in your Netlify dashboard (Site → Forms → site-feedback),
+  // paste your Netlify personal token below to enable in-page admin view.
+  // Get it at: app.netlify.com → User settings → Applications → Personal access tokens
+  const NETLIFY_TOKEN = '';          // optional — leave blank to use Netlify dashboard instead
+  const NETLIFY_SITE_ID = '';        // your site ID from Site settings → General
+  async function fbGetAll(){
+    if(!NETLIFY_TOKEN || !NETLIFY_SITE_ID) return null; // signal: use dashboard
+    const r = await fetch(`https://api.netlify.com/api/v1/sites/${NETLIFY_SITE_ID}/forms`,
+      {headers:{Authorization:'Bearer '+NETLIFY_TOKEN}});
+    const forms = await r.json();
+    const form = forms.find(f=>f.name==='site-feedback');
+    if(!form) return [];
+    const r2 = await fetch(`https://api.netlify.com/api/v1/forms/${form.id}/submissions?per_page=200`,
+      {headers:{Authorization:'Bearer '+NETLIFY_TOKEN}});
+    const subs = await r2.json();
+    return subs.map(s=>({
+      id:      s.id,
+      name:    s.data?.name    || 'Anonymous',
+      message: s.data?.message || '',
+      rating:  parseInt(s.data?.rating||0),
+      page:    s.data?.page    || '/',
+      ts:      s.created_at    || ''
+    }));
+  }
+  async function fbDel(id){
+    if(!NETLIFY_TOKEN) return;
+    await fetch(`https://api.netlify.com/api/v1/submissions/${id}`,
+      {method:'DELETE', headers:{Authorization:'Bearer '+NETLIFY_TOKEN}});
+  }
+
+  // ── Modal ──
+  let rating=0;
+  window.fbOpenModal=function(){
+    document.getElementById('fb-overlay').classList.add('open');
+    document.getElementById('fb-form-view').style.display='';
+    document.getElementById('fb-thanks-view').style.display='none';
+    document.getElementById('fb-name').value='';
+    document.getElementById('fb-message').value='';
+    setRating(0);
+  };
+  window.fbCloseModal=function(){document.getElementById('fb-overlay').classList.remove('open');};
+  function setRating(v){
+    rating=v;
+    document.querySelectorAll('.fb-star').forEach(s=>{
+      s.classList.toggle('on',parseInt(s.dataset.v)<=v);
+    });
+  }
+  document.querySelectorAll('.fb-star').forEach(s=>{
+    s.addEventListener('click',()=>setRating(parseInt(s.dataset.v)));
+    s.addEventListener('mouseover',()=>document.querySelectorAll('.fb-star').forEach(x=>x.classList.toggle('on',parseInt(x.dataset.v)<=parseInt(s.dataset.v))));
+    s.addEventListener('mouseout',()=>setRating(rating));
+  });
+  window.fbSubmit=async function(){
+    const msg=document.getElementById('fb-message').value.trim();
+    if(!msg){document.getElementById('fb-message').focus();return;}
+    const btn=document.getElementById('fb-submit-btn');
+    btn.disabled=true;btn.textContent='Sending…';
+    const ok=await fbAdd({name:document.getElementById('fb-name').value.trim(),message:msg,rating});
+    if(ok){
+      document.getElementById('fb-form-view').style.display='none';
+      document.getElementById('fb-thanks-view').style.display='';
+      setTimeout(fbCloseModal,2800);
+    } else {
+      btn.disabled=false;btn.textContent='Send Feedback';
+      alert('Could not save feedback. Please check your Firebase config.');
+    }
+  };
+
+  // ── Admin — secret trigger: click footer copyright 5× ──
+  let clickCount=0,clickTimer=null;
+  function attachAdminTrigger(){
+    const el=document.querySelector('.footer-copy')||document.querySelector('[class*="footer-copy"]');
+    if(!el)return;
+    el.addEventListener('click',()=>{
+      clickCount++;
+      clearTimeout(clickTimer);
+      if(clickCount>=5){clickCount=0;fbAdminOpen();}
+      else clickTimer=setTimeout(()=>{clickCount=0;},1800);
+    });
+    el.style.cursor='default';
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',attachAdminTrigger);
+  else attachAdminTrigger();
+
+  window.fbAdminOpen=function(){
+    document.getElementById('fb-admin-overlay').classList.add('open');
+    document.getElementById('fb-admin-login').style.display='';
+    document.getElementById('fb-admin-box').style.display='none';
+    document.getElementById('fb-admin-pw').value='';
+    document.getElementById('fb-login-err').style.display='none';
+    setTimeout(()=>document.getElementById('fb-admin-pw').focus(),100);
+  };
+  window.fbAdminClose=function(){
+    document.getElementById('fb-admin-overlay').classList.remove('open');
+  };
+  window.fbAdminLogin=function(){
+    const pw=document.getElementById('fb-admin-pw').value;
+    if(pw===ADMIN_PW){
+      document.getElementById('fb-admin-login').style.display='none';
+      document.getElementById('fb-admin-box').style.display='';
+      loadAdminFeedback();
+    } else {
+      document.getElementById('fb-login-err').style.display='';
+    }
+  };
+  async function loadAdminFeedback(){
+    const list=document.getElementById('fb-admin-list');
+    list.innerHTML='<div class="fb-loading">Loading feedback…</div>';
+    let items;
+    try{items=await fbGetAll();}catch(e){items=null;}
+    if(items===null){
+      list.innerHTML=`<div class="fb-empty" style="text-align:left;padding:20px 0;">
+        <p style="font-size:14px;color:#334155;margin-bottom:16px;">To view feedback here, add your Netlify token and site ID to the HTML file.<br><br>
+        <b>Easiest way right now:</b><br>
+        Go to <a href="https://app.netlify.com" target="_blank" style="color:#059669;">app.netlify.com</a> → your site → <b>Forms</b> tab → <b>site-feedback</b> → view &amp; delete there.</p>
+        <a href="https://app.netlify.com" target="_blank" style="display:inline-block;background:#059669;color:#fff;padding:10px 20px;border-radius:8px;font-weight:700;font-size:14px;text-decoration:none;">Open Netlify Dashboard →</a>
+      </div>`;return;}
+    if(!items.length){list.innerHTML='<div class="fb-empty">No feedback yet.</div>';return;}
+    list.innerHTML=items.map(f=>`
+      <div class="fb-card" id="fbc-${f.id}">
+        <div class="fb-card-top">
+          <div>
+            <div class="fb-card-name">${esc(f.name)}</div>
+            <div class="fb-card-time">${f.ts ? new Date(f.ts).toLocaleString('en-IN',{dateStyle:'medium',timeStyle:'short'}) : ''}</div>
+            <div><span class="fb-card-page">${esc(f.page||'/')}</span></div>
+            ${f.rating>0?`<div class="fb-card-stars">${'★'.repeat(f.rating)}${'☆'.repeat(5-f.rating)}</div>`:''}
+          </div>
+          <button class="fb-del-btn" onclick="fbAdminDel('${f.id}')">🗑 Delete</button>
+        </div>
+        <div class="fb-card-msg">${esc(f.message)}</div>
+      </div>`).join('');
+    // total count
+    const header=document.createElement('div');
+    header.style.cssText='font-size:13px;color:#64748B;margin-bottom:16px;font-weight:600;';
+    header.textContent=`${items.length} feedback submission${items.length!==1?'s':''}`;
+    list.prepend(header);
+  }
+  window.fbAdminDel=async function(id){
+    if(!confirm('Delete this feedback?'))return;
+    await fbDel(id);
+    const card=document.getElementById('fbc-'+id);
+    if(card){card.style.opacity='0.4';card.style.pointerEvents='none';}
+    setTimeout(()=>{if(card)card.remove();},600);
+  };
+  function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+})();
+</script>
+
+</body>
+</html>
