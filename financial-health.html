@@ -103,6 +103,14 @@
     box-shadow:var(--card-shadow);
   }
 
+  /* Safety net: a Chart.js canvas is sized in JS and can briefly compute an
+     oversized width/height if it initializes while its card is still being
+     laid out (e.g. a scaled/animated preview pane) — without this, an
+     oversized canvas visually spills out of its own card and overlaps the
+     card next to it. Capping it to the card's own box prevents that no
+     matter what size Chart.js briefly computes. */
+  canvas{ max-width:100%; max-height:100%; }
+
   /* ---------- app shell: sidebar + main, uses the full viewport ---------- */
   .rfh-app{
     font-family:var(--sans);
@@ -505,7 +513,7 @@
   .rfh-stat-tile-val{ font-family:var(--serif); font-size:21px; font-weight:700; color:var(--ink-900); line-height:1.1; }
   .rfh-stat-tile-chg{ font-size:11px; font-weight:600; margin-top:5px; }
 
-  .rfh-dash2-card{ background:var(--card-bg); border:1px solid var(--paper-line); border-radius:12px; padding:16px 18px; }
+  .rfh-dash2-card{ background:var(--card-bg); border:1px solid var(--paper-line); border-radius:12px; padding:16px 18px; overflow:hidden; }
   .rfh-dash2-card .ttl{ font-family:var(--serif); font-size:15px; font-weight:600; color:var(--ink-900); margin-bottom:2px; }
   .rfh-dash2-card .sub{ font-size:11.5px; color:var(--slate); margin-bottom:12px; }
 
@@ -539,7 +547,7 @@
     .rfh-yr-stats{ grid-template-columns:repeat(2,1fr); }
     .rfh-yr-row2, .rfh-yr-row4{ grid-template-columns:1fr; }
   }
-  .rfh-yr-glance{ background:linear-gradient(160deg, var(--warn-bg), var(--card-bg)); border:1px solid var(--paper-line); border-radius:12px; padding:16px; text-align:center; }
+  .rfh-yr-glance{ background:linear-gradient(160deg, var(--warn-bg), var(--card-bg)); border:1px solid var(--paper-line); border-radius:12px; padding:16px; text-align:center; overflow:hidden; }
   .rfh-yr-glance .ttl{ font-family:var(--mono); font-size:10.5px; letter-spacing:0.5px; text-transform:uppercase; color:var(--slate); margin-bottom:8px; }
   .rfh-yr-glance .goal{ font-size:11.5px; color:var(--ink-800); margin-top:8px; font-weight:500; }
   .rfh-cashflow-row{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
@@ -549,7 +557,7 @@
   .rfh-cashflow-box.result{ background:var(--good-bg); border-color:transparent; }
   .rfh-cashflow-box.result .v{ color:var(--good-text); }
   .rfh-cashflow-op{ font-family:var(--serif); font-size:20px; font-weight:600; color:var(--slate-light); flex:0 0 auto; }
-  .rfh-yr-mini{ background:var(--card-bg); border:1px solid var(--paper-line); border-radius:12px; padding:16px; }
+  .rfh-yr-mini{ background:var(--card-bg); border:1px solid var(--paper-line); border-radius:12px; padding:16px; overflow:hidden; }
   .rfh-yr-mini .ttl{ font-family:var(--serif); font-size:14px; font-weight:600; color:var(--ink-900); margin-bottom:2px; }
   .rfh-yr-mini .sub{ font-size:11px; color:var(--slate); margin-bottom:10px; }
   .rfh-yr-mini .proj{ font-family:var(--serif); font-size:19px; font-weight:700; color:var(--good-text); margin-top:8px; }
@@ -1020,11 +1028,30 @@
   const FH_SUPABASE_URL = 'https://cxhhipvthxoekkbwtnkx.supabase.co';
   const FH_SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN4aGhpcHZ0aHhvZWtrYnd0bmt4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA0OTUwNTcsImV4cCI6MjEwNjA3MTA1N30.gOriGKa9cpgJ6XudIwS85cM8iM_k9HimZigePLxzB8Q';
   window.fhReady = new Promise((resolve)=>{
+    let settled = false;
+    const finish = ()=>{
+      if (settled) return;
+      settled = true;
+      resolve();
+    };
+    // Safety net: if the Supabase CDN script is slow, blocked (ad-blocker,
+    // firewall, offline), or otherwise fails to load, never let the rest of
+    // the app hang waiting on this forever — that used to leave the app
+    // shell (#app) and the landing page (#landing) both visible at once,
+    // since init() never reached the code that hides one of them.
+    const timeout = setTimeout(finish, 4000);
     const s = document.createElement('script');
     s.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js';
     s.onload = ()=>{
-      window.fhSb = window.supabase.createClient(FH_SUPABASE_URL, FH_SUPABASE_KEY);
-      resolve();
+      clearTimeout(timeout);
+      try{
+        window.fhSb = window.supabase.createClient(FH_SUPABASE_URL, FH_SUPABASE_KEY);
+      }catch(e){ /* fall through — cloud features just stay unavailable */ }
+      finish();
+    };
+    s.onerror = ()=>{
+      clearTimeout(timeout);
+      finish();
     };
     document.head.appendChild(s);
   });
@@ -1033,14 +1060,26 @@
     try{
       await window.fhReady;
       const { data: { session } } = await window.fhSb.auth.getSession();
-      if (!session) return false;
-      await window.fhSb.from('financial_health_data').upsert({
+      if (!session) return true; // not logged in — local storage already handled it, nothing to sync
+      const { error } = await window.fhSb.from('financial_health_data').upsert({
         user_id: session.user.id,
         state: stateObj,
         updated_at: new Date().toISOString()
       });
+      if (error){
+        window.fhLastError = error.message || String(error);
+        const tag = document.getElementById('userTag');
+        if (tag) tag.textContent = 'cloud save failed: ' + window.fhLastError;
+        return false;
+      }
+      window.fhLastError = null;
       return true;
-    }catch(e){ return false; }
+    }catch(e){
+      window.fhLastError = (e && e.message) ? e.message : String(e);
+      const tag = document.getElementById('userTag');
+      if (tag) tag.textContent = 'cloud save failed: ' + window.fhLastError;
+      return false;
+    }
   };
 
   window.fhLoadFromCloud = async function(){
@@ -1166,7 +1205,7 @@
   </div>
 </div>
 
-<div class="rfh-app" id="app" data-theme="light">
+<div class="rfh-app" id="app" data-theme="light" style="display:none;">
 
   <div class="rfh-sidebar">
     <div class="rfh-brand">
@@ -1196,6 +1235,7 @@
         <div class="rfh-currency-note" id="currencyNote" style="display:none;"></div>
       </div>
       <div class="rfh-user" id="userTag">demo session · saved locally</div>
+      <button id="manualSaveBtn" style="width:100%;margin:6px 0 10px;padding:10px;border-radius:8px;border:none;background:#059669;color:#fff;font-weight:700;font-size:13px;cursor:pointer;font-family:inherit;">💾 Save my data</button>
       <div class="rfh-sidebar-foot-row">
         <button id="themeToggle" class="rfh-theme-toggle" aria-label="Toggle dark mode" title="Toggle light / dark">
           <span class="ic-sun">☀</span><span class="ic-moon">☾</span>
@@ -1292,7 +1332,7 @@ let dashboardMode = 'normal';
 // talks you through the year's numbers, one metric at a time); 'free' is the
 // original hands-off orbit-the-net-worth-pillars view. tourStep/tourPlaying
 // drive the guided walkthrough's auto-advancing timer (see startTourTimer()).
-let dashboard3DMode = 'guided';
+let dashboard3DMode = 'free';
 let tourStep = 0;
 let tourPlaying = false;
 let tourTimeoutId = null;
@@ -1702,8 +1742,8 @@ async function saveState(){
       } else if (window.localStorage){
         localStorage.setItem('rfh:state', JSON.stringify(state));
       }
-      if (window.fhSaveToCloud) window.fhSaveToCloud(state);
-      if (tag) tag.textContent = 'saved · ' + new Date().toLocaleTimeString();
+      const cloudOk = window.fhSaveToCloud ? await window.fhSaveToCloud(state) : true;
+      if (cloudOk && tag) tag.textContent = 'saved · ' + new Date().toLocaleTimeString();
     }catch(e){
       if (tag) tag.textContent = 'save failed — changes kept in this session only';
     }
@@ -3530,14 +3570,8 @@ function wireDashboardModeToggle(){
     b.onclick = ()=>{
       const entering3d = b.dataset.dmode==='3d' && dashboardMode!=='3d';
       dashboardMode = b.dataset.dmode;
-      if (entering3d){
-        // Every fresh entry into 3D view starts the guided walkthrough from
-        // the top — it's meant to be watched, not landed on mid-story.
-        dashboard3DMode = 'guided'; tourStep = 0; tourPlaying = true;
-      }
       if (dashboardMode!=='3d') stopTourTimer();
       render();
-      if (entering3d) startTourTimer();
     };
   });
 }
@@ -5397,6 +5431,16 @@ function renderYearlyDashboardCharts(){
       }
     });
   }
+
+  // If this view rendered while its container was still settling into place
+  // (e.g. a preview pane that scales/animates in), Chart.js can lock in a
+  // canvas size from mid-transition. Re-measuring a beat later — once layout
+  // has definitely settled — corrects that without a visible flash.
+  setTimeout(()=>{
+    [fyChartInstance, fyExpenseDonutInstance, fySurplusChartInstance, fyProjectionChartInstance].forEach(ch=>{
+      if (ch && typeof ch.resize === 'function') ch.resize();
+    });
+  }, 250);
 }
 
 let goalsChartInstance = null;
@@ -6064,6 +6108,29 @@ function wireClearAllData(){
   if (btn) btn.onclick = resetAllData;
 }
 
+function wireManualSave(){
+  const btn = document.getElementById('manualSaveBtn');
+  if (!btn) return;
+  btn.onclick = async function(){
+    btn.disabled = true;
+    const original = btn.textContent;
+    btn.textContent = 'Saving…';
+    const loggedIn = window.fhIsLoggedIn ? await window.fhIsLoggedIn() : false;
+    if (!loggedIn){
+      alert('You are not logged in, so this can only be saved on this device/browser, not to your account. Log in first to save to your account and access it anywhere.');
+      btn.disabled = false; btn.textContent = original;
+      return;
+    }
+    const ok = window.fhSaveToCloud ? await window.fhSaveToCloud(state) : false;
+    btn.disabled = false; btn.textContent = original;
+    if (ok){
+      alert('Saved! Your data is stored in your account.');
+    } else {
+      alert('Save failed: ' + (window.fhLastError || 'unknown error') + '\n\nPlease screenshot this message and send it for help.');
+    }
+  };
+}
+
 /* ---------- landing / demo / login ---------- */
 
 function sampleDemoState(){
@@ -6209,6 +6276,7 @@ function submitInterest(e){
   wireLanding();
   wireCurrencyControls();
   wireClearAllData();
+  wireManualSave();
   const loggedIn = window.fhIsLoggedIn ? await window.fhIsLoggedIn() : false;
   if (loggedIn){
     // Already signed in (e.g. via the homepage) — state is already their real
