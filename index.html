@@ -1078,6 +1078,15 @@ textarea.fb-input{resize:vertical;min-height:90px;}
   // ── LOG OUT ──
   window.authLogout = async function(){
     await sb.auth.signOut();
+    // Each tool (Financial Health, etc.) keeps a local copy of your data on
+    // this browser as a fallback for when you're not logged in. That's safe
+    // while you're the one using it, but on a shared/public computer it must
+    // not be left behind for the next person to open as a guest — so clear
+    // it on logout. Your real data isn't affected: it's already saved in
+    // your account and comes right back the next time you log in.
+    try{
+      localStorage.removeItem('rfh:state'); // Financial Health
+    }catch(e){}
     refreshAuthUI();
   };
 

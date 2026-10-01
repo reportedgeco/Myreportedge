@@ -1102,6 +1102,20 @@
     }catch(e){ return false; }
   };
 
+  // If this tab is open when the user logs out (e.g. logged out from the
+  // homepage in another tab), clear the local fallback copy of their data
+  // here too. The real data is untouched in the cloud — this only prevents
+  // it from lingering in this browser's storage for a guest to see next.
+  window.fhReady.then(()=>{
+    if (window.fhSb && window.fhSb.auth && window.fhSb.auth.onAuthStateChange){
+      window.fhSb.auth.onAuthStateChange((event)=>{
+        if (event === 'SIGNED_OUT'){
+          try{ localStorage.removeItem('rfh:state'); }catch(e){}
+        }
+      });
+    }
+  });
+
   document.addEventListener('DOMContentLoaded', async function(){
     const loggedIn = await window.fhIsLoggedIn();
     if (!loggedIn){
@@ -1665,11 +1679,39 @@ async function loadState(){
   try{
     const loggedIn = window.fhIsLoggedIn ? await window.fhIsLoggedIn() : false;
     if (loggedIn){
-      // Logged in: the cloud is the single source of truth. Never fall back to
-      // this browser's local data — a shared/public device could have another
-      // user's (or demo) data sitting in it, which must never leak across accounts.
       const cloudState = window.fhLoadFromCloud ? await window.fhLoadFromCloud() : null;
-      state = (cloudState && cloudState.months) ? cloudState : blankState();
+      if (cloudState && cloudState.months){
+        // Already has saved data in the account: the cloud is the single
+        // source of truth from here on. Never fall back to this browser's
+        // local data — a shared/public device could have another user's (or
+        // a guest's) data sitting in it, which must never leak into this
+        // account.
+        state = cloudState;
+      } else {
+        // First time this account has ever saved anything. If this specific
+        // browser has real numbers typed in from before logging in (the
+        // common "try it, then log in to save it" flow), offer to bring
+        // that into the new account instead of silently discarding it.
+        // Defaults to a clean account on Cancel — important on a shared or
+        // public computer, where that local data might be a previous
+        // guest's, not this person's.
+        let localCandidate = null;
+        try{
+          const raw = window.localStorage ? localStorage.getItem('rfh:state') : null;
+          if (raw){
+            const parsed = JSON.parse(raw);
+            if (parsed && parsed.months && Object.keys(parsed.months).length){
+              localCandidate = parsed;
+            }
+          }
+        }catch(e){}
+        if (localCandidate && confirm('We found data entered on this browser before you logged in.\n\nImport it into your account?\n\n(Choose Cancel to start with a clean account instead — safer if this is a shared or public computer.)')){
+          state = localCandidate;
+          if (window.fhSaveToCloud) await window.fhSaveToCloud(state);
+        } else {
+          state = blankState();
+        }
+      }
     } else if (hasArtifactStorage){
       const res = await window.storage.get('rfh:state');
       if (res && res.value){
@@ -1733,6 +1775,11 @@ async function loadState(){
   if (!state.months[activeMonthKey]) ensureMonth(activeMonthKey);
 }
 async function saveState(){
+  // Demo/sample data must never touch local storage or the cloud — editing
+  // the demo is meant to be a consequence-free preview. Without this guard,
+  // a logged-in user who opens "Explore the live demo" and edits anything
+  // would silently overwrite their real saved data with the sample numbers.
+  if (isDemoMode) return;
   clearTimeout(saveTimer);
   saveTimer = setTimeout(async ()=>{
     const tag = document.getElementById('userTag');
@@ -6112,6 +6159,10 @@ function wireManualSave(){
   const btn = document.getElementById('manualSaveBtn');
   if (!btn) return;
   btn.onclick = async function(){
+    if (isDemoMode){
+      alert("This is sample demo data, not your real data — there's nothing to save here.\n\nTap ⌂ to exit the demo and get back to your own data.");
+      return;
+    }
     btn.disabled = true;
     const original = btn.textContent;
     btn.textContent = 'Saving…';
@@ -6185,6 +6236,7 @@ function enterApp(demo){
   document.getElementById('app').style.display = 'flex';
   const badge = document.getElementById('demoBadge');
   const userTag = document.getElementById('userTag');
+  const saveBtn = document.getElementById('manualSaveBtn');
   if (demo){
     state = sampleDemoState();
     activeMonthKey = '2026-06';
@@ -6192,10 +6244,12 @@ function enterApp(demo){
     collapseState = {};
     if (badge) badge.style.display = 'inline-block';
     if (userTag) userTag.textContent = 'demo data · not saved';
+    if (saveBtn) saveBtn.style.display = 'none';
     screen = 'dashboard'; dashboardView = 'monthly';
   } else {
     if (badge) badge.style.display = 'none';
     if (userTag) userTag.textContent = 'your session · saved locally';
+    if (saveBtn) saveBtn.style.display = '';
     // Quick Update is the whole month on one page — income, costs, SIPs, EMIs,
     // goals — and handles the empty first-time state gracefully too, so it's
     // the landing tab for every login, not just returning users.
