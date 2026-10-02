@@ -882,6 +882,11 @@
 
     <!-- ===================== DASHBOARD ===================== -->
     <section class="view active" id="view-dashboard">
+      <div class="callout" id="sampleBanner" style="display:none;margin-bottom:14px;border-color:var(--accent);">
+        <span>&#9733;</span>
+        <span><b>You're looking at one sample deal.</b> It shows how a deal flows through this Dashboard, Commission In &amp; Out, the Reports and the MIS Report.
+        When you're ready, open <b>Deal Register</b> and press <b>Clear all data</b> in the left menu, then add your own deals &mdash; or edit the sample row.</span>
+      </div>
       <div class="callout" style="margin-bottom:22px;">
         <span>&#9670;</span>
         <span>Everything on this page is a live formula pulling from <b>Deal Register</b> and <b>Setup &amp; Assumptions</b>.
@@ -1200,108 +1205,74 @@ break;case"<bookViews":;case"<bookViews>":;case"</bookViews>":break;case"<workbo
   "use strict";
 
   /* ============================= SEED DATA ============================= */
+  function todayISO(){
+    const t = new Date();
+    return t.getFullYear() + "-" + String(t.getMonth() + 1).padStart(2, "0") + "-" + String(t.getDate()).padStart(2, "0");
+  }
+  // A deliberately tiny starting point: Setup has one of each role and the Deal Register holds ONE
+  // fully-filled sample deal, so a first-time visitor can see how a deal flows through the
+  // Dashboard, Commission and Reports. Everything else starts at zero/empty — no invented company
+  // history. "Clear all data" removes the sample deal; Setup stays so the dropdowns keep working.
   function seedState() {
+    const today = todayISO();
+    const sample = d("SAMPLE-001", "Closed", "Sample Agent", "Residential", "Property Finder", "Individual", "Bank Transfer",
+      today, 1, 36000, 0.50, 0, "Complete", 18000, {
+        teamLead: "Sample Team Lead", teamLeadSplit: 0.10,
+        headOfSales: "Sample Head of Sales", headOfSalesSplit: 0.05,
+        unitNo: "1204", developerProject: "Marina Tower 1 (sample)",
+        clientName: "Sample Client", nationality: "British", contactNumber: "+971 50 000 0000", email: "client@example.com",
+        unitValue: 1800000, portal: "Property Finder", financeInstructions: "Pay to company account",
+        remarks: "SAMPLE DEAL \u2014 2% commission on AED 1.8M, half collected. Edit it, or press Clear all data and add your own."
+      });
     return {
+      seedVersion: 2,
       setup: {
         companyName: "Your Brokerage LLC",
-        reportMonth: "2026-08",
-        asOfDate: "2026-08-24",
-        openingCash: 560000,
-        otherIncome: 1200,
-        vatPaidPrior: 3500,
+        reportMonth: today.slice(0, 7),
+        asOfDate: today,
+        openingCash: 0,
+        otherIncome: 0,
+        vatPaidPrior: 0,
         vatRate: 0.05,
         vatOnResidential: true,   // brokerage commission is a service, standard-rated on residential deals too
         taxRate: 0.09,
         ctThreshold: 375000,      // UAE corporate tax: 0% on taxable profit up to AED 375,000 a year
-        // Shareholder Equity — contributed Share Capital plus the running Shareholder Current
-        // Account (funds the shareholder has put into, or drawn out of, the business beyond their
-        // capital contribution; positive = company owes the shareholder, negative = shareholder
-        // owes the company). Typed once, like Opening Cash — not derived from the Deal Register.
-        shareholderCapital: 500000,
+        shareholderCapital: 0,
         shareholderCurrentAccount: 0,
         opex: [
-          { label: "Office Rent", value: 45000, vatable: true },
-          { label: "Staff Salaries (Admin & Operations)", value: 62000, vatable: false },
-          { label: "Marketing & Advertising (non-portal)", value: 22000, vatable: true },
-          { label: "Utilities & DEWA", value: 4200, vatable: true },
-          { label: "Software & Subscriptions", value: 6800, vatable: true },
-          { label: "Insurance", value: 3000, vatable: false },
-          { label: "Other Admin Expenses", value: 5500, vatable: true }
+          { label: "Office Rent", value: 0, vatable: true },
+          { label: "Staff Salaries (Admin & Operations)", value: 0, vatable: false },
+          { label: "Marketing & Advertising (non-portal)", value: 0, vatable: true },
+          { label: "Utilities & DEWA", value: 0, vatable: true },
+          { label: "Software & Subscriptions", value: 0, vatable: true },
+          { label: "Insurance", value: 0, vatable: false },
+          { label: "Other Admin Expenses", value: 0, vatable: true }
         ],
-        referralFees: 8500,
+        referralFees: 0,
         channels: [
-          { name: "Property Finder", leads: 45, cost: 15000 },
-          { name: "Bayut", leads: 38, cost: 12000 },
-          { name: "Dubizzle", leads: 20, cost: 4000 },
-          { name: "Referral Network", leads: 10, cost: 0 },
-          { name: "Direct / Walk-in", leads: 8, cost: 0 }
+          { name: "Property Finder", leads: 10, cost: 2000 },
+          { name: "Bayut", leads: 0, cost: 0 },
+          { name: "Dubizzle", leads: 0, cost: 0 },
+          { name: "Referral Network", leads: 0, cost: 0 },
+          { name: "Direct / Walk-in", leads: 0, cost: 0 }
         ],
-        agentLeads: [
-          { name: "Ahmed Al Mansoori", leads: 22 },
-          { name: "Fatima Hussain", leads: 18 },
-          { name: "Rashid Khan", leads: 26 },
-          { name: "Priya Nair", leads: 15 },
-          { name: "Omar Saeed", leads: 20 },
-          { name: "Layla Ahmed", leads: 12 }
-        ],
-        agentBenefits: [
-          { name: "Ahmed Al Mansoori", monthly: 1400 },
-          { name: "Fatima Hussain", monthly: 1400 },
-          { name: "Rashid Khan", monthly: 1200 },
-          { name: "Priya Nair", monthly: 1200 },
-          { name: "Omar Saeed", monthly: 1000 },
-          { name: "Layla Ahmed", monthly: 1000 }
-        ],
-        // Team Lead / Head of Sales — the other two parties who can earn a per-deal commission split
-        // in the Deal Register, alongside Agent. Name-only lists (unlike agentLeads/agentBenefits,
-        // there's no separate monthly lead volume or benefit tracked for these roles today).
-        teamLeads: [
-          { name: "Rashid Khan" },
-          { name: "Fatima Hussain" }
-        ],
-        headOfSales: [
-          { name: "Ahmed Al Mansoori" }
-        ],
-        budget: { deals: 20, revenue: 650000, direct: 390000, opex: 150000, ebit: 195000, net: 177450 },
+        agentLeads: [ { name: "Sample Agent", leads: 10 } ],
+        agentBenefits: [ { name: "Sample Agent", monthly: 1000 } ],
+        teamLeads: [ { name: "Sample Team Lead" } ],
+        headOfSales: [ { name: "Sample Head of Sales" } ],
+        budget: { deals: 0, revenue: 0, direct: 0, opex: 0, ebit: 0, net: 0 },
         history: {
-          jan: { deals: 20, revenue: 610000, net: 93730 },
-          feb: { deals: 22, revenue: 653000, net: 105378 }
+          jan: { deals: 0, revenue: 0, net: 0 },
+          feb: { deals: 0, revenue: 0, net: 0 }
         }
       },
-      // Deal Register starts empty — ready for real deals to be entered or imported.
-      deals: [],
-      expenses: genSeedExpenses(),
-      agentOpCost: {} // key "<agent>|<YYYY-MM>" -> manually entered AED. Left blank until the owner fills it in —
-                       // no auto-allocation formula, per how this brokerage wants it tracked.
+      deals: [sample],
+      expenses: [],
+      agentOpCost: {} // key "<agent>|<YYYY-MM>" -> manually entered AED; no auto-allocation, by design
     };
   }
   function ex(date, category, vendor, amount, vatable, notes){
     return { id: uid(), date: date, category: category, vendor: vendor, amount: amount, vatable: !!vatable, notes: notes || "" };
-  }
-  // Realistic actual expense transactions for the 5 months with closed-deal history (Apr-Aug 2026).
-  // Office Rent, Salaries and Insurance are genuinely flat month to month; the rest vary a little,
-  // the way a real ledger would — so Setup's "Actual vs Default Budget" fallback has something real
-  // to show. Any month with no rows here (e.g. the upcoming month) falls back to the category default.
-  function genSeedExpenses(){
-    const cats = [
-      { label: "Office Rent", base: 45000, vatable: true, day: "01", vendor: "Union Properties Leasing", flat: true },
-      { label: "Staff Salaries (Admin & Operations)", base: 62000, vatable: false, day: "28", vendor: "Payroll Run", flat: true },
-      { label: "Marketing & Advertising (non-portal)", base: 22000, vatable: true, day: "10", vendor: "Various Creative & Print Vendors" },
-      { label: "Utilities & DEWA", base: 4200, vatable: true, day: "05", vendor: "DEWA" },
-      { label: "Software & Subscriptions", base: 6800, vatable: true, day: "03", vendor: "Various SaaS (CRM, Accounting, MS365)" },
-      { label: "Insurance", base: 3000, vatable: false, day: "15", vendor: "Oman Insurance Co.", flat: true },
-      { label: "Other Admin Expenses", base: 5500, vatable: true, day: "20", vendor: "Sundry / Office Supplies" }
-    ];
-    const monthFactors = { "2026-04": 1.00, "2026-05": 1.06, "2026-06": 0.95, "2026-07": 1.12, "2026-08": 1.04 };
-    const rows = [];
-    Object.keys(monthFactors).forEach(function(m){
-      cats.forEach(function(cat){
-        const factor = cat.flat ? 1 : monthFactors[m];
-        const amount = Math.round((cat.base * factor) / 50) * 50;
-        rows.push(ex(m + "-" + cat.day, cat.label, cat.vendor, amount, cat.vatable, ""));
-      });
-    });
-    return rows;
   }
   // `extra` is optional and additive — every existing call to d() without it still works unchanged,
   // with the new fields defaulting to blank/zero. Real-world extra fields carried over from a
@@ -1416,7 +1387,15 @@ break;case"<bookViews":;case"<bookViews>":;case"</bookViews>":break;case"<workbo
   // Upgrades a state saved before Expense Register / Employee Benefits existed, without touching
   // anything the user already typed. Runs every load; a no-op once the fields are present.
   function migrateState(parsed){
-    if (!Array.isArray(parsed.expenses)) parsed.expenses = genSeedExpenses();
+    // The very first version shipped a fictional company (KYT-style agents, 5 months of expenses and
+    // AED 560,000 opening cash). If a saved copy is that untouched demo — no deals ever entered —
+    // swap it for the new clean sample instead of showing someone else's numbers after login.
+    const oldDemo = !parsed.seedVersion && (!parsed.deals || !parsed.deals.length) && parsed.setup &&
+      parsed.setup.openingCash === 560000 && parsed.setup.agentLeads && parsed.setup.agentLeads[0] &&
+      parsed.setup.agentLeads[0].name === "Ahmed Al Mansoori";
+    if (oldDemo) { vcfoSeedReplaced = true; return seedState(); }
+    if (!parsed.seedVersion) parsed.seedVersion = 2;
+    if (!Array.isArray(parsed.expenses)) parsed.expenses = [];
     if (!Array.isArray(parsed.setup.agentBenefits)) {
       parsed.setup.agentBenefits = (parsed.setup.agentLeads || []).map(function(a){ return { name: a.name, monthly: 1000 }; });
     }
@@ -1464,6 +1443,7 @@ break;case"<bookViews":;case"<bookViews>":;case"</bookViews>":break;case"<workbo
     return parsed;
   }
   let vcfoSaveTimer = null;
+  let vcfoSeedReplaced = false; // set when an old untouched demo copy was swapped for the clean sample
   let vcfoCloudReady = false; // true only once we've safely read (or confirmed there is nothing in) the account copy
   function saveState(){
     try { localStorage.setItem("virtualCfoState_v1", JSON.stringify(state)); } catch(e) {}
@@ -1518,6 +1498,7 @@ break;case"<bookViews":;case"<bookViews>":;case"</bookViews>":break;case"<workbo
       state = migrateState(cloudState);
       vcfoCloudReady = true;
       try { localStorage.setItem("virtualCfoState_v1", JSON.stringify(state)); } catch(e) {}
+      if (vcfoSeedReplaced) saveState(); // write the clean sample back so the old demo is gone from the account too
       if (tag) { tag.textContent = "logged in · saved to your account"; tag.dataset.loggedin = "1"; }
       renderAll();
       return;
@@ -3335,8 +3316,8 @@ break;case"<bookViews":;case"<bookViews>":;case"</bookViews>":break;case"<workbo
   function trendChart(history, endMonth){
     const m2 = addMonthsToKey(endMonth, -2), m1 = addMonthsToKey(endMonth, -1), m0 = endMonth;
     const valFor = function(mKey, field){
-      if (mKey === "2026-01") return field === "revenue" ? history.jan.revenue : history.jan.net;
-      if (mKey === "2026-02") return field === "revenue" ? history.feb.revenue : history.feb.net;
+      if (mKey === fyYear() + "-01") return field === "revenue" ? history.jan.revenue : history.jan.net;
+      if (mKey === fyYear() + "-02") return field === "revenue" ? history.feb.revenue : history.feb.net;
       const cc = compute(mKey);
       return field === "revenue" ? cc.totalRevenue : cc.netProfit;
     };
@@ -3587,7 +3568,7 @@ break;case"<bookViews":;case"<bookViews>":;case"</bookViews>":break;case"<workbo
         td(inputCell(x.id, "gross", x.gross, "cur")) +
         tdNum(fmtCur(vatAmt)) +
         tdNum(fmtCur(totalAmt)) +
-        td(selectCell(x.id, "leadSource", x.leadSource, OPTIONS.leadSource)) +
+        td(selectCell(x.id, "leadSource", x.leadSource, state.setup.channels.map(function(c){ return c.name; }))) +
         td(inputCell(x.id, "teamLeadSplit", x.teamLeadSplit, "pct")) +
         tdNum(fmtCur(x.teamLeadPayout)) +
         td(inputCell(x.id, "split", x.split, "pct")) +
@@ -3794,6 +3775,9 @@ break;case"<bookViews":;case"<bookViews>":;case"</bookViews>":break;case"<workbo
     return '<input class="cell-input" type="text" data-id="' + id + '" data-field="' + field + '" value="' + esc(value) + '" />';
   }
   function selectCell(id, field, value, options){
+    // If the deal's current value isn't in the list (e.g. a channel or agent since removed from Setup),
+    // still show it truthfully rather than silently displaying the first option.
+    if (value !== undefined && value !== null && value !== "" && options.indexOf(value) === -1) options = options.concat([value]);
     return '<select class="cell-input" data-id="' + id + '" data-field="' + field + '">' +
       options.map(function(o){ return '<option value="' + esc(o) + '"' + (o === value ? " selected" : "") + '>' + (o === "" ? "—" : esc(o)) + '</option>'; }).join("") +
       '</select>';
@@ -4862,6 +4846,8 @@ break;case"<bookViews":;case"<bookViews>":;case"</bookViews>":break;case"<workbo
   /* ============================= RENDER ALL ============================= */
   function renderAll(){
     const c = compute();
+    const sb = document.getElementById("sampleBanner");
+    if (sb) sb.style.display = state.deals.some(function(x){ return String(x.ref || "").indexOf("SAMPLE-") === 0; }) ? "flex" : "none";
     renderDashboard(c);
     renderRegister(c);
     renderSetup(c);

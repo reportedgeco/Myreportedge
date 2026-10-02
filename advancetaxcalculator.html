@@ -188,9 +188,12 @@
   table.inst td{padding:9px 6px;border-bottom:1px solid #F0F1F5;text-align:right;font-family:'IBM Plex Mono',monospace;}
   table.inst td:first-child{font-family:'IBM Plex Sans',sans-serif;font-weight:600;}
   table.inst tr.totalrow2 td{font-weight:700;border-top:2px solid var(--ink);border-bottom:none;background:none;}
-  table.inst input[type=number]{
-    width:82px;padding:5px 6px;border:1px solid #CBD2E1;border-radius:6px;font-size:.8rem;text-align:right;
+  table.inst td.nowrap{white-space:nowrap;}
+  table.inst input.paidInput{
+    width:96px;max-width:100%;padding:6px 8px;border:1px solid #CBD2E1;border-radius:6px;font-size:.85rem;text-align:right;background:#FCFDFE;
   }
+  table.inst input.paidInput:focus{outline:2px solid var(--blue);border-color:var(--blue);}
+  .inst-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;}
   .pill{
     display:inline-block;padding:3px 10px;border-radius:20px;font-size:.7rem;font-weight:700;white-space:nowrap;
   }
@@ -380,11 +383,11 @@
 
     <section class="card" id="passbookSection" style="display:none;">
       <h3>📅 4. Advance Tax Instalments &amp; Due Dates</h3>
-      <table class="inst">
+      <div class="inst-wrap"><table class="inst">
         <thead><tr><th>Instalment</th><th>Due Date</th><th>% of Tax</th><th>Payable</th><th>Paid</th><th>Remaining</th><th>Status</th></tr></thead>
         <tbody id="instBody"></tbody>
-      </table>
-      <div class="notetiny">Note: once you make a payment, update "Paid" for that row to see the interest impact update live.</div>
+      </table></div>
+      <div class="notetiny">Note: once you make a payment, enter it in the "Paid" box for that instalment. Remaining = the instalment's payable less what you've paid (extra paid earlier carries forward); interest checks use the total paid up to each due date.</div>
     </section>
 
     <section class="card" id="interestSection" style="display:none;">
@@ -668,6 +671,63 @@
   }
 
   /* ---------------- Passbook + interest ---------------- */
+  // "Paid" is stored per instalment slot. In presumptive mode there is one row but it uses slot 3,
+  // so the typed value and the value read back must go through the same mapping.
+  const slotOf = (idx, presumptive) => presumptive ? 3 : idx;
+
+  // All the per-row maths in one place, so typing in a Paid box can refresh the numbers
+  // WITHOUT rebuilding the table (rebuilding is what used to kick the cursor out after one digit).
+  //  - Payable   = this instalment's own share (e.g. 15%, then 30%, 30%, 25% of the tax)
+  //  - Paid      = what you paid towards this instalment
+  //  - Remaining = Payable less what you've paid (any extra paid earlier carries forward)
+  //  - Status / interest use the CUMULATIVE amount paid by each due date, as Section 234C does.
+  function calcRows(adv, schedule, presumptive){
+    const today = new Date();
+    let cumPaid = 0, credit = 0, prevCum = 0;
+    return schedule.map((row, idx) => {
+      const reqCum = adv * row.cumPct;
+      const reqTrigger = adv * row.triggerPct;
+      const instAmt = reqCum - prevCum; prevCum = reqCum;
+      const paid = paidInputs[slotOf(idx, presumptive)] || 0;
+      cumPaid += paid;
+      const eff = paid + credit;
+      const remaining = Math.max(0, instAmt - eff);
+      credit = Math.max(0, eff - instAmt);
+      let status, pillClass;
+      if(cumPaid > 0 && cumPaid + 0.5 >= reqCum){ status="Paid"; pillClass="paid"; }
+      else if(today > row.date){
+        const ok = cumPaid + 0.5 >= reqTrigger;
+        status = ok ? "On track" : "Pending"; pillClass = ok ? "ontrack" : "pending";
+      } else { status="Upcoming"; pillClass="upcoming"; }
+      return {row, idx, reqCum, reqTrigger, instAmt, paid, cumPaid, remaining, status, pillClass};
+    });
+  }
+
+  function paintRows(rows, adv){
+    const tbody = $("instBody");
+    let totalPaid = 0;
+    rows.forEach((r, i) => {
+      totalPaid += r.paid;
+      const tr = tbody.children[i];
+      if(!tr) return;
+      tr.querySelector(".c-rem").textContent = inr(r.remaining);
+      const pill = tr.querySelector(".pill");
+      pill.className = "pill " + r.pillClass;
+      pill.textContent = r.status;
+    });
+    const totalRemaining = Math.max(0, adv - totalPaid);
+    const tot = tbody.querySelector("tr.totalrow2");
+    if(tot){
+      tot.querySelector(".t-paid").textContent = inr(totalPaid);
+      tot.querySelector(".t-rem").textContent = inr(totalRemaining);
+    }
+    CURRENT.installments = rows.map(r => ({
+      label:r.row.label+" Instalment", date:fmtDate(r.row.date), pct:Math.round(r.row.cumPct*100)+"%",
+      amount:r.instAmt, paid:r.paid, remaining:r.remaining, status:r.status
+    }));
+    CURRENT.installmentTotals = {payable:adv, paid:totalPaid, remaining:totalRemaining};
+  }
+
   function renderPassbook(advanceTaxPayable, seniorExempt, presumptive){
     const pbSection = $("passbookSection");
     const intSection = $("interestSection");
@@ -691,91 +751,63 @@
       ? [{label:"Full amount", date:new Date(2027,2,15), cumPct:1.00, triggerPct:1.00}]
       : DUE_DATES;
 
-    const today = new Date();
+    const rows = calcRows(advanceTaxPayable, schedule, presumptive);
     const tbody = $("instBody");
     tbody.innerHTML = "";
-    let totalPayable=0, totalPaid=0, totalRemaining=0;
-
-    schedule.forEach((row, idx) => {
-      const reqCum = advanceTaxPayable * row.cumPct;
-      const reqTrigger = advanceTaxPayable * row.triggerPct;
-      const paid = paidInputs[presumptive ? 3 : idx] || 0;
-      const remaining = Math.max(0, reqCum - paid);
-      totalPayable += (idx===0 ? reqCum : reqCum - advanceTaxPayable*schedule[idx-1].cumPct);
-      totalPaid += paid;
-      totalRemaining += remaining;
-
-      let status,pillClass;
-      if(paid >= reqCum && paid>0){ status="Paid"; pillClass="paid"; }
-      else if(today > row.date){ status = (paid>=reqTrigger) ? "On track" : "Pending"; pillClass = (paid>=reqTrigger)?"ontrack":"pending"; }
-      else { status="Upcoming"; pillClass="upcoming"; }
-
-      const instAmt = idx===0 ? reqCum : reqCum - advanceTaxPayable*schedule[idx-1].cumPct;
-
+    rows.forEach(r => {
       const tr = document.createElement("tr");
       tr.innerHTML = `
-        <td>${row.label} Instalment</td>
-        <td>${fmtDate(row.date)}</td>
-        <td>${Math.round(row.cumPct*100)}%</td>
-        <td>${inr(instAmt)}</td>
-        <td><input type="number" min="0" data-idx="${idx}" class="paidInput" value="${paid||0}"></td>
-        <td>${inr(remaining)}</td>
-        <td><span class="pill ${pillClass}">${status}</span></td>`;
+        <td>${r.row.label} Instalment</td>
+        <td class="nowrap">${fmtDate(r.row.date)}</td>
+        <td>${Math.round(r.row.cumPct*100)}%</td>
+        <td>${inr(r.instAmt)}</td>
+        <td><input type="text" inputmode="decimal" autocomplete="off" data-slot="${slotOf(r.idx, presumptive)}" class="paidInput" value="${r.paid ? r.paid : ""}" placeholder="0"></td>
+        <td class="c-rem"></td>
+        <td><span class="pill"></span></td>`;
       tbody.appendChild(tr);
     });
-
     const trTotal = document.createElement("tr");
     trTotal.className = "totalrow2";
-    trTotal.innerHTML = `<td colspan="3">Total</td><td>${inr(advanceTaxPayable)}</td><td>${inr(totalPaid)}</td><td>${inr(totalRemaining)}</td><td></td>`;
+    trTotal.innerHTML = `<td colspan="3">Total</td><td>${inr(advanceTaxPayable)}</td><td class="t-paid"></td><td class="t-rem"></td><td></td>`;
     tbody.appendChild(trTotal);
+    paintRows(rows, advanceTaxPayable);
 
-    // Capture rows for PDF export
-    CURRENT.installments = schedule.map((row, idx) => {
-      const reqCum = advanceTaxPayable * row.cumPct;
-      const paid = paidInputs[presumptive ? 3 : idx] || 0;
-      const instAmt = idx===0 ? reqCum : reqCum - advanceTaxPayable*schedule[idx-1].cumPct;
-      const remaining = Math.max(0, reqCum - paid);
-      const reqTrigger = advanceTaxPayable * row.triggerPct;
-      let status;
-      if(paid >= reqCum && paid>0) status="Paid";
-      else if(today > row.date) status = (paid>=reqTrigger) ? "On track" : "Pending";
-      else status="Upcoming";
-      return {label:row.label+" Instalment", date:fmtDate(row.date), pct:Math.round(row.cumPct*100)+"%", amount:instAmt, paid, remaining, status};
-    });
-    CURRENT.installmentTotals = {payable:advanceTaxPayable, paid:totalPaid, remaining:totalRemaining};
-
-    tbody.querySelectorAll(".paidInput").forEach(inp=>{
-      inp.addEventListener("input", e=>{
-        paidInputs[+e.target.dataset.idx] = parseFloat(e.target.value)||0;
-        renderPassbook(advanceTaxPayable, seniorExempt, presumptive);
+    // Typing only updates the dependent cells in place — the box you're typing in is never rebuilt,
+    // so you can enter 4, 5, 6+ digit amounts normally.
+    tbody.querySelectorAll(".paidInput").forEach(inp => {
+      inp.addEventListener("input", e => {
+        const clean = e.target.value.replace(/[^0-9.]/g, "");
+        if(clean !== e.target.value) e.target.value = clean;
+        paidInputs[+e.target.dataset.slot] = parseFloat(clean) || 0;
+        const r2 = calcRows(advanceTaxPayable, schedule, presumptive);
+        paintRows(r2, advanceTaxPayable);
+        renderInterest(advanceTaxPayable, r2, presumptive);
       });
     });
 
-    renderInterest(advanceTaxPayable, schedule, presumptive);
+    renderInterest(advanceTaxPayable, rows, presumptive);
   }
 
-  function renderInterest(advanceTaxPayable, schedule, presumptive){
+  function renderInterest(advanceTaxPayable, rows, presumptive){
     const today = new Date();
-    let rows=[], total234C=0;
+    let list=[], total234C=0;
 
-    schedule.forEach((row, idx) => {
-      if(today <= row.date) return;
-      const reqTrigger = advanceTaxPayable * row.triggerPct;
-      const reqCum = advanceTaxPayable * row.cumPct;
-      const paid = paidInputs[presumptive ? 3 : idx] || 0;
-      if(paid < reqTrigger){
-        const shortfall = reqCum - paid;
-        const months = (idx===schedule.length-1) ? 1 : 3;
+    rows.forEach((r, idx) => {
+      if(today <= r.row.date) return;
+      // Compare the CUMULATIVE amount paid by this due date with the checkpoint (12% / 36% / 75% / 100%).
+      if(r.cumPaid + 0.5 < r.reqTrigger){
+        const shortfall = r.reqCum - r.cumPaid;
+        const months = (idx===rows.length-1) ? 1 : 3;
         const interest = shortfall*0.01*months;
         total234C += interest;
-        rows.push({label:row.label+" Instalment", date:row.date, shortfall, months, interest});
+        list.push({label:r.row.label+" Instalment", date:r.row.date, shortfall, months, interest});
       }
     });
 
     const c234 = $("interest234C");
-    CURRENT.interest234C = rows.map(r=>({label:`${r.label} (${fmtDate(r.date)})`, shortfall:r.shortfall, months:r.months, interest:r.interest}));
+    CURRENT.interest234C = list.map(r=>({label:`${r.label} (${fmtDate(r.date)})`, shortfall:r.shortfall, months:r.months, interest:r.interest}));
     CURRENT.total234C = total234C;
-    if(rows.length){
+    if(list.length){
       c234.innerHTML = `
         <div class="interestbox crit">
           <div class="ib-top"><span class="ib-label">Section 234C interest (delayed instalments)</span><span class="ib-amt">${inr(total234C)}</span></div>
@@ -783,7 +815,7 @@
         </div>`;
       $("viewBreakup").style.display = "inline-block";
       let html = `<table class="breakup"><thead><tr><th>Instalment</th><th>Shortfall</th><th>Months</th><th>Interest</th></tr></thead><tbody>`;
-      rows.forEach(r=> html += `<tr><td>${r.label} (${fmtDate(r.date)})</td><td>${inr(r.shortfall)}</td><td>${r.months}</td><td>${inr(r.interest)}</td></tr>`);
+      list.forEach(r=> html += `<tr><td>${r.label} (${fmtDate(r.date)})</td><td>${inr(r.shortfall)}</td><td>${r.months}</td><td>${inr(r.interest)}</td></tr>`);
       html += `</tbody></table><div class="notetiny">If a shortfall is due to capital gains or other income that arose late in the year, 234C may not apply on that portion if paid in the next instalment — this isn't modelled automatically above.</div>`;
       $("breakupTable").innerHTML = html;
     } else {
@@ -792,12 +824,13 @@
       $("breakupTable").setAttribute("hidden","");
     }
 
-    const totalPaid = paidInputs[3] || Math.max(...paidInputs, 0);
+    // 234B looks at the TOTAL advance tax paid during the year (all instalments added up).
+    const totalPaid = rows.reduce((a,r)=>a+r.paid, 0);
     const ninetyPct = advanceTaxPayable*0.9;
     const c234b = $("interest234B");
     if(today >= s234B_START){
       const monthsElapsed = Math.max(1, (today.getFullYear()-2027)*12 + (today.getMonth()-3) + 1);
-      if(totalPaid < ninetyPct){
+      if(totalPaid + 0.5 < ninetyPct){
         const shortfall = advanceTaxPayable - totalPaid;
         const interest234B = shortfall*0.01*monthsElapsed;
         c234b.innerHTML = `<div class="interestbox crit"><div class="ib-top"><span class="ib-label">Section 234B interest (post year-end shortfall)</span><span class="ib-amt">${inr(interest234B)}</span></div><div class="ib-sub">Paid ${inr(totalPaid)} vs 90% threshold of ${inr(ninetyPct)}. 1% × ${monthsElapsed} month(s) from 1 Apr 2027 on shortfall of ${inr(shortfall)}.</div></div>`;
