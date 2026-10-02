@@ -425,6 +425,16 @@ footer{background:var(--navy);border-top:1px solid rgba(255,255,255,0.06);paddin
   <p class="section-sub">Upload your sales data, export reports, or connect your system. ReportEdge turns raw numbers into powerful business intelligence reports your team actually understands.</p>
 
   <div class="co-grid">
+    <a href="virtual-cfo-realestate.html" class="co-card is-live">
+      <span style="position:absolute;top:16px;right:16px;font-size:10px;font-weight:700;color:var(--emerald);background:var(--em-bg);border:1px solid rgba(5,150,105,0.3);padding:3px 9px;border-radius:4px;">✓ Try the free demo</span>
+      <div class="co-card-icon">
+        <svg viewBox="0 0 24 24"><path d="M3 21h18M5 21V7l8-4v18M19 21V11l-6-4"/></svg>
+      </div>
+      <div class="co-card-title">Virtual CFO for Real Estate Brokers</div>
+      <div class="co-card-desc">Log your deals and expenses and get a full brokerage CFO suite — commission waterfalls, agent &amp; team performance, marketing ROI, VAT summary, AML/REAR flags, receivables aging, budget vs actual and a boardroom-ready MIS report.</div>
+      <div class="co-card-offer">"Know exactly what every deal, every agent and every dirham of marketing spend is really doing to your bottom line."</div>
+      <div style="display:flex;align-items:center;gap:5px;font-size:13px;font-weight:700;color:var(--emerald);margin-top:14px;">Open Virtual CFO →</div>
+    </a>
     <a href="ifrs-financials.html" class="co-card is-live">
       <span style="position:absolute;top:16px;right:16px;font-size:10px;font-weight:700;color:var(--emerald);background:var(--em-bg);border:1px solid rgba(5,150,105,0.3);padding:3px 9px;border-radius:4px;">✓ Free Forever</span>
       <div class="co-card-icon">
@@ -1086,6 +1096,9 @@ textarea.fb-input{resize:vertical;min-height:90px;}
     // your account and comes right back the next time you log in.
     try{
       localStorage.removeItem('rfh:state'); // Financial Health
+    }catch(e){}
+    try{
+      localStorage.removeItem('virtualCfoState_v1'); // Virtual CFO
     }catch(e){}
     refreshAuthUI();
   };

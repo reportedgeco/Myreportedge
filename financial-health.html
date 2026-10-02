@@ -509,9 +509,22 @@
   .rfh-stat-tile{ background:var(--card-bg); border:1px solid var(--paper-line); border-radius:12px; padding:14px 15px; }
   .rfh-stat-tile-top{ display:flex; align-items:center; gap:8px; margin-bottom:9px; }
   .rfh-stat-tile-dot{ width:26px; height:26px; border-radius:8px; display:inline-block; flex:0 0 26px; }
-  .rfh-stat-tile-lbl{ font-size:12px; color:var(--slate); font-weight:500; }
+  .rfh-stat-tile-lbl{ font-size:12px; color:var(--slate); font-weight:500; line-height:1.3; }
   .rfh-stat-tile-val{ font-family:var(--serif); font-size:21px; font-weight:700; color:var(--ink-900); line-height:1.1; }
   .rfh-stat-tile-chg{ font-size:11px; font-weight:600; margin-top:5px; }
+  .rfh-stat-tile-clickable{ cursor:pointer; transition:border-color 0.15s, box-shadow 0.15s; }
+  .rfh-stat-tile-clickable:hover{ border-color:var(--ink-300, #94A3B8); box-shadow:0 2px 8px rgba(0,0,0,0.06); }
+  .rfh-stat-tile-clickable:focus-visible{ outline:2px solid #2563EB; outline-offset:2px; }
+  .rfh-stat-tile-open{ border-color:#2563EB; }
+  .rfh-stat-tile-chevron{ margin-left:auto; font-size:9px; color:var(--slate); flex:0 0 auto; }
+  .rfh-stat-breakdown{ grid-column:1/-1; background:var(--card-bg-alt); border:1px solid var(--paper-line); border-radius:12px; padding:14px 16px; margin-top:-4px; }
+  .rfh-stat-breakdown .ttl{ font-family:var(--serif); font-size:13.5px; font-weight:600; color:var(--ink-900); margin-bottom:10px; }
+  .rfh-stat-breakdown-row{ display:flex; align-items:center; justify-content:space-between; padding:6px 0; border-bottom:1px solid var(--paper-line); font-size:12.5px; }
+  .rfh-stat-breakdown-row:last-child{ border-bottom:none; }
+  .rfh-stat-breakdown-row .k{ color:var(--ink-800); display:flex; align-items:center; gap:7px; }
+  .rfh-stat-breakdown-row .v{ font-family:var(--mono); font-weight:600; color:var(--ink-900); }
+  .rfh-stat-breakdown-row.total{ border-top:1.5px solid var(--paper-line); border-bottom:none; margin-top:2px; padding-top:9px; font-weight:700; }
+  .rfh-stat-breakdown-empty{ font-size:12.5px; color:var(--slate); padding:4px 0; }
 
   .rfh-dash2-card{ background:var(--card-bg); border:1px solid var(--paper-line); border-radius:12px; padding:16px 18px; overflow:hidden; }
   .rfh-dash2-card .ttl{ font-family:var(--serif); font-size:15px; font-weight:600; color:var(--ink-900); margin-bottom:2px; }
@@ -1059,6 +1072,14 @@
   window.fhSaveToCloud = async function(stateObj){
     try{
       await window.fhReady;
+      // If the account's saved copy could not be read, "nothing found" really means "unknown".
+      // Saving now would overwrite the real data with whatever is on screen, so pause saving.
+      if (window.fhLoadFailed){
+        window.fhLastError = 'Your saved data could not be loaded, so saving to your account is paused to protect it. Please reload the page.';
+        const t = document.getElementById('userTag');
+        if (t) t.textContent = 'saving paused — reload the page';
+        return false;
+      }
       const { data: { session } } = await window.fhSb.auth.getSession();
       if (!session) return true; // not logged in — local storage already handled it, nothing to sync
       const { error } = await window.fhSb.from('financial_health_data').upsert({
@@ -1089,9 +1110,9 @@
       if (!session) return null;
       const { data, error } = await window.fhSb.from('financial_health_data')
         .select('state').eq('user_id', session.user.id).maybeSingle();
-      if (error || !data) return null;
-      return data.state || null;
-    }catch(e){ return null; }
+      if (error){ window.fhLoadFailed = true; window.fhLastError = error.message || String(error); return null; }
+      return (data && data.state) || null;
+    }catch(e){ window.fhLoadFailed = true; return null; }
   };
 
   window.fhIsLoggedIn = async function(){
@@ -1223,7 +1244,7 @@
 
   <div class="rfh-sidebar">
     <div class="rfh-brand">
-      <span class="mark">ReportEdge</span>
+      <a href="index.html" class="mark" style="text-decoration:none; color:inherit;" title="Go to the ReportEdge home page (all tools)">ReportEdge</a>
       <span class="sub">Financial Health</span>
       <span class="rfh-demo-badge" id="demoBadge" style="display:none;">DEMO</span>
     </div>
@@ -1255,7 +1276,8 @@
           <span class="ic-sun">☀</span><span class="ic-moon">☾</span>
         </button>
         <button class="rfh-exit" id="clearAllData" title="Clear all data and start fresh" style="color:var(--rust-dark);border-color:rgba(220,38,38,0.35);">🗑</button>
-        <button class="rfh-exit" id="exitToLanding" title="Back to home">⌂</button>
+        <button class="rfh-exit" id="exitToLanding" title="Back to this tool's intro page">⌂</button>
+        <button class="rfh-exit" id="goHomeSite" title="Go to ReportEdge home page (all tools)" onclick="window.location.href='index.html'">🏠</button>
       </div>
     </div>
   </div>
@@ -1679,8 +1701,12 @@ async function loadState(){
   try{
     const loggedIn = window.fhIsLoggedIn ? await window.fhIsLoggedIn() : false;
     if (loggedIn){
+      window.fhLoadFailed = false;
       const cloudState = window.fhLoadFromCloud ? await window.fhLoadFromCloud() : null;
-      if (cloudState && cloudState.months){
+      if (window.fhLoadFailed){
+        state = blankState();
+        alert("We couldn't load your saved data from your account (a connection or permission problem).\n\nNothing has been changed or deleted. Saving is paused so your saved data stays safe \u2014 please reload the page to try again.");
+      } else if (cloudState && cloudState.months){
         // Already has saved data in the account: the cloud is the single
         // source of truth from here on. Never fall back to this browser's
         // local data — a shared/public device could have another user's (or
@@ -2281,6 +2307,31 @@ function yearlyBreakdown(fyStartYear, cardType){
     .map(([label,value]) => ({label, value: Math.round(value)}))
     .filter(item => Math.abs(item.value) >= 1)
     .sort((a,b) => Math.abs(b.value) - Math.abs(a.value));
+}
+
+/* The expandable panel shown under the Yearly dashboard's stat tiles when one
+   is clicked (see statTileHtml's expandKey / data-expand-tile, and
+   wireYearlyStatExpand). cardType matches yearlyBreakdown's cardType, title
+   is the tile's own label, and total is the tile's headline figure so the
+   panel's own total row always matches what's shown on the tile. */
+function yearlyStatBreakdownHtml(fyStartYear, cardType, title, total){
+  const items = yearlyBreakdown(fyStartYear, cardType);
+  const rows = items.length
+    ? items.map(it => `
+        <div class="rfh-stat-breakdown-row">
+          <span class="k">${it.label}</span>
+          <span class="v" style="${it.value<0?'color:var(--bad-text);':''}">${it.value<0?'−':''}${fmt(Math.abs(it.value))}</span>
+        </div>`).join('')
+    : `<div class="rfh-stat-breakdown-empty">No data entered for this yet.</div>`;
+  return `
+    <div class="rfh-stat-breakdown">
+      <div class="ttl">${title} — breakdown across the year</div>
+      ${rows}
+      <div class="rfh-stat-breakdown-row total">
+        <span class="k">Total</span>
+        <span class="v">${fmt(total)}</span>
+      </div>
+    </div>`;
 }
 
 /* ---------- tax estimate (New Regime, FY 2025-26 / AY 2026-27) ---------- */
@@ -3612,6 +3663,18 @@ function dashboardModeToggle(){
       </div>
     </div>`;
 }
+function wireYearlyStatExpand(){
+  document.querySelectorAll('[data-expand-tile]').forEach(el=>{
+    const toggle = ()=>{
+      const key = el.dataset.expandTile;
+      yearlyExpandedCard = (yearlyExpandedCard === key) ? null : key;
+      render();
+    };
+    el.onclick = toggle;
+    el.onkeydown = (e)=>{ if (e.key==='Enter' || e.key===' '){ e.preventDefault(); toggle(); } };
+  });
+}
+
 function wireDashboardModeToggle(){
   document.querySelectorAll('[data-dmode]').forEach(b=>{
     b.onclick = ()=>{
@@ -3841,17 +3904,24 @@ function gaugeHtml(pct, colorFrom, colorTo, centerHtml, size){
       <div class="rfh-gauge-hole">${centerHtml}</div>
     </div>`;
 }
-function statTileHtml(label, value, changePct, color, rawInr, suffix){
+function statTileHtml(label, value, changePct, color, rawInr, suffix, expandKey){
   suffix = suffix || 'vs last month';
   const chg = changePct===null
     ? `<div class="rfh-stat-tile-chg" style="color:var(--slate);">No comparison data yet</div>`
     : `<div class="rfh-stat-tile-chg" style="color:${changePct>=0?'var(--good-text)':'var(--bad-text)'}">${changePct>=0?'+':''}${changePct.toFixed(1)}% ${suffix}</div>`;
   const fx = rawInr!==undefined ? fmtFx(rawInr) : null;
+  // expandKey, when given, makes the tile clickable so it can expand a
+  // breakdown panel underneath the stats row — see wireYearlyStatExpand()
+  // and statBreakdownHtml(). Plain stat tiles (e.g. the Monthly dashboard)
+  // omit it and render exactly as before.
+  const clickable = !!expandKey;
+  const isOpen = clickable && yearlyExpandedCard === expandKey;
   return `
-    <div class="rfh-stat-tile">
+    <div class="rfh-stat-tile${clickable ? ' rfh-stat-tile-clickable' : ''}${isOpen ? ' rfh-stat-tile-open' : ''}" ${clickable ? `data-expand-tile="${expandKey}" role="button" tabindex="0" aria-expanded="${isOpen}"` : ''}>
       <div class="rfh-stat-tile-top">
         <span class="rfh-stat-tile-dot" style="background:${color}22;"></span>
         <span class="rfh-stat-tile-lbl">${label}</span>
+        ${clickable ? `<span class="rfh-stat-tile-chevron">${isOpen ? '▲' : '▼'}</span>` : ''}
       </div>
       <div class="rfh-stat-tile-val">${value}</div>
       ${fx ? `<div class="rfh-fx-note" style="text-align:left;">${fx}</div>` : ''}
@@ -4216,11 +4286,16 @@ function screenDashboardYearly(){
     <div class="rfh-yr-grid">
       <div class="rfh-yr-main">
         <div class="rfh-yr-stats">
-          ${statTileHtml('Total Income', fmtCompact(y.totalIncome), chg(y.totalIncome, prevY.totalIncome), '#16A34A', y.totalIncome, 'vs last year')}
-          ${statTileHtml('Total Expenses', fmtCompact(totalExpenses), chg(totalExpenses, prevY.monthlyExp+prevY.yearlyExp), '#DC2626', totalExpenses, 'vs last year')}
-          ${statTileHtml('Total EMI Paid', fmtCompact(y.emi), chg(y.emi, prevY.emi), '#2563EB', y.emi, 'vs last year')}
-          ${statTileHtml('Net Saved This Year', fmtCompact(totalSavingsForFormula), chg(totalSavingsForFormula, prevY.totalIncome-(prevY.monthlyExp+prevY.yearlyExp)-prevY.emi-prevY.surplus), '#7C3AED', totalSavingsForFormula, 'vs last year')}
-          ${statTileHtml('Total Surplus', fmtCompact(y.surplus), chg(y.surplus, prevY.surplus), y.surplus>=0?'#16A34A':'#DC2626', y.surplus, 'vs last year')}
+          ${statTileHtml('Total Income', fmtCompact(y.totalIncome), chg(y.totalIncome, prevY.totalIncome), '#16A34A', y.totalIncome, 'vs last year', 'income')}
+          ${statTileHtml('Total Expenses', fmtCompact(totalExpenses), chg(totalExpenses, prevY.monthlyExp+prevY.yearlyExp), '#DC2626', totalExpenses, 'vs last year', 'expenses')}
+          ${statTileHtml('Total EMI Paid', fmtCompact(y.emi), chg(y.emi, prevY.emi), '#2563EB', y.emi, 'vs last year', 'emi')}
+          ${statTileHtml('Net Saved', fmtCompact(totalSavingsForFormula), chg(totalSavingsForFormula, prevY.totalIncome-(prevY.monthlyExp+prevY.yearlyExp)-prevY.emi-prevY.surplus), '#7C3AED', totalSavingsForFormula, 'vs last year', 'saved')}
+          ${statTileHtml('Total Surplus', fmtCompact(y.surplus), chg(y.surplus, prevY.surplus), y.surplus>=0?'#16A34A':'#DC2626', y.surplus, 'vs last year', 'surplus')}
+          ${yearlyExpandedCard==='income' ? yearlyStatBreakdownHtml(activeFYStart, 'income', 'Total Income', y.totalIncome) : ''}
+          ${yearlyExpandedCard==='expenses' ? yearlyStatBreakdownHtml(activeFYStart, 'expenses', 'Total Expenses', totalExpenses) : ''}
+          ${yearlyExpandedCard==='emi' ? yearlyStatBreakdownHtml(activeFYStart, 'emi', 'Total EMI Paid', y.emi) : ''}
+          ${yearlyExpandedCard==='saved' ? yearlyStatBreakdownHtml(activeFYStart, 'saved', 'Net Saved', totalSavingsForFormula) : ''}
+          ${yearlyExpandedCard==='surplus' ? yearlyStatBreakdownHtml(activeFYStart, 'surplus', 'Total Surplus', y.surplus) : ''}
         </div>
 
         <div class="rfh-yr-row2">
@@ -5951,10 +6026,13 @@ function render(){
     } else {
       wireDashboardSubtabs();
       if (dashboardView==='monthly'){
-        renderDashboardChart();
+        try{ renderDashboardChart(); }catch(e){}
         wireCollapsibles();
       } else if (dashboardView==='yearly'){
-        renderYearlyDashboardCharts();
+        // If the chart library hiccups (slow/blocked CDN, a bad chart config),
+        // this must not take the FY picker or the stat-tile breakdowns down
+        // with it — they're independent UI, not dependent on the charts.
+        try{ renderYearlyDashboardCharts(); }catch(e){}
         const fySel = document.getElementById('fySelect');
         if (fySel) fySel.onchange = ()=>{
           // Browsing a past/future FY here is view-only — it must not move
@@ -5962,6 +6040,7 @@ function render(){
           dashboardFYStart = fyStartYearFromLabel(fySel.value);
           render();
         };
+        wireYearlyStatExpand();
       } else if (dashboardView==='goals'){
         renderGoalPriorityDonut();
         document.querySelectorAll('[data-goto-goals]').forEach(btn=>{
