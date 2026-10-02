@@ -53,6 +53,47 @@
             }catch(e){ window.vcfoLoadFailed = true; return null; }
           };
 
+
+  // ── Access control: only users you've approved (tool_access table) can use this tool ──
+  window.vcfoCheckAccess = async function(){
+    try{
+      await window.vcfoReady;
+      if (!window.vcfoSb) return { status:'error' };
+      const { data: { session } } = await window.vcfoSb.auth.getSession();
+      if (!session) return { status:'error' };
+      const { data, error } = await window.vcfoSb.from('tool_access').select('virtual_cfo').eq('user_id', session.user.id).maybeSingle();
+      if (error) return { status:'error' };
+      if (!data || !data.virtual_cfo) return { status:'denied', email: session.user.email || '' };
+      return { status:'ok' };
+    }catch(e){ return { status:'error' }; }
+  };
+  window.vcfoShowAccessBlock = function(acc){
+    if (document.getElementById('rfhAccessBlock')) return;
+    const esc = s => String(s||'').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+    const denied = acc && acc.status === 'denied';
+    const d = document.createElement('div');
+    d.id = 'rfhAccessBlock';
+    d.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;z-index:2147483000;background:#F3F5FA;display:flex;align-items:center;justify-content:center;padding:20px;font-family:Inter,system-ui,sans-serif;overflow:auto;';
+    d.innerHTML = '<div style="max-width:460px;width:100%;background:#fff;border:1px solid #E3E7EF;border-radius:14px;padding:32px 28px;text-align:center;box-shadow:0 8px 30px rgba(15,23,42,.08);color:#16213A;">' +
+      '<div style="font-size:38px;line-height:1;">&#128274;</div>' +
+      '<h2 style="margin:12px 0 8px;font-size:20px;">' + (denied ? 'Your access is pending approval' : "We couldn't verify your access") + '</h2>' +
+      '<p style="margin:0 0 18px;font-size:14px;line-height:1.55;color:#475569;">' + (denied
+        ? ('Thanks for signing up' + (acc.email ? ' (<b>' + esc(acc.email) + '</b>)' : '') + '. <b>Virtual CFO</b> is available to approved users only. Your request has been noted and access will be switched on once it is approved. After that, just refresh this page.')
+        : 'There was a connection problem while checking your account. Nothing has been changed or deleted. Please reload the page to try again.') + '</p>' +
+      '<div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">' +
+        '<button id="rfhAbReload" style="padding:10px 16px;border-radius:8px;border:none;background:#1E5FBF;color:#fff;font-weight:700;font-size:13px;cursor:pointer;">Refresh</button>' +
+        '<button id="rfhAbOut" style="padding:10px 16px;border-radius:8px;border:1px solid #CBD2E1;background:#fff;color:#16213A;font-weight:600;font-size:13px;cursor:pointer;">Log out</button>' +
+        '<a href="index.html" style="padding:10px 16px;border-radius:8px;border:1px solid #CBD2E1;background:#fff;color:#16213A;font-weight:600;font-size:13px;text-decoration:none;">ReportEdge home</a>' +
+      '</div></div>';
+    document.body.appendChild(d);
+    document.getElementById('rfhAbReload').onclick = function(){ location.reload(); };
+    document.getElementById('rfhAbOut').onclick = async function(){
+      try{ await window.vcfoSb.auth.signOut(); }catch(e){}
+      try{ localStorage.removeItem('rfh:state'); localStorage.removeItem('virtualCfoState_v1'); }catch(e){}
+      window.location.href = 'index.html';
+    };
+  };
+
           window.vcfoIsLoggedIn = async function(){
     try{
       await window.vcfoReady;
@@ -1482,6 +1523,14 @@ break;case"<bookViews":;case"<bookViews>":;case"</bookViews>":break;case"<workbo
     if (!loggedIn){
       if (tag) { tag.textContent = "not logged in · saved on this device only"; tag.dataset.loggedin = "0"; }
       if (saveBtn) saveBtn.title = "Log in to save to your account";
+      return;
+    }
+    // Only approved accounts may use this tool; everyone else sees the "pending approval" screen.
+    const acc = window.vcfoCheckAccess ? await window.vcfoCheckAccess() : { status: "error" };
+    if (acc.status !== "ok") {
+      window.vcfoAccessBlocked = true;
+      window.vcfoShowAccessBlock(acc);
+      if (tag) { tag.textContent = acc.status === "denied" ? "access pending approval" : "couldn't verify access"; tag.dataset.loggedin = "0"; }
       return;
     }
     if (saveBtn) saveBtn.title = "Save to your account";

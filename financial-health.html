@@ -1074,6 +1074,7 @@
       await window.fhReady;
       // If the account's saved copy could not be read, "nothing found" really means "unknown".
       // Saving now would overwrite the real data with whatever is on screen, so pause saving.
+      if (window.fhAccessBlocked){ window.fhLastError = 'Your account has not been approved for this tool yet.'; return false; }
       if (window.fhLoadFailed){
         window.fhLastError = 'Your saved data could not be loaded, so saving to your account is paused to protect it. Please reload the page.';
         const t = document.getElementById('userTag');
@@ -1113,6 +1114,47 @@
       if (error){ window.fhLoadFailed = true; window.fhLastError = error.message || String(error); return null; }
       return (data && data.state) || null;
     }catch(e){ window.fhLoadFailed = true; return null; }
+  };
+
+
+  // ── Access control: only users you've approved (tool_access table) can use this tool ──
+  window.fhCheckAccess = async function(){
+    try{
+      await window.fhReady;
+      if (!window.fhSb) return { status:'error' };
+      const { data: { session } } = await window.fhSb.auth.getSession();
+      if (!session) return { status:'error' };
+      const { data, error } = await window.fhSb.from('tool_access').select('financial_health').eq('user_id', session.user.id).maybeSingle();
+      if (error) return { status:'error' };
+      if (!data || !data.financial_health) return { status:'denied', email: session.user.email || '' };
+      return { status:'ok' };
+    }catch(e){ return { status:'error' }; }
+  };
+  window.fhShowAccessBlock = function(acc){
+    if (document.getElementById('rfhAccessBlock')) return;
+    const esc = s => String(s||'').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+    const denied = acc && acc.status === 'denied';
+    const d = document.createElement('div');
+    d.id = 'rfhAccessBlock';
+    d.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;z-index:2147483000;background:#F3F5FA;display:flex;align-items:center;justify-content:center;padding:20px;font-family:Inter,system-ui,sans-serif;overflow:auto;';
+    d.innerHTML = '<div style="max-width:460px;width:100%;background:#fff;border:1px solid #E3E7EF;border-radius:14px;padding:32px 28px;text-align:center;box-shadow:0 8px 30px rgba(15,23,42,.08);color:#16213A;">' +
+      '<div style="font-size:38px;line-height:1;">&#128274;</div>' +
+      '<h2 style="margin:12px 0 8px;font-size:20px;">' + (denied ? 'Your access is pending approval' : "We couldn't verify your access") + '</h2>' +
+      '<p style="margin:0 0 18px;font-size:14px;line-height:1.55;color:#475569;">' + (denied
+        ? ('Thanks for signing up' + (acc.email ? ' (<b>' + esc(acc.email) + '</b>)' : '') + '. <b>Financial Health</b> is available to approved users only. Your request has been noted and access will be switched on once it is approved. After that, just refresh this page.')
+        : 'There was a connection problem while checking your account. Nothing has been changed or deleted. Please reload the page to try again.') + '</p>' +
+      '<div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">' +
+        '<button id="rfhAbReload" style="padding:10px 16px;border-radius:8px;border:none;background:#1E5FBF;color:#fff;font-weight:700;font-size:13px;cursor:pointer;">Refresh</button>' +
+        '<button id="rfhAbOut" style="padding:10px 16px;border-radius:8px;border:1px solid #CBD2E1;background:#fff;color:#16213A;font-weight:600;font-size:13px;cursor:pointer;">Log out</button>' +
+        '<a href="index.html" style="padding:10px 16px;border-radius:8px;border:1px solid #CBD2E1;background:#fff;color:#16213A;font-weight:600;font-size:13px;text-decoration:none;">ReportEdge home</a>' +
+      '</div></div>';
+    document.body.appendChild(d);
+    document.getElementById('rfhAbReload').onclick = function(){ location.reload(); };
+    document.getElementById('rfhAbOut').onclick = async function(){
+      try{ await window.fhSb.auth.signOut(); }catch(e){}
+      try{ localStorage.removeItem('rfh:state'); localStorage.removeItem('virtualCfoState_v1'); }catch(e){}
+      window.location.href = 'index.html';
+    };
   };
 
   window.fhIsLoggedIn = async function(){
@@ -1701,6 +1743,14 @@ async function loadState(){
   try{
     const loggedIn = window.fhIsLoggedIn ? await window.fhIsLoggedIn() : false;
     if (loggedIn){
+      // Only approved accounts may open this tool. Everyone else gets the "pending approval" screen
+      // and nothing is loaded. (The database enforces the same rule, so this can't be bypassed.)
+      const acc = window.fhCheckAccess ? await window.fhCheckAccess() : { status:'error' };
+      if (acc.status !== 'ok'){
+        window.fhAccessBlocked = true;
+        window.fhShowAccessBlock(acc);
+        return;
+      }
       window.fhLoadFailed = false;
       const cloudState = window.fhLoadFromCloud ? await window.fhLoadFromCloud() : null;
       if (window.fhLoadFailed){
@@ -6402,6 +6452,7 @@ function submitInterest(e){
 
 (async function init(){
   await loadState();
+  if (window.fhAccessBlocked) return;
   let savedTheme = 'light';
   try { savedTheme = localStorage.getItem('rfh:theme') || 'light'; } catch(e){}
   applyTheme(savedTheme);
