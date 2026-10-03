@@ -172,6 +172,21 @@ input[type=range]:active::-webkit-slider-thumb{cursor:grabbing;transform:scale(1
 .p-idle .mq-armR{animation:idleArmR 3.6s ease-in-out infinite}
 
 /* ---- think / gesture: one hand raised to the side ---- */
+/* ---- thumbs up: hide the hanging arm, show the dedicated one ---- */
+.mq-tu{display:none}
+.p-thumbsup .mq-tu{display:block}
+.p-thumbsup .mq-armL{display:none}
+.p-thumbsup .mq-phone{opacity:0}
+@keyframes tuPop{0%{transform:translateY(16px) scale(.86);opacity:0}
+  55%{transform:translateY(-4px) scale(1.06);opacity:1}
+  75%{transform:translateY(1px) scale(.98)}100%{transform:translateY(0) scale(1);opacity:1}}
+@keyframes tuNod{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+@keyframes tuHead{0%{transform:rotate(0)}40%{transform:rotate(-6deg)}100%{transform:rotate(-3deg)}}
+.p-thumbsup .mq-tu{animation:tuPop .55s cubic-bezier(.3,1.4,.5,1) .1s both,tuNod 2.4s ease-in-out .7s infinite}
+.p-thumbsup .mq-body{animation:idleBody 3s ease-in-out infinite}
+.p-thumbsup .mq-head{animation:tuHead .55s ease .1s both}
+.p-thumbsup .mq-armR{animation:idleArmR 3s ease-in-out infinite}
+
 .p-think .mq-armL{transform:rotate(104deg)}
 .p-think .mq-head{transform:rotate(-6deg)}
 .p-think .mq-armR{animation:idleArmR 3.6s ease-in-out infinite}
@@ -275,6 +290,7 @@ input[type=range]:active::-webkit-slider-thumb{cursor:grabbing;transform:scale(1
   .p-wave .mq-armL{transform:rotate(126deg)}
   .p-slump .mq-head{transform:rotate(13deg) translateY(5px)}
   .p-shock .mq-armL{transform:rotate(108deg)}.p-shock .mq-armR{transform:rotate(-108deg)}
+  .p-thumbsup .mq-tu{opacity:1;transform:none}
 }
 
 </style>
@@ -311,100 +327,88 @@ var TOOLS=[
 /* ================= CHARACTER =================
    One rigged figure: shadow, two legs, body, two arms, head.
    Every limb is its own <g> with a joint origin, so CSS can pose and
-   animate it — walk, run, arms up, celebrate, slump. Shading is done
-   with gradients so the flat vector reads as a rounded 3D form.      */
-var WHO='arjun',NAMES={arjun:'Arjun',ananya:'Ananya'};
-function palette(who){
-  var F=who==='ananya';
-  return F?{skin:'#e3ad82',skin2:'#c98b5f',skin3:'#a86f48',hair:'#241613',hair2:'#0e0807',
-            top:'#23b89a',top2:'#0f8d74',top3:'#0a6b58',pant:'#4b5a74',pant2:'#36435a',
-            bag:'#c98a52',bag2:'#95603189',shoe:'#f4f7fb',shoe2:'#d3dce6'}
-         :{skin:'#d79a6c',skin2:'#b87a4d',skin3:'#96603a',hair:'#1c1310',hair2:'#0b0605',
-            top:'#8cc5f2',top2:'#5d9ed6',top3:'#4680b5',pant:'#d8c49a',pant2:'#b9a176',
-            bag:'#49536a',bag2:'#2b3242',shoe:'#f4f7fb',shoe2:'#d3dce6'};
-}
-function avatarSVG(who){
-  var F=who==='ananya',p=palette(who),u=F?'f':'m';
+   animate it. Shading uses gradients so the vector reads as a rounded
+   3D form. Poses: idle, walk, run, thumbsup, wave, cheer, slump, shock. */
+var NAME='Arjun';
+var C={skin:'#d79a6c',skin2:'#b87a4d',skin3:'#96603a',hair:'#1c1310',hair2:'#0b0605',
+       top:'#8cc5f2',top2:'#5d9ed6',top3:'#4680b5',pant:'#d8c49a',pant2:'#b9a176',
+       bag:'#49536a',bag2:'#2b3242',shoe:'#f4f7fb',shoe2:'#d3dce6'};
+function avatarSVG(){
   var g='<defs>'+
-   '<linearGradient id="sk'+u+'" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="'+p.skin+'"/><stop offset=".65" stop-color="'+p.skin2+'"/><stop offset="1" stop-color="'+p.skin3+'"/></linearGradient>'+
-   '<radialGradient id="hd'+u+'" cx=".34" cy=".3" r=".85"><stop offset="0" stop-color="#ffd9b5"/><stop offset=".45" stop-color="'+p.skin+'"/><stop offset="1" stop-color="'+p.skin3+'"/></radialGradient>'+
-   '<linearGradient id="tp'+u+'" x1=".15" y1="0" x2=".9" y2="1"><stop offset="0" stop-color="'+p.top+'"/><stop offset=".55" stop-color="'+p.top2+'"/><stop offset="1" stop-color="'+p.top3+'"/></linearGradient>'+
-   '<linearGradient id="pt'+u+'" x1=".2" y1="0" x2=".9" y2="1"><stop offset="0" stop-color="'+p.pant+'"/><stop offset="1" stop-color="'+p.pant2+'"/></linearGradient>'+
-   '<linearGradient id="bg'+u+'" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="'+p.bag+'"/><stop offset="1" stop-color="'+p.bag2+'"/></linearGradient>'+
-   '<linearGradient id="hr'+u+'" x1=".25" y1="0" x2=".9" y2="1"><stop offset="0" stop-color="'+p.hair+'"/><stop offset="1" stop-color="'+p.hair2+'"/></linearGradient>'+
-   '<linearGradient id="sh'+u+'" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="'+p.shoe+'"/><stop offset="1" stop-color="'+p.shoe2+'"/></linearGradient>'+
-   '<radialGradient id="gl'+u+'" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#0b1b2e" stop-opacity=".28"/><stop offset="1" stop-color="#0b1b2e" stop-opacity="0"/></radialGradient>'+
+   '<linearGradient id="skG" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="'+C.skin+'"/><stop offset=".65" stop-color="'+C.skin2+'"/><stop offset="1" stop-color="'+C.skin3+'"/></linearGradient>'+
+   '<radialGradient id="hdG" cx=".34" cy=".3" r=".85"><stop offset="0" stop-color="#ffd9b5"/><stop offset=".45" stop-color="'+C.skin+'"/><stop offset="1" stop-color="'+C.skin3+'"/></radialGradient>'+
+   '<linearGradient id="tpG" x1=".15" y1="0" x2=".9" y2="1"><stop offset="0" stop-color="'+C.top+'"/><stop offset=".55" stop-color="'+C.top2+'"/><stop offset="1" stop-color="'+C.top3+'"/></linearGradient>'+
+   '<linearGradient id="ptG" x1=".2" y1="0" x2=".9" y2="1"><stop offset="0" stop-color="'+C.pant+'"/><stop offset="1" stop-color="'+C.pant2+'"/></linearGradient>'+
+   '<linearGradient id="bgG" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="'+C.bag+'"/><stop offset="1" stop-color="'+C.bag2+'"/></linearGradient>'+
+   '<linearGradient id="hrG" x1=".25" y1="0" x2=".9" y2="1"><stop offset="0" stop-color="'+C.hair+'"/><stop offset="1" stop-color="'+C.hair2+'"/></linearGradient>'+
+   '<linearGradient id="shG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="'+C.shoe+'"/><stop offset="1" stop-color="'+C.shoe2+'"/></linearGradient>'+
+   '<radialGradient id="glG" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#0b1b2e" stop-opacity=".28"/><stop offset="1" stop-color="#0b1b2e" stop-opacity="0"/></radialGradient>'+
    '</defs>';
-
-  /* ground shadow */
-  g+='<ellipse class="mq-sh" cx="80" cy="250" rx="42" ry="9" fill="url(#gl'+u+')"/>';
-
-  /* ---- back leg (right) ---- */
+  g+='<ellipse class="mq-sh" cx="80" cy="250" rx="42" ry="9" fill="url(#glG)"/>';
+  /* back leg */
   g+='<g class="mq-legR">'+
-     '<path d="M91 150 L96 196 L98 230" stroke="url(#pt'+u+')" stroke-width="21" stroke-linecap="round" fill="none"/>'+
+     '<path d="M91 150 L96 196 L98 230" stroke="url(#ptG)" stroke-width="21" stroke-linecap="round" fill="none"/>'+
      '<path d="M93 170 L97 226" stroke="rgba(0,0,0,.12)" stroke-width="2.5" stroke-linecap="round" fill="none"/>'+
-     '<g class="mq-shoeR"><path d="M88 228 h20 q10 1 11 10 q1 8-8 9 h-22 q-8 0-8-8 z" fill="url(#sh'+u+')"/>'+
-     '<path d="M81 242 h30" stroke="'+p.shoe2+'" stroke-width="3.4" stroke-linecap="round"/></g></g>';
-  /* ---- front leg (left) ---- */
+     '<g><path d="M88 228 h20 q10 1 11 10 q1 8-8 9 h-22 q-8 0-8-8 z" fill="url(#shG)"/>'+
+     '<path d="M81 242 h30" stroke="'+C.shoe2+'" stroke-width="3.4" stroke-linecap="round"/></g></g>';
+  /* front leg */
   g+='<g class="mq-legL">'+
-     '<path d="M69 150 L64 196 L62 230" stroke="url(#pt'+u+')" stroke-width="22" stroke-linecap="round" fill="none"/>'+
+     '<path d="M69 150 L64 196 L62 230" stroke="url(#ptG)" stroke-width="22" stroke-linecap="round" fill="none"/>'+
      '<path d="M67 170 L63 226" stroke="rgba(255,255,255,.14)" stroke-width="2.5" stroke-linecap="round" fill="none"/>'+
-     '<g class="mq-shoeL"><path d="M52 228 h20 q10 1 11 10 q1 8-8 9 h-22 q-8 0-8-8 z" fill="url(#sh'+u+')"/>'+
-     '<path d="M45 242 h30" stroke="'+p.shoe2+'" stroke-width="3.4" stroke-linecap="round"/></g></g>';
-
-  /* ---- back arm (right) ---- */
+     '<g><path d="M52 228 h20 q10 1 11 10 q1 8-8 9 h-22 q-8 0-8-8 z" fill="url(#shG)"/>'+
+     '<path d="M45 242 h30" stroke="'+C.shoe2+'" stroke-width="3.4" stroke-linecap="round"/></g></g>';
+  /* back arm */
   g+='<g class="mq-armR">'+
-     '<path d="M103 101 L112 128" stroke="url(#tp'+u+')" stroke-width="17" stroke-linecap="round" fill="none"/>'+
-     '<path d="M112 128 L116 156" stroke="url(#sk'+u+')" stroke-width="13.5" stroke-linecap="round" fill="none"/>'+
-     '<circle cx="117" cy="161" r="8" fill="url(#sk'+u+')"/>'+
+     '<path d="M103 101 L112 128" stroke="url(#tpG)" stroke-width="17" stroke-linecap="round" fill="none"/>'+
+     '<path d="M112 128 L116 156" stroke="url(#skG)" stroke-width="13.5" stroke-linecap="round" fill="none"/>'+
+     '<circle cx="117" cy="161" r="8" fill="url(#skG)"/>'+
      '<g class="mq-phone"><rect x="110" y="152" width="14" height="23" rx="3.4" fill="#1d2633" transform="rotate(-10 117 163)"/>'+
      '<rect x="112" y="155" width="10" height="16" rx="2" fill="#7fd0f5" transform="rotate(-10 117 163)"/></g></g>';
-
-  /* ---- torso ---- */
+  /* torso */
   g+='<g class="mq-body">'+
-     '<path d="M53 100 Q53 91 63 89 L97 89 Q107 91 107 100 L110 160 Q80 170 50 160 Z" fill="url(#tp'+u+')"/>'+
+     '<path d="M53 100 Q53 91 63 89 L97 89 Q107 91 107 100 L110 160 Q80 170 50 160 Z" fill="url(#tpG)"/>'+
      '<path d="M53 100 Q53 91 63 89 L72 89 L68 166 Q58 164 50 160 Z" fill="rgba(255,255,255,.1)"/>'+
      '<path d="M101 95 L106 160 Q98 164 92 165 L98 92 Z" fill="rgba(0,0,0,.1)"/>'+
-     '<path d="M68 89 L80 106 L92 89 Z" fill="url(#sk'+u+')"/>'+
-     '<path d="M64 89 L76 89 L80 105 L66 97 Z" fill="'+p.top3+'"/>'+
-     '<path d="M96 89 L84 89 L80 105 L94 97 Z" fill="'+p.top3+'"/>'+
-     /* lanyard + ID card */
+     '<path d="M68 89 L80 106 L92 89 Z" fill="url(#skG)"/>'+
+     '<path d="M64 89 L76 89 L80 105 L66 97 Z" fill="'+C.top3+'"/>'+
+     '<path d="M96 89 L84 89 L80 105 L94 97 Z" fill="'+C.top3+'"/>'+
      '<path d="M72 92 L80 134 L88 92" stroke="#e5484d" stroke-width="3.4" fill="none" stroke-linejoin="round"/>'+
      '<rect x="72" y="132" width="16" height="21" rx="3.5" fill="#fdfefe"/>'+
      '<rect x="74.5" y="135" width="11" height="6" rx="1.5" fill="#3b7fd4"/>'+
      '<path d="M74.5 145h11M74.5 149h7" stroke="#c7d2e0" stroke-width="1.8" stroke-linecap="round"/>'+
-     /* sling bag */
-     '<path d="M97 90 L107 97 L50 152 L38 148 Z" fill="url(#bg'+u+')"/>'+
-     '<g class="mq-bag"><rect x="20" y="146" width="46" height="40" rx="11" fill="url(#bg'+u+')"/>'+
+     '<path d="M97 90 L107 97 L50 152 L38 148 Z" fill="url(#bgG)"/>'+
+     '<g class="mq-bag"><rect x="20" y="146" width="46" height="40" rx="11" fill="url(#bgG)"/>'+
      '<path d="M20 157 q0-11 11-11 h24 q11 0 11 11 v7 q-23 11-46 0 z" fill="rgba(0,0,0,.22)"/>'+
      '<rect x="37" y="165" width="12" height="9" rx="2.5" fill="#f5cc6b"/></g></g>';
-
-  /* ---- front arm (left) ---- */
+  /* front arm */
   g+='<g class="mq-armL">'+
-     '<path d="M57 101 L50 128" stroke="url(#tp'+u+')" stroke-width="18" stroke-linecap="round" fill="none"/>'+
-     '<path d="M50 128 L46 156" stroke="url(#sk'+u+')" stroke-width="14" stroke-linecap="round" fill="none"/>'+
-     '<circle cx="45" cy="161" r="8.5" fill="url(#sk'+u+')"/></g>';
-
-  /* ---- head ---- */
+     '<path d="M57 101 L50 128" stroke="url(#tpG)" stroke-width="18" stroke-linecap="round" fill="none"/>'+
+     '<path d="M50 128 L46 156" stroke="url(#skG)" stroke-width="14" stroke-linecap="round" fill="none"/>'+
+     '<circle cx="45" cy="161" r="8.5" fill="url(#skG)"/></g>';
+  /* dedicated thumbs-up arm, hidden unless the pose asks for it */
+  g+='<g class="mq-tu">'+
+     '<path d="M57 101 L44 130" stroke="url(#tpG)" stroke-width="18" stroke-linecap="round" fill="none"/>'+
+     '<path d="M44 130 L56 112" stroke="url(#skG)" stroke-width="14.5" stroke-linecap="round" fill="none"/>'+
+     '<circle cx="59" cy="107" r="11" fill="url(#skG)"/>'+
+     '<path d="M61 99 L61 88" stroke="url(#skG)" stroke-width="9.5" stroke-linecap="round" fill="none"/>'+
+     '<path d="M53 105 h11 M53 110 h10" stroke="'+C.skin3+'" stroke-width="1.6" stroke-linecap="round" opacity=".55"/></g>';
+  /* head */
   g+='<g class="mq-head">'+
-     '<path d="M71 74 h18 v20 q-9 5-18 0 z" fill="'+p.skin3+'"/>'+
+     '<path d="M71 74 h18 v20 q-9 5-18 0 z" fill="'+C.skin3+'"/>'+
      '<ellipse cx="80" cy="92" rx="13" ry="5" fill="rgba(0,0,0,.14)"/>'+
-     '<circle cx="55" cy="60" r="6" fill="url(#sk'+u+')"/><circle cx="105" cy="60" r="6" fill="url(#sk'+u+')"/>';
-  if(F)g+='<path d="M51 58 Q45 20 80 18 Q115 20 109 58 L114 104 Q80 114 46 104 Z" fill="url(#hr'+u+')"/>';
-  g+='<ellipse cx="80" cy="58" rx="26" ry="29" fill="url(#hd'+u+')"/>';
-  if(F)g+='<path d="M54 58 Q54 29 80 29 Q106 29 106 58 Q96 41 80 42 Q64 41 54 58 Z" fill="url(#hr'+u+')"/>'+
-         '<path d="M58 40 Q70 32 82 34" stroke="rgba(255,255,255,.18)" stroke-width="2" fill="none" stroke-linecap="round"/>';
-  else g+='<path d="M54 58 Q47 22 80 20 Q113 22 106 58 Q104 41 92 37 Q78 47 58 43 Q55 48 54 58 Z" fill="url(#hr'+u+')"/>'+
-         '<path d="M62 38 Q76 31 92 37" stroke="rgba(255,255,255,.16)" stroke-width="1.8" fill="none" stroke-linecap="round"/>';
-  g+='<ellipse cx="68" cy="48" rx="11" ry="7" fill="rgba(255,255,255,.1)" transform="rotate(-18 68 48)"/>'+
+     '<circle cx="55" cy="60" r="6" fill="url(#skG)"/><circle cx="105" cy="60" r="6" fill="url(#skG)"/>'+
+     '<ellipse cx="80" cy="58" rx="26" ry="29" fill="url(#hdG)"/>'+
+     '<path d="M54 58 Q47 22 80 20 Q113 22 106 58 Q104 41 92 37 Q78 47 58 43 Q55 48 54 58 Z" fill="url(#hrG)"/>'+
+     '<path d="M62 38 Q76 31 92 37" stroke="rgba(255,255,255,.16)" stroke-width="1.8" fill="none" stroke-linecap="round"/>'+
+     '<ellipse cx="68" cy="48" rx="11" ry="7" fill="rgba(255,255,255,.1)" transform="rotate(-18 68 48)"/>'+
      '<g class="mq-face"></g></g>';
   return '<svg viewBox="0 0 160 260" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">'+g+'</svg>';
 }
-function faceSVG(m,who){
-  var F=who==='ananya',INK='#241a14',p=palette(who);
+function faceSVG(m){
+  var INK='#241a14';
   var S=function(d,w){return '<path d="'+d+'" stroke="'+INK+'" stroke-width="'+(w||3)+'" fill="none" stroke-linecap="round" stroke-linejoin="round"/>'};
-  var brow=function(d){return '<path d="'+d+'" stroke="'+p.hair+'" stroke-width="2.9" fill="none" stroke-linecap="round"/>'};
-  var o='<path d="M80 60 q-4 7 .5 9" stroke="'+p.skin3+'" stroke-width="2.1" fill="none" stroke-linecap="round"/>';
+  var brow=function(d){return '<path d="'+d+'" stroke="'+C.hair+'" stroke-width="2.9" fill="none" stroke-linecap="round"/>'};
+  var o='<path d="M80 60 q-4 7 .5 9" stroke="'+C.skin3+'" stroke-width="2.1" fill="none" stroke-linecap="round"/>';
   var eyes,brows=brow('M61 47 q8-5 15 0')+brow('M84 47 q8-5 15 0'),mouth='',extra='';
   var open=function(){return '<ellipse cx="69" cy="56" rx="4.6" ry="5.2" fill="#fff"/><ellipse cx="91" cy="56" rx="4.6" ry="5.2" fill="#fff"/>'+
     '<circle cx="69.6" cy="56.6" r="3" fill="'+INK+'"/><circle cx="91.6" cy="56.6" r="3" fill="'+INK+'"/>'+
@@ -429,27 +433,30 @@ function faceSVG(m,who){
     mouth='<ellipse cx="80" cy="74" rx="5.2" ry="6.6" fill="#8c2f2f"/>';
   } else if(m==='cool'){
     eyes='';mouth=S('M71 71 q10 8 19-2');
-  } else { /* neutral */
+  } else {
     eyes=open();mouth=S('M73 72 h14');
   }
   o+=eyes+brows+mouth+extra;
-  if(!F||m==='cool'){
-    var dark=m==='cool';
-    o+='<g fill="'+(dark?'#16263a':'rgba(255,255,255,.3)')+'" stroke="'+(dark?'#0c1726':'#2a3a52')+'" stroke-width="2.3">'+
-       '<circle cx="69" cy="56" r="9.2"/><circle cx="91" cy="56" r="9.2"/></g>'+
-       '<path d="M78.2 55 h3.6 M59.8 54 L54 52.4 M100.2 54 L106 52.4" stroke="'+(dark?'#0c1726':'#2a3a52')+'" stroke-width="2.1" fill="none" stroke-linecap="round"/>'+
-       '<path d="M63 52 l5-1.6 M85 52 l5-1.6" stroke="rgba(255,255,255,.75)" stroke-width="1.7" stroke-linecap="round"/>';
-  }
-  if(F){o+='<circle cx="80" cy="45" r="2" fill="#d6336c"/>';
-    if(m!=='cool')o+='<path d="M61.5 55 l-3.5-2.2 M98.5 55 l3.5-2.2" stroke="'+INK+'" stroke-width="1.9" stroke-linecap="round"/>'}
+  var dark=m==='cool';
+  o+='<g fill="'+(dark?'#16263a':'rgba(255,255,255,.3)')+'" stroke="'+(dark?'#0c1726':'#2a3a52')+'" stroke-width="2.3">'+
+     '<circle cx="69" cy="56" r="9.2"/><circle cx="91" cy="56" r="9.2"/></g>'+
+     '<path d="M78.2 55 h3.6 M59.8 54 L54 52.4 M100.2 54 L106 52.4" stroke="'+(dark?'#0c1726':'#2a3a52')+'" stroke-width="2.1" fill="none" stroke-linecap="round"/>'+
+     '<path d="M63 52 l5-1.6 M85 52 l5-1.6" stroke="rgba(255,255,255,.75)" stroke-width="1.7" stroke-linecap="round"/>';
   return o;
 }
-/* pose + face in one call. pose: idle | walk | run | cheer | slump | shock | think */
-function figure(pose,mood,size){
-  return '<div class="fig p-'+pose+'"'+(size?' style="width:'+size+'px"':'')+'>'+
-    avatarSVG(WHO).replace('<g class="mq-face"></g>','<g class="mq-face">'+faceSVG(mood,WHO)+'</g>')+'</div>';
+/* pose: idle | walk | run | thumbsup | wave | cheer | slump | shock */
+function figure(pose,mood){
+  return '<div class="fig p-'+pose+'">'+avatarSVG().replace('<g class="mq-face"></g>','<g class="mq-face">'+faceSVG(mood)+'</g>')+'</div>';
 }
-
+/* how the character reacts to a survival result */
+function reactFor(m){
+  if(m>=6)  return ['cheer','cheer'];
+  if(m>=4)  return ['thumbsup','happy'];
+  if(m>=3)  return ['wave','happy'];
+  if(m>=1.5)return ['idle','neutral'];
+  if(m>=0.5)return ['slump','worried'];
+  return ['shock','shocked'];
+}
 /* ---------- sliders ---------- */
 var SLCB={};
 function sliderHTML(id,min,max,step,val,o){
@@ -486,7 +493,6 @@ function paintAll(root){[].forEach.call((root||document).querySelectorAll('input
 
 
 /* ---------- state ---------- */
-var WHO='arjun',NAMES={arjun:'Arjun',ananya:'Ananya'};
 var D={sal:100000,rent:26000,food:13000,bills:8000,emi:0,fam:0,life:12000,misc:5000,
        bank:50000,ef:120000,inv:0,debt:0,save:0,cover:'no'};
 var EXP=[
@@ -514,7 +520,6 @@ function score(){
   var d=D.cover==='yes'?10:0;
   return Math.round(clamp(a+b+c+d,0,100));
 }
-function moodFor(m){return m>=6?'cheer':m>=3?'happy':m>=1.5?'neutral':m>=.5?'worried':'shocked'}
 
 /* ---------- shared bits ---------- */
 function steps(n){var h='';for(var i=0;i<3;i++)h+='<div class="'+(i<=n?'on':'')+'"></div>';$('#steps').innerHTML=h}
@@ -560,8 +565,7 @@ function screen1(){
   });
   stage('<div class="card"><span class="tag gold">Step 1 of 3 · Your month</span>'+
    '<h2>Let\'s look at one month of your money</h2>'+
-   '<div class="intro">'+figure('walk','happy')+'<div class="bubble">Hi, I am <b>'+NAMES[WHO]+'</b>. Just one month — what comes in, what goes out. Then I will ask you <b>the one question nobody likes to think about</b>.</div></div>'+
-   '<div class="opts" id="who"><button data-w="arjun" class="'+(WHO==='arjun'?'on':'')+'">👨‍💼 Arjun</button><button data-w="ananya" class="'+(WHO==='ananya'?'on':'')+'">👩‍💼 Ananya</button></div>'+
+   '<div class="intro">'+figure('walk','happy')+'<div class="bubble">Hi, I am <b>'+NAME+'</b>. Just one month — what comes in, what goes out. Then I will ask you <b>the one question nobody likes to think about</b>.</div></div>'+
    '<div class="ask" style="margin-top:14px"><div class="q1">💼 Monthly in-hand salary</div><div class="h1">What actually lands in your bank, after tax and PF.</div>'+
      sliderHTML('m_sal',15000,500000,2500,D.sal,{minLab:'₹15K',maxLab:'₹5 L',
        quick:[['₹50K',50000],['₹1 L',100000],['₹1.5 L',150000],['₹2 L',200000]],
@@ -574,8 +578,6 @@ function screen1(){
    '<div class="bud">'+rows+'</div>'+
    '<button class="btn" id="n1">Next: what have you saved? →</button></div>');
   budRefresh();
-  $('#who').onclick=function(e){var b=e.target.closest('button');if(!b)return;WHO=b.dataset.w;
-    EXP.forEach(function(x){D[x[0]]=slVal('e_'+x[0])});D.sal=slVal('m_sal');screen1()};
   $('#n1').onclick=function(){
     D.sal=slVal('m_sal');EXP.forEach(function(e){D[e[0]]=slVal('e_'+e[0])});
     if(spendAll()<=0){var w=$('#budWarn');w.textContent='Add at least one expense — rent, food or bills. Nobody lives on zero.';w.classList.add('show');
@@ -635,11 +637,10 @@ function screen3(){
   rows+=row('tot'+(left<0?' neg':''),left<0?'Spent more than you earned':'Left over',left);
   if(D.save>0)rows+=row('out','Actually saved',D.save,D.save>=left?'everything left':'the rest gets spent');
   var pct=D.sal?Math.round(D.save/D.sal*100):0;
-  var m=moodFor(survivalLean());
   stage('<div class="card"><span class="tag">Your month</span>'+
    '<h2>This is one month of your life</h2>'+
    '<div class="ledger"><h3>💸 Payday &amp; bills</h3>'+rows+'</div>'+
-   '<div class="savedrow">'+figure(D.save>0?'walk':'slump',D.save>0?'happy':'worried')+
+   '<div class="savedrow">'+figure(pct>=20?'thumbsup':(D.save>0?'walk':'slump'),pct>=20?'cheer':(D.save>0?'happy':'worried'))+
      '<div class="big" style="margin:0;flex:1"><div class="n">'+full(D.save)+'</div><div class="c">saved this month · '+pct+'% of your salary</div></div></div>'+
    '<div class="grid2">'+
      '<div class="mini"><div class="l">Money in &amp; out</div><div class="v">'+fmt(D.sal)+' <span style="font-size:13px;color:var(--mut)">in</span></div><div class="s">'+fmt(sp)+' went out</div></div>'+
@@ -670,8 +671,8 @@ function fillStrip(id,months){
 function screen4(){
   steps(2);
   var lean=leanSpend(),sFull=survivalFull(),sLean=survivalLean(),sAll=survivalAll();
-  var sc=score(),m=moodFor(sLean),nm=NAMES[WHO];
-  var POSE=sLean>=6?'cheer':sLean>=3?'wave':sLean>=1.5?'idle':sLean>=.5?'slump':'shock';
+  var sc=score(),nm=NAME;
+  var RE=reactFor(sLean),POSE=RE[0];
   var verdict=sLean>=6?'You could ride this out':sLean>=3?'You would be okay for a while':sLean>=1.5?'It would get tight, fast':sLean>=.5?'You are one month from trouble':'You would be in trouble immediately';
   var vsub=sLean>=6?'A full safety net. This is where everyone should be.':sLean>=3?'Halfway to a full safety net. Keep going.':sLean>=1.5?'Most job searches take 2 to 4 months. You would run out first.':'There is almost nothing between you and a credit card.';
   var target=Math.round(lean*6),gap=Math.max(0,target-cashNow());
@@ -698,7 +699,7 @@ function screen4(){
    '<p class="txt">No notice, no severance. Rent, EMIs and family support do not stop. You cut lifestyle to zero and live lean on <b>'+full(lean)+' a month</b>.</p>'+
    '<div class="big"><div class="n" id="bigM">0<small> months</small></div><div class="c">is how long '+nm+' could survive on cash</div></div>'+
    monthsStrip(sLean,'strip')+
-   '<div class="verdict" style="margin-top:14px" id="vbox">'+figure(POSE,m)+'<div class="vtext"><div class="vt">'+verdict+'</div><div class="vs">'+vsub+'</div><button class="replay" id="replay" type="button">▶ Watch again</button></div></div>'+
+   '<div class="verdict" style="margin-top:14px" id="vbox">'+figure(POSE,RE[1])+'<div class="vtext"><div class="vt">'+verdict+'</div><div class="vs">'+vsub+'</div><button class="replay" id="replay" type="button">▶ Watch again</button></div></div>'+
    '<div class="grid2">'+
      '<div class="mini"><div class="l">If you changed nothing</div><div class="v">'+mo(sFull)+' mo</div><div class="s">same lifestyle, '+fmt(spendAll())+'/mo</div></div>'+
      '<div class="mini"><div class="l">If you also sold investments</div><div class="v">'+mo(sAll)+' mo</div><div class="s">'+(D.inv>0?'living lean':'nothing to sell')+'</div></div>'+
