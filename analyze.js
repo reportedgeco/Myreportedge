@@ -13,10 +13,8 @@
 // REQUIRES an environment variable ANTHROPIC_API_KEY to be set in
 // Netlify → Site settings → Environment variables.
 
-// Linux is case-sensitive, so accept either spelling of the file name.
-let extractOneDocument;
-try { ({ extractOneDocument } = require('./extractForm16')); }
-catch (e) { ({ extractOneDocument } = require('./extractform16')); }
+// NOTE: the file must be named exactly extractForm16.js (capital F) — Linux is case-sensitive.
+const { extractOneDocument } = require('./extractForm16');
 const { computeTax } = require('./taxEngine');
 
 function mergeNumeric(a, b) { return (a || 0) + (b || 0); }
