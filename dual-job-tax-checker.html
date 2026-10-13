@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Dual job tax checker | ReportEdge</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Source+Sans+3:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#1b1a33; --ink2:#55546e; --paper:#f4f3f9; --card:#ffffff; --line:#dad9ea;
+  --brand:#4338ca; --brandink:#ffffff; --soft:#ebeafb;
+  --owe:#b42318; --owesoft:#fde8e6; --ok:#17784a; --oksoft:#e0f3e8; --free:#a8650d;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ink:#ecebf7; --ink2:#a9a8c4; --paper:#12121f; --card:#1b1b2e; --line:#302f4a;
+    --brand:#9a94ff; --brandink:#15133d; --soft:#25244c;
+    --owe:#ff8a7d; --owesoft:#3a1c1a; --ok:#6fd49b; --oksoft:#143225; --free:#e0a458;
+  }
+}
+:root[data-theme="dark"]{
+  --ink:#ecebf7; --ink2:#a9a8c4; --paper:#12121f; --card:#1b1b2e; --line:#302f4a;
+  --brand:#9a94ff; --brandink:#15133d; --soft:#25244c;
+  --owe:#ff8a7d; --owesoft:#3a1c1a; --ok:#6fd49b; --oksoft:#143225; --free:#e0a458;
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px);background:var(--paper)}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:"Source Sans 3",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:17px;line-height:1.5}
+.wrap{max-width:1120px;margin:0 auto;padding:22px 16px 110px}
+h1,h2,.big{font-family:"Bricolage Grotesque","Source Sans 3",system-ui,sans-serif}
+.brand{font-weight:600;color:var(--brand);font-size:15px;margin:0 0 6px}
+h1{font-size:clamp(30px,5.4vw,48px);line-height:1.05;letter-spacing:-.025em;font-weight:800;margin:0 0 10px;max-width:15ch}
+.lede{margin:0 0 18px;color:var(--ink2);max-width:62ch}
+h2{font-size:21px;font-weight:600;letter-spacing:-.01em;margin:0 0 4px}
+.sub{margin:0 0 12px;color:var(--ink2);font-size:15px;max-width:60ch}
+.section{margin-bottom:30px}
+.controls{display:flex;flex-wrap:wrap;gap:14px 28px;margin-bottom:8px}
+.ctl{display:block}
+.clabel{display:block;font-weight:600;font-size:15px;margin-bottom:6px}
+.seg{display:flex;border:1px solid var(--line);border-radius:9px;overflow:hidden;background:var(--card)}
+.seg button{flex:1;border:0;background:transparent;color:var(--ink);font:inherit;font-weight:500;font-size:15px;padding:10px 14px;cursor:pointer;min-height:44px}
+.seg button+button{border-left:1px solid var(--line)}
+.seg button[aria-pressed="true"]{background:var(--brand);color:var(--brandink);font-weight:600}
+.yearnote{font-size:14px;color:var(--ink2);margin:0 0 24px;max-width:70ch}
+.grid{display:grid;gap:26px;grid-template-columns:minmax(0,1fr)}
+@media(min-width:960px){
+  .grid{grid-template-columns:minmax(0,1fr) 430px;align-items:start}
+  .resultcol{position:sticky;top:calc(16px + env(safe-area-inset-top,0px))}
+}
+.src{background:var(--card);border:1px solid var(--line);border-left:5px solid var(--brand);border-radius:10px;padding:16px;margin-bottom:14px}
+.src.free{border-left-color:var(--free)}
+.srchead{display:flex;gap:10px;align-items:center}
+.name{flex:1;min-width:0;font:inherit;font-weight:600;font-size:17px;border:0;border-bottom:1px dashed var(--line);background:transparent;color:var(--ink);padding:6px 2px}
+.name:focus{outline:none;border-bottom-color:var(--brand)}
+.link{background:none;border:0;color:var(--ink2);font:inherit;font-size:14px;text-decoration:underline;cursor:pointer;padding:8px 4px;min-height:44px}
+.fields{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));margin-top:12px}
+.fld{display:block}
+.lbl{display:block;font-weight:600;font-size:15px;margin-bottom:4px}
+.inp{display:flex;align-items:center;border:1px solid var(--line);border-radius:8px;background:var(--paper);min-height:46px;padding:0 10px}
+.inp:focus-within{outline:2px solid var(--brand);outline-offset:1px}
+.inp i{font-style:normal;color:var(--ink2);margin-right:6px}
+.inp input{flex:1;min-width:0;border:0;background:transparent;color:var(--ink);font:inherit;font-size:17px;font-variant-numeric:tabular-nums;padding:10px 0;outline:none}
+select{width:100%;border:1px solid var(--line);border-radius:8px;background:var(--paper);color:var(--ink);font:inherit;font-size:16px;min-height:46px;padding:8px 10px}
+select:focus-visible{outline:2px solid var(--brand);outline-offset:1px}
+small{display:block;color:var(--ink2);font-size:13.5px;line-height:1.35;margin-top:4px}
+.note{margin:12px 0 0;font-size:14.5px;padding:8px 10px;border-radius:8px;background:var(--soft)}
+.note:empty{display:none}
+.note.warn{background:var(--owesoft);color:var(--owe)}
+details.bonus{margin-top:12px}
+details.bonus summary{cursor:pointer;font-weight:600;font-size:15px;color:var(--brand);padding:6px 0;min-height:36px}
+details.bonus summary:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+.emptyline{margin:0 0 12px;color:var(--ink2);font-size:15px}
+.btn{font:inherit;font-weight:600;font-size:15px;border:1.5px solid var(--brand);color:var(--brand);background:transparent;border-radius:9px;padding:10px 14px;min-height:46px;cursor:pointer}
+.btn:hover:not(:disabled){background:var(--soft)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.solid{background:var(--brand);color:var(--brandink)}
+button:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+.other{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px}
+.res{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px}
+.big{font-size:clamp(36px,7vw,50px);font-weight:800;letter-spacing:-.03em;line-height:1.05;margin:2px 0 14px;font-variant-numeric:tabular-nums}
+.big.owe{color:var(--owe)} .big.ok{color:var(--ok)}
+.tag{font-weight:600;font-size:15px;color:var(--ink2);margin:0}
+.meter{display:flex;height:16px;border-radius:8px;overflow:hidden;background:var(--line)}
+.m-paid{background:var(--brand)}
+.m-gap{background:repeating-linear-gradient(135deg,var(--owe) 0 6px,transparent 6px 10px)}
+.m-extra{background:var(--ok)}
+.legend{display:flex;flex-wrap:wrap;gap:4px 16px;font-size:14px;color:var(--ink2);margin:8px 0 16px}
+.rows{margin:0 0 16px;padding:0}
+.rows div{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:7px 0;border-bottom:1px solid var(--line);font-variant-numeric:tabular-nums}
+.rows div:last-child{border-bottom:0}
+.rows dt{color:var(--ink2)} .rows dd{margin:0;font-weight:600;text-align:right}
+.rows dt small{margin-top:0}
+.rows .strong dt{color:var(--ink);font-weight:600}
+.suggest{border-left:4px solid var(--brand);background:var(--soft);border-radius:8px;padding:12px 14px;margin:0 0 4px}
+.suggest b{display:block;margin-bottom:2px}
+.suggest p{margin:0;font-size:15.5px}
+.res h3{font-family:"Bricolage Grotesque",sans-serif;font-size:17px;font-weight:600;margin:18px 0 6px}
+.res h3+.hint{margin:0 0 8px;font-size:14.5px;color:var(--ink2)}
+.res ul{margin:0;padding-left:20px}
+.res li{margin-bottom:6px}
+table{width:100%;border-collapse:collapse;font-size:15px;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:8px 4px;border-bottom:1px solid var(--line);vertical-align:top}
+th:nth-child(2),td:nth-child(2){text-align:right}
+td small{margin-top:2px}
+.st-paid{color:var(--ok);font-weight:600}
+.st-over{color:var(--owe);font-weight:600}
+.st-due{color:var(--ink);font-weight:600}
+tfoot td{font-weight:600;border-bottom:0}
+.advisor{border:1.5px solid var(--line);border-radius:8px;padding:12px 14px;margin:18px 0 0;font-size:15.5px}
+.advisor b{color:var(--ink)}
+.fine{font-size:13.5px;color:var(--ink2);margin:12px 0 0}
+.empty{color:var(--ink2);margin:0}
+.pagefoot{margin-top:34px;padding-top:16px;border-top:1px solid var(--line);color:var(--ink2);font-size:14.5px;max-width:70ch}
+.bar{display:none}
+@media(max-width:959px){
+  .bar{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:5;align-items:center;justify-content:space-between;gap:12px;background:var(--card);border-top:1px solid var(--line);padding:10px 16px calc(10px + env(safe-area-inset-bottom,0px))}
+  .bar strong{font-family:"Bricolage Grotesque",sans-serif;font-size:19px}
+}
+@media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="brand"><a href="index.html" style="color:inherit;text-decoration:none;">ReportEdge</a> <a href="index.html" style="font-size:.8em;opacity:.7;text-decoration:none;color:inherit;margin-left:8px;">← Home</a></p>
+  <h1>Two jobs? Find your tax gap.</h1>
+  <p class="lede">Every employer deducts TDS as if theirs is your only income. Add all your income below and see what you really owe under the new tax regime, and how much is still missing.</p>
+
+  <div class="controls">
+    <div class="ctl">
+      <span class="clabel" id="lbl-year">Tax year</span>
+      <div class="seg" role="group" aria-labelledby="lbl-year">
+        <button type="button" data-act="year" data-y="2025-26" aria-pressed="false">FY 2025-26 (filing now)</button>
+        <button type="button" data-act="year" data-y="2026-27" aria-pressed="true">FY 2026-27 (this year)</button>
+      </div>
+    </div>
+    <div class="ctl">
+      <span class="clabel" id="lbl-mode">Enter income</span>
+      <div class="seg" role="group" aria-labelledby="lbl-mode">
+        <button type="button" data-act="mode" data-m="monthly" aria-pressed="true">Monthly</button>
+        <button type="button" data-act="mode" data-m="yearly" aria-pressed="false">Yearly</button>
+      </div>
+    </div>
+  </div>
+  <p class="yearnote" id="modenote"></p>
+
+  <div class="grid">
+    <main>
+      <div class="section">
+        <h2>Salaried income (with PF)</h2>
+        <p class="sub">Regular employers who deduct PF and TDS from your salary. Add each employer you worked for this year.</p>
+        <div id="jobs"></div>
+        <button type="button" class="btn" id="addjob" data-act="add" data-t="job">Add one more employer</button>
+      </div>
+
+      <div class="section">
+        <h2>Freelance or business income (no PF)</h2>
+        <p class="sub">Income with no employer and no PF. We apply presumptive tax (Section 44ADA or 44AD), so no expense details are needed.</p>
+        <div id="frees"></div>
+        <button type="button" class="btn" id="addfree" data-act="add" data-t="free">Add freelance or business income</button>
+      </div>
+
+      <div class="section">
+        <h2>Other details (optional)</h2>
+        <div class="other">
+          <div class="fields" style="margin-top:0">
+            <label class="fld"><span class="lbl">Interest and other income (whole year)</span><span class="inp"><i>₹</i><input class="money" inputmode="numeric" autocomplete="off" data-oth="interest" placeholder="0"></span><small>Savings, FD interest, rent and similar.</small></label>
+            <label class="fld"><span class="lbl">Employer NPS contribution (whole year)</span><span class="inp"><i>₹</i><input class="money" inputmode="numeric" autocomplete="off" data-oth="npsEmp" placeholder="0"></span><small>Section 80CCD(2). Allowed in the new regime.</small></label>
+            <label class="fld"><span class="lbl">Advance tax already paid</span><span class="inp"><i>₹</i><input class="money" inputmode="numeric" autocomplete="off" data-oth="advance" placeholder="0"></span><small>Challans you paid yourself this year. We use it in the advance tax table.</small></label>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <aside class="resultcol" id="result-col">
+      <div class="res" id="result" aria-live="polite"></div>
+    </aside>
+  </div>
+
+  <p class="pagefoot"><b>Please consult your tax advisor.</b> This tool gives an estimate to help you understand your tax position. It is not tax advice. Rules and your own facts can change the result, so confirm with a qualified tax advisor or CA before you file or act on it.</p>
+</div>
+
+<div class="bar" id="bar">
+  <strong id="bar-text">Add your income</strong>
+  <button type="button" class="btn solid" data-act="scroll">See details</button>
+</div>
+
+<script>
+(function(){
+  const fmt = n => '₹' + Math.round(n).toLocaleString('en-IN');
+  const num = v => { const n = parseInt(String(v).replace(/[^\d]/g,''),10); return isNaN(n)?0:n; };
+  const esc = s => String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const MAX = 3;
+  const MN = ['Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec','Jan','Feb','Mar'];
+
+  const SLABS = [[400000,0],[800000,.05],[1200000,.10],[1600000,.15],[2000000,.20],[2400000,.25],[Infinity,.30]];
+  const STD = 75000;
+  const PRES = {
+    '44ADA': {rate:.5,  label:'Professional or freelancer, Section 44ADA (50% of receipts)', warnAt:7500000, hint:'Limit is ₹50 lakh, or ₹75 lakh if at least 95% of receipts come through bank or UPI.'},
+    '44AD6': {rate:.06, label:'Business, Section 44AD, bank or UPI receipts (6%)', warnAt:30000000, hint:'Limit is ₹3 crore when at least 95% of receipts are digital.'},
+    '44AD8': {rate:.08, label:'Business, Section 44AD, cash receipts (8%)', warnAt:20000000, hint:'Limit is ₹2 crore.'}
+  };
+
+  let uid = 0;
+  const mk = type => ({id:++uid, type:type, name:'', kind:'44ADA',
+    gross:0, tds:0,
+    mAmt:0, mTds:0, mFrom:0, mTo:11, bonus:0, bonusTds:0});
+  const state = {
+    year:'2026-27',
+    mode:'monthly',
+    sources:[mk('job'), mk('free')],
+    other:{interest:0,npsEmp:0,advance:0}
+  };
+
+  const fyStart = () => parseInt(state.year, 10);
+  const mLabel = i => MN[i] + ' ' + (fyStart() + (i >= 9 ? 1 : 0));
+  const monthsOf = s => Math.max(0, s.mTo - s.mFrom + 1);
+  const grossOf = s => state.mode === 'monthly' ? s.mAmt * monthsOf(s) + (s.type === 'job' ? s.bonus : 0) : s.gross;
+  const tdsOf = s => state.mode === 'monthly' ? s.mTds * monthsOf(s) + (s.type === 'job' ? s.bonusTds : 0) : s.tds;
+  const presProfit = s => Math.round(grossOf(s) * PRES[s.kind].rate);
+
+  /* ---------- tax engine (new regime only) ---------- */
+  function slab(inc){
+    let tax = 0, prev = 0;
+    for (const [cap, r] of SLABS){
+      if (inc > prev) tax += (Math.min(inc, cap) - prev) * r;
+      prev = cap;
+      if (inc <= cap) break;
+    }
+    return tax;
+  }
+  function calc(p){
+    const gross = p.salary + p.pres + p.other;
+    const std = p.salary > 0 ? Math.min(p.salary, STD) : 0;
+    const taxable = Math.floor(Math.max(0, gross - std - p.npsEmp) / 10) * 10;
+    let tax = slab(taxable);
+    if (taxable <= 1200000) tax = 0;
+    else tax = Math.min(tax, taxable - 1200000);
+    let rate = 0;
+    if (taxable > 20000000) rate = .25;
+    else if (taxable > 10000000) rate = .15;
+    else if (taxable > 5000000) rate = .10;
+    const total = Math.round((tax + tax * rate) * 1.04);
+    return {gross, std, taxable, total};
+  }
+  function marginalRate(taxable){
+    for (const [cap, r] of SLABS){ if (taxable <= cap) return r; }
+    return .3;
+  }
+
+  /* ---------- rendering of income cards ---------- */
+  function moneyField(f, label, hint, val){
+    return '<label class="fld"><span class="lbl">'+label+'</span><span class="inp"><i>₹</i>'+
+      '<input class="money" inputmode="numeric" autocomplete="off" data-f="'+f+'" placeholder="0" value="'+(val?val.toLocaleString('en-IN'):'')+'"></span>'+
+      (hint?'<small>'+hint+'</small>':'')+'</label>';
+  }
+  function monthSelect(f, label, val){
+    return '<label class="fld"><span class="lbl">'+label+'</span><select data-f="'+f+'">'+
+      MN.map((m,i)=>'<option value="'+i+'"'+(i===val?' selected':'')+'>'+mLabel(i)+'</option>').join('')+
+      '</select></label>';
+  }
+  function kindSelect(s){
+    return '<label class="fld" style="grid-column:1/-1"><span class="lbl">How is this income taxed?</span><select data-f="kind">'+
+      Object.keys(PRES).map(k=>'<option value="'+k+'"'+(s.kind===k?' selected':'')+'>'+PRES[k].label+'</option>').join('')+
+      '</select><small>44ADA suits specified professions such as consultants, engineers, doctors, lawyers, accountants and film artists. Other businesses usually choose 44AD. Confirm with your tax advisor.</small></label>';
+  }
+  function cardHTML(s, i, count){
+    const job = s.type === 'job';
+    const monthly = state.mode === 'monthly';
+    const canRemove = job ? count > 1 : true;
+    let body = '<div class="fields">';
+    if (job){
+      if (monthly){
+        body += moneyField('mAmt','Monthly salary','Gross per month, before TDS.', s.mAmt)+
+          moneyField('mTds','TDS deducted per month','From your payslip.', s.mTds)+
+          monthSelect('mFrom','Worked from', s.mFrom)+
+          monthSelect('mTo','Worked until', s.mTo);
+      } else {
+        body += moneyField('gross','Salary from this employer this year','Gross, before TDS. If you joined or left mid-year, enter only the months you worked.', s.gross)+
+          moneyField('tds','TDS deducted by this employer','Total from payslips or Form-16.', s.tds);
+      }
+      body += '</div>';
+      if (monthly){
+        body += '<details class="bonus"'+((s.bonus||s.bonusTds)?' open':'')+'><summary>Add a bonus or one-time pay</summary><div class="fields">'+
+          moneyField('bonus','Bonus or one-time pay','Total for the year.', s.bonus)+
+          moneyField('bonusTds','TDS on the bonus','If any.', s.bonusTds)+
+          '</div></details>';
+      }
+    } else {
+      body += kindSelect(s);
+      if (monthly){
+        body += moneyField('mAmt','Average monthly receipts','Include payments from foreign clients, converted to rupees.', s.mAmt)+
+          moneyField('mTds','TDS deducted by clients per month','If any. Enter 0 if none.', s.mTds)+
+          monthSelect('mFrom','Received from', s.mFrom)+
+          monthSelect('mTo','Received until', s.mTo);
+      } else {
+        body += moneyField('gross','Total money received this year','Gross receipts, before TDS. Include payments from foreign clients, converted to rupees.', s.gross)+
+          moneyField('tds','TDS deducted by clients','If any. Enter 0 if none.', s.tds);
+      }
+      body += '</div>';
+    }
+    body += '<p class="note" data-note="'+s.id+'"></p>';
+    return '<section class="src '+s.type+'" data-id="'+s.id+'">'+
+      '<div class="srchead"><input class="name" data-f="name" aria-label="Name of '+(job?'employer ':'freelance or business income ')+(i+1)+'" placeholder="'+(job?'Employer '+(i+1)+' (optional name)':'Freelance or business '+(i+1)+' (optional name)')+'" value="'+esc(s.name)+'">'+
+      (canRemove?'<button type="button" class="link" data-act="remove">Remove</button>':'')+'</div>'+ body + '</section>';
+  }
+  function renderSources(){
+    const jobs = state.sources.filter(s => s.type === 'job');
+    const frees = state.sources.filter(s => s.type === 'free');
+    document.getElementById('jobs').innerHTML = jobs.map((s,i)=>cardHTML(s,i,jobs.length)).join('');
+    document.getElementById('frees').innerHTML = frees.length
+      ? frees.map((s,i)=>cardHTML(s,i,frees.length)).join('')
+      : '<p class="emptyline">No freelance or business income added.</p>';
+    document.getElementById('addjob').disabled = jobs.length >= MAX;
+    document.getElementById('addfree').disabled = frees.length >= MAX;
+    document.getElementById('addfree').textContent = frees.length ? 'Add one more freelance or business income' : 'Add freelance or business income';
+    document.getElementById('modenote').textContent = state.mode === 'monthly'
+      ? 'Enter your monthly figures and the months you worked. We work out the full year for you. For a full year, choose April to March.'
+      : 'Enter the total for the whole year for each income.';
+  }
+
+  /* ---------- results ---------- */
+  let lastSummary = '';
+
+  function update(){
+    const monthly = state.mode === 'monthly';
+
+    // per-card notes
+    state.sources.forEach(s=>{
+      const el = document.querySelector('[data-note="'+s.id+'"]');
+      if (!el) return;
+      const g = grossOf(s), m = monthsOf(s), job = s.type === 'job';
+      const parts = [];
+      let warn = false;
+      if (monthly && (s.mAmt > 0 || (job && s.bonus > 0))){
+        let t = m + ' month' + (m===1?'':'s') + ' (' + mLabel(s.mFrom) + ' to ' + mLabel(s.mTo) + ') × ' + fmt(s.mAmt) + ' = ' + fmt(s.mAmt*m);
+        if (job && s.bonus > 0) t += ', plus bonus ' + fmt(s.bonus) + ' = ' + fmt(g);
+        t += job ? '.' : ' of receipts.';
+        parts.push(t);
+        if (tdsOf(s) > 0) parts.push('TDS for these months: ' + fmt(tdsOf(s)) + '.');
+      }
+      if (!job && g > 0){
+        const k = PRES[s.kind];
+        parts.push('Counted as taxable profit: ' + fmt(presProfit(s)) + '.');
+        if (g > k.warnAt){ parts.push('Receipts are above the presumptive limit. ' + k.hint + ' Please check with your tax advisor.'); warn = true; }
+      }
+      el.textContent = parts.join(' ');
+      el.className = 'note' + (warn ? ' warn' : '');
+    });
+
+    let salary=0, pres=0, tds=0, jobs=0, frees=0, freeReceipts=0;
+    state.sources.forEach(s=>{
+      tds += tdsOf(s);
+      if (s.type === 'job'){ salary += grossOf(s); if (grossOf(s) > 0) jobs++; }
+      else { pres += presProfit(s); freeReceipts += grossOf(s); if (grossOf(s) > 0) frees++; }
+    });
+    const o = state.other;
+    const res = document.getElementById('result');
+    const barText = document.getElementById('bar-text');
+
+    if (salary + pres + o.interest <= 0){
+      res.innerHTML = '<p class="tag">Your result</p><p class="empty">Enter the income from each employer or freelance source to see your combined tax and your tax gap.</p>';
+      barText.textContent = 'Add your income';
+      lastSummary = '';
+      return;
+    }
+
+    const R = calc({salary:salary, pres:pres, other:o.interest, npsEmp:o.npsEmp});
+    const paid = tds + o.advance;
+    const bal = R.total - paid;
+
+    // labels for every card, numbered within its type
+    let jn = 0, fn = 0;
+    const labelOf = new Map();
+    state.sources.forEach(s=>{
+      const idx = s.type === 'job' ? ++jn : ++fn;
+      const nm = s.name.trim();
+      labelOf.set(s.id, nm ? esc(nm) : (s.type === 'job' ? 'Employer ' : 'Freelance ') + idx);
+    });
+
+    // tax if each income stood alone (what each payer assumes)
+    const withIncome = state.sources.filter(s => grossOf(s) > 0);
+    let sepTotal = 0, sepZero = 0, sepHtml = '';
+    if (withIncome.length >= 2){
+      withIncome.forEach(s=>{
+        const q = {salary:0,pres:0,other:0,npsEmp:0};
+        if (s.type === 'job') q.salary = grossOf(s); else q.pres = presProfit(s);
+        const t = calc(q).total;
+        sepTotal += t; if (t === 0) sepZero++;
+        sepHtml += '<div><dt>'+labelOf.get(s.id)+'<small>TDS deducted: '+fmt(tdsOf(s))+'</small></dt><dd>'+fmt(t)+'</dd></div>';
+      });
+    }
+    const stack = withIncome.length >= 2 ? Math.max(0, R.total - sepTotal) : 0;
+
+    // meter
+    const scale = Math.max(R.total, paid, 1);
+    let meter, legend;
+    if (bal > 0){
+      meter = '<div class="m-paid" style="width:'+(paid/scale*100)+'%"></div><div class="m-gap" style="width:'+(bal/scale*100)+'%"></div>';
+      legend = '<span>Solid: tax already paid</span><span>Striped: still to pay</span>';
+    } else {
+      meter = '<div class="m-paid" style="width:'+(R.total/scale*100)+'%"></div><div class="m-extra" style="width:'+(-bal/scale*100)+'%"></div>';
+      legend = '<span>Solid: tax you owe</span><span>Green: paid in excess</span>';
+    }
+
+    const headLabel = bal > 0 ? 'You may owe' : bal < 0 ? 'Refund likely' : 'You are settled';
+    const headClass = bal > 0 ? 'owe' : bal < 0 ? 'ok' : '';
+    const headVal = bal === 0 ? fmt(0) : fmt(Math.abs(bal));
+
+    // why
+    const why = [];
+    if (jobs >= 2){
+      why.push('The standard deduction (' + fmt(STD) + ') can be claimed once, but each employer may have given it to you.');
+    }
+    if (stack > 0){
+      why.push('Together your income is taxed at higher slabs, and your top slice is taxed at ' + Math.round(marginalRate(R.taxable)*100) + '%. Each payer only saw part of it.');
+    }
+    if (sepZero > 0 && R.total > 0){
+      why.push('Each income alone may qualify for the ₹60,000 rebate, but the rebate applies once to your total income.');
+    }
+    if (frees > 0){
+      why.push('Freelance or business income has no employer, so tax on it is paid by you as advance or self-assessment tax. ITR-4 usually works for salary plus presumptive income up to ₹50 lakh.');
+    }
+    if (freeReceipts > 2000000){
+      why.push('Your freelance or business receipts are above ₹20 lakh. GST registration is usually needed for services above this (₹10 lakh in some states). Please check with your tax advisor.');
+    }
+    if (bal > 0 && !why.length){
+      why.push('TDS is deducted only on the income each payer knows about, so it can be lower than your real tax.');
+    }
+
+    // advance tax
+    const net = Math.max(0, R.total - tds);
+    const now = new Date();
+    const Y = fyStart();
+    let adv = '', overdueTotal = 0;
+    const showAdv = state.year === '2026-27' && net >= 10000;
+    if (showAdv){
+      const sched = [
+        ['15 June ' + Y, .15, new Date(Y,5,15,23,59)],
+        ['15 September ' + Y, .45, new Date(Y,8,15,23,59)],
+        ['15 December ' + Y, .75, new Date(Y,11,15,23,59)],
+        ['15 March ' + (Y+1), 1, new Date(Y+1,2,15,23,59)]
+      ];
+      let remPaid = o.advance, prevC = 0, trs = '', sumParts = 0;
+      sched.forEach(r=>{
+        const part = Math.round(net * (r[1] - prevC));
+        const partPct = Math.round((r[1] - prevC) * 100);
+        prevC = r[1];
+        sumParts += part;
+        const paidHere = Math.min(remPaid, part);
+        remPaid -= paidHere;
+        const left = part - paidHere;
+        let st;
+        if (left <= 0) st = '<span class="st-paid">Paid</span>';
+        else if (r[2] < now){ overdueTotal += left; st = '<span class="st-over">Overdue. Pay '+fmt(left)+'</span>'; }
+        else st = '<span class="st-due">Pay '+fmt(left)+' by this date</span>';
+        trs += '<tr><td>'+r[0]+'<small>'+partPct+'% of your tax ('+Math.round(r[1]*100)+'% in total by this date)</small></td><td>'+fmt(part)+'</td><td>'+st+'</td></tr>';
+      });
+      adv = '<h3>Advance tax to pay</h3>'+
+        '<p class="hint">You pay advance tax in 4 parts. Each amount below is only for that date, not on top of the earlier ones. Add the four amounts to get your full advance tax of '+fmt(net)+'.</p>'+
+        '<dl class="rows">'+
+          '<div><dt>Advance tax for the year (tax minus TDS)</dt><dd>'+fmt(net)+'</dd></div>'+
+          '<div><dt>You have already paid</dt><dd>'+fmt(o.advance)+'</dd></div>'+
+          (overdueTotal > 0 ? '<div class="strong"><dt>Overdue now, pay as soon as you can</dt><dd>'+fmt(overdueTotal)+'</dd></div>' : '')+
+        '</dl>'+
+        '<table><thead><tr><th>Due date</th><th>Amount for this date</th><th>Status</th></tr></thead><tbody>'+trs+'</tbody>'+
+        '<tfoot><tr><td>All four dates</td><td>'+fmt(sumParts)+'</td><td></td></tr></tfoot></table>'+
+        '<p class="fine">Interest may apply on parts paid late or short.'+(frees>0?' If most of your tax comes from presumptive income (44ADA or 44AD), you may be allowed to pay that tax in one payment by 15 March. Ask your tax advisor.':'')+'</p>';
+    }
+
+    // what to do
+    const todo = [];
+    if (bal > 0){
+      if (state.year === '2026-27'){
+        if (jobs >= 2) todo.push('Give your latest employer your earlier salary details (Form 12B) so TDS covers your combined income.');
+        const fyEnd = new Date(Y+1,2,31,23,59);
+        if (jobs >= 1 && now >= new Date(Y,3,1) && now <= fyEnd){
+          const idx = (now.getMonth() + 9) % 12;
+          const remMonths = 12 - idx;
+          if (remMonths > 0){
+            todo.push('Ask your current employer to deduct about ' + fmt(Math.ceil(bal / remMonths)) + ' extra TDS each month for the remaining ' + remMonths + ' month' + (remMonths===1?'':'s') + ' (' + mLabel(idx) + ' to ' + mLabel(11) + '). This is simpler than paying advance tax yourself.');
+          }
+        } else if (jobs >= 1){
+          todo.push('Ask one employer to deduct extra TDS for the remaining months.');
+        }
+        if (showAdv) todo.push('Or pay the advance tax by the dates in the table below.');
+      } else {
+        todo.push('Pay the shortfall as self-assessment tax before you file. Interest may apply for short payment during the year.');
+      }
+    } else if (bal < 0){
+      todo.push('File your return to claim the refund.');
+    }
+    if (tds > 0) todo.push('Match the TDS you entered with your Form 26AS or AIS on the income tax portal, so you get full credit.');
+
+    res.innerHTML =
+      '<p class="tag">'+headLabel+' (new tax regime)</p>'+
+      '<div class="big '+headClass+'">'+headVal+'</div>'+
+      '<div class="meter" role="img" aria-label="Tax paid versus tax owed">'+meter+'</div>'+
+      '<div class="legend">'+legend+'</div>'+
+      '<dl class="rows">'+
+        '<div><dt>Total income</dt><dd>'+fmt(R.gross)+'</dd></div>'+
+        '<div><dt>Standard deduction</dt><dd>-'+fmt(R.std)+'</dd></div>'+
+        (o.npsEmp > 0 ? '<div><dt>Employer NPS</dt><dd>-'+fmt(o.npsEmp)+'</dd></div>' : '')+
+        '<div class="strong"><dt>Taxable income</dt><dd>'+fmt(R.taxable)+'</dd></div>'+
+        '<div class="strong"><dt>Total tax (with cess)</dt><dd>'+fmt(R.total)+'</dd></div>'+
+        '<div><dt>TDS and advance tax paid</dt><dd>'+fmt(paid)+'</dd></div>'+
+      '</dl>'+
+      (withIncome.length >= 2 ?
+        '<h3>If each income was taxed alone</h3>'+
+        '<p class="hint">Each payer deducts TDS on its own income only, as if it were your only income.</p>'+
+        '<dl class="rows">'+ sepHtml +
+          '<div class="strong"><dt>Total of all separate taxes</dt><dd>'+fmt(sepTotal)+'</dd></div>'+
+          '<div class="strong"><dt>Tax on all income together</dt><dd>'+fmt(R.total)+'</dd></div>'+
+          '<div><dt>Extra tax from adding them together</dt><dd>'+fmt(stack)+'</dd></div>'+
+        '</dl>' : '')+
+      '<div class="suggest"><b>Our suggestion</b><p>Opt for the new tax regime. It is the default, has lower slab rates and a ₹60,000 rebate, and works out better for most people without large deductions. Tell your employer(s) your choice, and select it when you file.</p></div>'+
+      (why.length ? '<h3>Why there is a gap</h3><ul>'+why.map(w=>'<li>'+w+'</li>').join('')+'</ul>' : '')+
+      (todo.length ? '<h3>What to do</h3><ul>'+todo.map(w=>'<li>'+w+'</li>').join('')+'</ul>' : '')+
+      adv+
+      '<p style="margin:18px 0 0"><button type="button" class="btn" data-act="copy">Copy summary to share</button></p>'+
+      '<div class="advisor"><b>Consult your tax advisor.</b> This is an estimate, not tax advice. Please confirm the numbers and your regime choice with a qualified tax advisor or CA before you file.</div>'+
+      '<p class="fine">Estimate for a resident individual under 60. Surcharge marginal relief and special-rate income such as capital gains are not included. Nothing you enter is stored or sent anywhere.</p>';
+
+    barText.textContent = (bal > 0 ? 'You may owe ' : bal < 0 ? 'Refund likely ' : 'Settled ') + (bal === 0 ? '' : fmt(Math.abs(bal)));
+
+    lastSummary = 'Tax gap check for FY ' + state.year + ' (new regime): ' + withIncome.length + ' income source' + (withIncome.length===1?'':'s') +
+      ', combined tax ' + fmt(R.total) + ', TDS and advance tax paid ' + fmt(paid) + ', ' +
+      (bal > 0 ? 'shortfall ' + fmt(bal) : bal < 0 ? 'refund ' + fmt(-bal) : 'fully settled') +
+      '. Check yours at myreportedge.com. This is an estimate, so consult your tax advisor.';
+  }
+
+  /* ---------- events ---------- */
+  const srcOf = el => { const c = el.closest('.src'); return c ? state.sources.find(s => s.id === +c.dataset.id) : null; };
+
+  document.addEventListener('input', e => {
+    const t = e.target;
+    if (t.classList.contains('money')){
+      const v = num(t.value);
+      if (t.dataset.oth) state.other[t.dataset.oth] = v;
+      else { const s = srcOf(t); if (s) s[t.dataset.f] = v; }
+      update();
+    } else if (t.classList.contains('name')){
+      const s = srcOf(t); if (s){ s.name = t.value; update(); }
+    }
+  });
+  document.addEventListener('change', e => {
+    const t = e.target;
+    if (t.tagName !== 'SELECT') return;
+    const s = srcOf(t); if (!s) return;
+    const f = t.dataset.f;
+    if (f === 'kind'){ s.kind = t.value; update(); }
+    else if (f === 'mFrom' || f === 'mTo'){
+      s[f] = parseInt(t.value, 10);
+      let fixed = false;
+      if (f === 'mFrom' && s.mFrom > s.mTo){ s.mTo = s.mFrom; fixed = true; }
+      if (f === 'mTo' && s.mTo < s.mFrom){ s.mFrom = s.mTo; fixed = true; }
+      if (fixed) renderSources();
+      update();
+    }
+  });
+  document.addEventListener('focusout', e => {
+    const t = e.target;
+    if (t.classList && t.classList.contains('money')){
+      const v = num(t.value);
+      t.value = v ? v.toLocaleString('en-IN') : '';
+    }
+  });
+  document.addEventListener('click', e => {
+    const b = e.target.closest('[data-act]');
+    if (!b) return;
+    const act = b.dataset.act;
+    if (act === 'remove'){
+      const s = srcOf(b); if (s){ state.sources = state.sources.filter(x => x !== s); renderSources(); update(); }
+    } else if (act === 'add'){
+      const t = b.dataset.t;
+      if (state.sources.filter(s => s.type === t).length < MAX){ state.sources.push(mk(t)); renderSources(); update(); }
+    } else if (act === 'year'){
+      state.year = b.dataset.y;
+      document.querySelectorAll('[data-act="year"]').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
+      renderSources(); update();
+    } else if (act === 'mode'){
+      state.mode = b.dataset.m;
+      document.querySelectorAll('[data-act="mode"]').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
+      renderSources(); update();
+    } else if (act === 'scroll'){
+      document.getElementById('result-col').scrollIntoView({behavior:'smooth', block:'start'});
+    } else if (act === 'copy'){
+      if (!lastSummary) return;
+      const done = () => { const o = b.textContent; b.textContent = 'Copied'; setTimeout(()=>{ b.textContent = o; }, 1600); };
+      if (navigator.clipboard && navigator.clipboard.writeText){
+        navigator.clipboard.writeText(lastSummary).then(done, () => fallbackCopy(done));
+      } else fallbackCopy(done);
+    }
+  });
+  function fallbackCopy(done){
+    const ta = document.createElement('textarea');
+    ta.value = lastSummary; ta.setAttribute('readonly',''); ta.style.position='fixed'; ta.style.opacity='0';
+    document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); done(); } catch(err){}
+    document.body.removeChild(ta);
+  }
+
+  renderSources();
+  update();
+})();
+</script>
+</body>
+</html>
