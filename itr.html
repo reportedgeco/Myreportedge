@@ -603,8 +603,8 @@ nav{background:var(--navy);display:flex;align-items:center;justify-content:space
           <input type="file" accept=".pdf,.jpg,.jpeg,.png" onchange="onFile(event)" id="fileinput"/>
           <div class="dz-icon"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></div>
           <div class="dz-title"><span>Click to upload</span> or drag &amp; drop</div>
-          <div class="dz-sub">Form 16 &nbsp;/&nbsp; Form 26AS &nbsp;&middot;&nbsp; PDF, JPG or PNG &nbsp;&middot;&nbsp; Max 10MB</div>
-          <div class="dz-pills"><span class="dz-pill">PDF</span><span class="dz-pill">JPG</span><span class="dz-pill">PNG</span><span class="dz-pill">Max 10MB</span></div>
+          <div class="dz-sub">Form 16 &nbsp;/&nbsp; Form 26AS &nbsp;&middot;&nbsp; PDF, JPG or PNG &nbsp;&middot;&nbsp; Max 4MB</div>
+          <div class="dz-pills"><span class="dz-pill">PDF</span><span class="dz-pill">JPG</span><span class="dz-pill">PNG</span><span class="dz-pill">Max 4MB</span></div>
         </div>
 
         <!-- FILE ATTACHED — appears immediately below the dropzone -->
@@ -681,8 +681,8 @@ nav{background:var(--navy);display:flex;align-items:center;justify-content:space
               <input type="file" id="fileinputAIS" accept=".pdf,.jpg,.jpeg,.png" onchange="onFileAIS(event)"/>
               <div class="dz-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="13" y2="17"/></svg></div>
               <div class="dz-title"><span>Click to upload</span> or drag &amp; drop your Form 26AS</div>
-              <div class="dz-sub">PDF, JPG or PNG &middot; Max 10MB</div>
-              <div class="dz-pills"><span class="dz-pill">PDF</span><span class="dz-pill">JPG</span><span class="dz-pill">PNG</span><span class="dz-pill">Max 10MB</span></div>
+              <div class="dz-sub">PDF, JPG or PNG &middot; Max 4MB</div>
+              <div class="dz-pills"><span class="dz-pill">PDF</span><span class="dz-pill">JPG</span><span class="dz-pill">PNG</span><span class="dz-pill">Max 4MB</span></div>
             </div>
             <div class="file-attached" id="file-attached-ais">
               <div class="file-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
@@ -934,7 +934,7 @@ function onFile(e){const f=e.target.files[0];if(f)attachFile(f);}
 function attachFile(file){
   const ok=['application/pdf','image/jpeg','image/jpg','image/png'];
   if(!ok.includes(file.type)){showErr('Please upload a PDF, JPG or PNG file.');return;}
-  if(file.size>10*1024*1024){showErr('File must be under 10MB.');return;}
+  if(file.size>4*1024*1024){showErr('This file is '+(file.size/1048576).toFixed(1)+' MB. Please upload a file under 4 MB (a PDF download of your Form-16 is usually under 1 MB; for photos, use a lower-quality setting).');return;}
   fileMime=file.type;
   hideErr();
   // Detect password-protected PDF
@@ -1013,16 +1013,21 @@ function animSteps(){
 async function safeParseJSON(resp){
   const raw = await resp.text();
   try{
-    return JSON.parse(raw);
+    const j=JSON.parse(raw);
+    // Netlify sometimes returns JSON like {"errorMessage":"... Task timed out ..."}
+    if(j && !j.error && j.errorMessage){
+      return {error: /timed out/i.test(j.errorMessage)
+        ? "The analysis took too long. Please try again, or upload a smaller / clearer Form-16 on its own."
+        : "Our server hit a problem reading your document. Please try again in a moment."};
+    }
+    return j;
   }catch(e){
-    // Response was not valid JSON — likely a server timeout or gateway error
-    if(resp.status===504||resp.status===502||resp.status===503){
-      return {error:"This is taking longer than expected — usually when analysing multiple documents together. Please try again, or upload Form-16 alone first."};
-    }
-    if(/timeout/i.test(raw)){
-      return {error:"The analysis took too long to complete. Please try again — uploading just your Form-16 first usually works instantly."};
-    }
-    return {error:"Something went wrong while reading the response. Please try again in a moment."};
+    const st=resp.status;
+    if(st===413) return {error:"Your file is too large to upload. Please use a file under 4 MB."};
+    if(st===504||st===502||st===408||/timeout|timed out/i.test(raw)) return {error:"The analysis took too long. Please try again, or upload your Form-16 on its own (without Form 26AS) first."};
+    if(st===503||st===429||/usage|suspend|not available|paused/i.test(raw)) return {error:"The preview service is temporarily busy or unavailable. Please try again in a little while."};
+    if(st===404) return {error:"The preview service could not be found. Please contact support."};
+    return {error:"The server sent an unexpected reply (code "+st+"). Please try again, or use a smaller PDF."};
   }
 }
 
@@ -1031,6 +1036,8 @@ async function submitForm(){
   if(!fileData){showErr('Please upload your Form-16 first.');return;}
   const name=document.getElementById('f-name').value.trim();
   const year=document.getElementById('f-year').value;
+  const totalB64=(fileData||'').length+(window._multiMode&&fileData2?fileData2.length:0)+(fileDataAIS?fileDataAIS.length:0);
+  if(totalB64>4400000){showErr('Your files together are too large (limit about 3.3 MB in total). Please upload fewer or smaller files.');return;}
   document.getElementById('form-section').style.display='none';
   document.getElementById('loading').style.display='block';
   animSteps();
@@ -1077,7 +1084,7 @@ async function submitForm(){
     clearInterval(stepInt);
     document.getElementById('loading').style.display='none';
     document.getElementById('form-section').style.display='block';
-    showErr('⚠️ '+(err.message||'Something went wrong. Please try again with a clearer PDF.'));
+    showErr('⚠️ '+(/failed to fetch|networkerror|load failed/i.test(err.message||'')?'Could not reach the server. Please check your internet connection and try again.':(err.message||'Something went wrong. Please try again with a clearer PDF.')));
   }
 }
 
@@ -1915,7 +1922,7 @@ function onFile2(e){const f=e.target.files[0];if(f)attachFile2(f);}
 function attachFile2(file){
   const ok=['application/pdf','image/jpeg','image/jpg','image/png'];
   if(!ok.includes(file.type)){showErr('2nd Form-16: Please upload PDF, JPG or PNG.');return;}
-  if(file.size>10*1024*1024){showErr('2nd Form-16: File must be under 10MB.');return;}
+  if(file.size>4*1024*1024){showErr('2nd Form-16: file must be under 4 MB.');return;}
   fileMime2=file.type;
   if(file.type==='application/pdf'){
     const fr=new FileReader();
@@ -1958,6 +1965,7 @@ function onFileAIS(e){const f=e.target.files[0];if(f)attachFileAIS(f);}
 function attachFileAIS(file){
   const ok=['application/pdf','image/jpeg','image/jpg','image/png'];
   if(!ok.includes(file.type)){showErr('Form 26AS: Please upload PDF, JPG or PNG.');return;}
+  if(file.size>4*1024*1024){showErr('Form 26AS: file must be under 4 MB.');return;}
   fileMimeAIS=file.type;
   if(file.type==='application/pdf'){
     const fr=new FileReader();

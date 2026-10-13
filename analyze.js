@@ -13,7 +13,10 @@
 // REQUIRES an environment variable ANTHROPIC_API_KEY to be set in
 // Netlify → Site settings → Environment variables.
 
-const { extractOneDocument } = require('./extractForm16');
+// Linux is case-sensitive, so accept either spelling of the file name.
+let extractOneDocument;
+try { ({ extractOneDocument } = require('./extractForm16')); }
+catch (e) { ({ extractOneDocument } = require('./extractform16')); }
 const { computeTax } = require('./taxEngine');
 
 function mergeNumeric(a, b) { return (a || 0) + (b || 0); }
@@ -93,6 +96,10 @@ exports.handler = async (event) => {
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
     return { statusCode: 200, headers, body: JSON.stringify({ error: 'Server is not configured yet (missing ANTHROPIC_API_KEY). Please contact support.' }) };
+  }
+
+  if ((event.body || '').length > 5500000) {
+    return { statusCode: 200, headers, body: JSON.stringify({ error: 'This file is too large. Please upload a PDF or image under 4 MB.' }) };
   }
 
   let payload;
